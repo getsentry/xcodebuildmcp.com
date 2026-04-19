@@ -1593,28 +1593,144 @@ html[data-docs-theme='dark'] .docs-root .tool-card .tc-badge.beta {
   background-clip: padding-box;
 }
 
-/* Responsive — hide sidebar below 900px */
-@media (max-width: 900px) {
-  .docs-root {
-    grid-template-columns: 0 1fr;
-  }
-  .docs-root .sidebar {
+/* Hamburger — hidden on desktop, shown on mobile via media query below.
+   Selector is scoped inside .topbar so it outranks .docs-root .topbar .ic-btn
+   (which would otherwise force display: inline-flex on the button). */
+.docs-root .topbar .tb-burger {
+  display: none;
+  margin-right: 4px;
+}
+
+/* Sidebar backdrop — only used when mobile nav is open */
+.docs-root .sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 52px 0 0 0;
+  background: rgba(24, 18, 37, 0.55);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms var(--ease-smooth);
+}
+html[data-docs-theme='dark'] .docs-root .sidebar-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Tablet: hide topbar nav + search, keep icons ---------- */
+@media (max-width: 960px) {
+  .docs-root .topbar nav,
+  .docs-root .topbar .search {
     display: none;
   }
-  .docs-root .topbar .search {
-    width: 180px;
-  }
-  .docs-root .topbar nav {
+  .docs-root .topbar .pa-pill {
     display: none;
   }
   .docs-root .topbar .brand {
     width: auto;
   }
+}
+
+/* ---------- Mobile: slide-in sidebar overlay, slim topbar ---------- */
+@media (max-width: 720px) {
+  .docs-root {
+    grid-template-columns: 1fr;
+    grid-template-rows: 52px 1fr;
+  }
+  .docs-root.no-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .docs-root .topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .docs-root .topbar .tb-burger {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+  .docs-root .topbar .tb-divider {
+    display: none;
+  }
+  .docs-root .topbar .brand {
+    margin: 0;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+  .docs-root .topbar .brand-title {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .docs-root .topbar .brand-chip {
+    display: none;
+  }
+  /* Hide the desktop sidebar-toggle ic-btn, keep only theme toggle + install */
+  .docs-root .topbar > .ic-btn[aria-label='Toggle sidebar'] {
+    display: none;
+  }
+  .docs-root .topbar .cta-install {
+    padding: 1px 10px 0;
+    font-size: 12.5px;
+  }
+  .docs-root .topbar .cta-install svg {
+    display: none;
+  }
+
+  /* Sidebar becomes an off-canvas overlay on mobile. Override the
+     desktop `.no-sidebar .sidebar { display:none }` rule with the same
+     specificity-plus-one so mobile wins regardless of toggle state. */
+  .docs-root .sidebar,
+  .docs-root.no-sidebar .sidebar {
+    display: block;
+    position: fixed;
+    top: 52px;
+    left: 0;
+    bottom: 0;
+    width: min(320px, 85vw);
+    border-right: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 180ms var(--ease-smooth);
+    overflow-y: auto;
+    padding: 14px 8px 40px;
+  }
+  .docs-root.mobile-nav-open .sidebar,
+  .docs-root.no-sidebar.mobile-nav-open .sidebar {
+    transform: translateX(0);
+    box-shadow: var(--shadow-high);
+  }
+  .docs-root.mobile-nav-open .sidebar-backdrop {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Content always fills viewport on mobile */
+  .docs-root .content {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
   .docs-root .page {
-    padding: 32px 24px 80px;
+    padding: 28px 18px 96px;
+  }
+  .docs-root h1.page-title {
+    font-size: 28px;
   }
   .docs-root .hero h1 {
-    font-size: 36px;
+    font-size: 32px;
+  }
+  .docs-root .hero .lede {
+    font-size: 15px;
+  }
+  .docs-root .hero-install {
+    font-size: 11.5px;
+    padding: 8px 10px 8px 12px;
+  }
+  .docs-root .hero .btn-row {
+    gap: 8px;
   }
   .docs-root .feature-grid,
   .docs-root .client-grid {
@@ -1623,6 +1739,12 @@ html[data-docs-theme='dark'] .docs-root .tool-card .tc-badge.beta {
   .docs-root .stat-row {
     grid-template-columns: repeat(2, 1fr);
   }
+  .docs-root .stat-row .stat:nth-child(2) {
+    border-right: 0;
+  }
+  .docs-root .stat-row .stat:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--border-primary);
+  }
   .docs-root .tool-card {
     grid-template-columns: 1fr;
     gap: 6px;
@@ -1630,5 +1752,19 @@ html[data-docs-theme='dark'] .docs-root .tool-card .tc-badge.beta {
   .docs-root .param {
     grid-template-columns: 1fr;
     gap: 6px;
+  }
+  .docs-root table.docs-table {
+    display: block;
+    overflow-x: auto;
+  }
+  .docs-root .codeblock {
+    margin-left: -4px;
+    margin-right: -4px;
+  }
+  .docs-root .pager {
+    grid-template-columns: 1fr;
+  }
+  .docs-root .tweaks-panel {
+    display: none;
   }
 }

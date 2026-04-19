@@ -45,6 +45,7 @@ export function DocsShell({ activeSlug, children }: DocsShellProps) {
   const pathname = usePathname()
   const [theme, setTheme] = useState<Theme>(() => readInitialTheme())
   const [sidebarOn, setSidebarOn] = useState<boolean>(() => readInitialSidebar())
+  const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false)
   const contentRef = useRef<HTMLElement | null>(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -71,7 +72,21 @@ export function DocsShell({ activeSlug, children }: DocsShellProps) {
 
   useEffect(() => {
     if (contentRef.current) contentRef.current.scrollTop = 0
+    setMobileNavOpen(false)
   }, [pathname])
+
+  useEffect(() => {
+    if (!mobileNavOpen) return
+    document.body.style.overflow = "hidden"
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileNavOpen(false)
+    }
+    document.addEventListener("keydown", onEsc)
+    return () => {
+      document.body.style.overflow = ""
+      document.removeEventListener("keydown", onEsc)
+    }
+  }, [mobileNavOpen])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -88,9 +103,24 @@ export function DocsShell({ activeSlug, children }: DocsShellProps) {
   const isTopbarActive = (slug: DocSlug) => activeSlug === slug
 
   return (
-    <div className={"docs-root" + (sidebarOn ? "" : " no-sidebar")}>
+    <div
+      className={
+        "docs-root" +
+        (sidebarOn ? "" : " no-sidebar") +
+        (mobileNavOpen ? " mobile-nav-open" : "")
+      }
+    >
       <div className="topbar">
-        <Link className="brand" href="/docs">
+        <button
+          className="tb-burger ic-btn"
+          type="button"
+          aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileNavOpen}
+          onClick={() => setMobileNavOpen((v) => !v)}
+        >
+          {mobileNavOpen ? <Icons.X size={18} /> : <Icons.List size={18} />}
+        </button>
+        <Link className="brand" href="/docs" onClick={() => setMobileNavOpen(false)}>
           <span className="brand-logo" aria-hidden>
             <Image src="/logo.png" alt="" width={28} height={28} priority />
           </span>
@@ -165,7 +195,15 @@ export function DocsShell({ activeSlug, children }: DocsShellProps) {
         </Link>
       </div>
 
-      <aside className="sidebar">
+      <div
+        className="sidebar-backdrop"
+        aria-hidden
+        onClick={() => setMobileNavOpen(false)}
+      />
+      <aside className="sidebar" onClick={(e) => {
+        const a = (e.target as HTMLElement).closest("a")
+        if (a) setMobileNavOpen(false)
+      }}>
         {SIDEBAR_GROUPS.map((group) => {
           const GroupIcon = Icons[group.icon]
           return (
