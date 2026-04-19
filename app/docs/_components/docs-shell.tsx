@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { Icons } from "./icons"
 import { PageActions } from "./page-actions"
+import { PageToc } from "./page-toc"
 import { useManifest } from "./manifest-provider"
 import {
   PAGE_META,
@@ -291,6 +292,7 @@ export function DocsShell({ activeSlug, children }: DocsShellProps) {
           <div className="prose">{children}</div>
         </div>
       </main>
+      <PageToc />
     </div>
   )
 }
