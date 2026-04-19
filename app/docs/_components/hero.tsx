@@ -29,7 +29,7 @@ export function Hero() {
         An MCP server and CLI that gives AI agents full control over Xcode. Build, test, debug, and deploy your iOS and macOS apps without leaving your agent.
       </p>
       <div className="btn-row">
-        <Link className="cta-install" href="/docs/quickstart">
+        <Link className="cta-install" href="/docs/setup">
           Get started <Icons.Chev size={14} />
         </Link>
         <a
