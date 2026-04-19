@@ -204,6 +204,26 @@ export function DocsShell({ activeSlug, children }: DocsShellProps) {
         const a = (e.target as HTMLElement).closest("a")
         if (a) setMobileNavOpen(false)
       }}>
+        <div className="sb-search">
+          <span className="si">
+            <Icons.Search size={14} />
+          </span>
+          <input
+            placeholder="Search docs, tools, env vars…"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const q = (e.target as HTMLInputElement).value.trim().toLowerCase()
+                if (!q) return
+                setMobileNavOpen(false)
+                if (isDocSlug(q)) {
+                  router.push(q === "introduction" ? "/docs" : `/docs/${q}`)
+                } else {
+                  router.push(`/docs/tools?q=${encodeURIComponent(q)}`)
+                }
+              }
+            }}
+          />
+        </div>
         {SIDEBAR_GROUPS.map((group) => {
           const GroupIcon = Icons[group.icon]
           return (

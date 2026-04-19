@@ -697,6 +697,36 @@ html[data-docs-theme='dark'] .docs-root .codeblock {
   display: none;
 }
 
+/* In-sidebar search — hidden on desktop (topbar has its own), shown on mobile */
+.docs-root .sb-search {
+  display: none;
+  position: relative;
+  margin: 4px 8px 8px;
+}
+.docs-root .sb-search .si {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--fg-muted);
+  display: flex;
+}
+.docs-root .sb-search input {
+  width: 100%;
+  height: 34px;
+  padding: 0 12px 0 32px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--fg-primary);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  outline: none;
+}
+.docs-root .sb-search input::placeholder {
+  color: var(--fg-muted);
+}
+
 .docs-root .sb-version {
   margin: 20px 8px;
   padding: 12px;
@@ -1622,9 +1652,6 @@ html[data-docs-theme='dark'] .docs-root .sidebar-backdrop {
   .docs-root .topbar .search {
     display: none;
   }
-  .docs-root .topbar .pa-pill {
-    display: none;
-  }
   .docs-root .topbar .brand {
     width: auto;
   }
@@ -1675,6 +1702,24 @@ html[data-docs-theme='dark'] .docs-root .sidebar-backdrop {
   }
   .docs-root .topbar .cta-install svg {
     display: none;
+  }
+
+  /* Copy-page pill collapses to icon-only to save topbar space.
+     Tap the clipboard icon to copy; tap the chevron to open the full menu
+     (View as Markdown / Open in ChatGPT / Open in Claude). */
+  .docs-root .topbar .pa-pill .pa-btn-primary span {
+    display: none;
+  }
+  .docs-root .topbar .pa-btn-primary {
+    padding: 0 8px;
+  }
+  .docs-root .topbar .pa-btn-menu {
+    padding: 0 6px;
+  }
+
+  /* Surface the in-sidebar search only when the slide-in nav is available */
+  .docs-root .sb-search {
+    display: block;
   }
 
   /* Sidebar becomes an off-canvas overlay on mobile. Override the
