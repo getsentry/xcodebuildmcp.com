@@ -44,8 +44,6 @@ export function PageToc() {
 
   useEffect(() => {
     if (headings.length === 0) return
-    const content = document.querySelector(".content") as HTMLElement | null
-    if (!content) return
 
     const visible = new Set<string>()
     const ids = headings.map((h) => h.id)
@@ -56,25 +54,25 @@ export function PageToc() {
           else visible.delete(entry.target.id)
         }
         if (visible.size > 0) {
-          // Pick the first heading in document order that's currently visible.
+          // First heading in document order that's currently in the top band.
           const first = ids.find((id) => visible.has(id))
           if (first) setActiveId(first)
           return
         }
-        // No heading in the top band: fall back to the last heading scrolled past.
-        const scrollTop = content.scrollTop
+        // Fallback: the last heading scrolled past (window scroll).
+        const scrollY = window.scrollY
         let current: string | null = null
         for (const h of headings) {
           const el = document.getElementById(h.id)
           if (!el) continue
-          const top = el.offsetTop - content.offsetTop
-          if (top - 90 <= scrollTop) current = h.id
+          const top = el.getBoundingClientRect().top + scrollY
+          if (top - 90 <= scrollY) current = h.id
           else break
         }
         if (current) setActiveId(current)
       },
       {
-        root: content,
+        root: null, // document viewport — matches the natural page scroll
         rootMargin: "-84px 0px -70% 0px",
         threshold: 0,
       }

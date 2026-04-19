@@ -309,32 +309,38 @@ html[data-docs-theme='dark'] .docs-root .codeblock {
   border-radius: var(--radius-sm);
 }
 
-/* -------- Layout -------- */
+/* ------------------- Layout ---------------------------------
+ * Sentry-docs style: the document is the scroll container (not a
+ * per-column overflow:auto), so the native scrollbar sits at the
+ * far right, macOS rubber-band bounce affects everything as one
+ * surface, and the topbar/sidebar/page-toc stay pinned via
+ * position:sticky within natural flow. */
 .docs-root {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  grid-template-rows: 52px 1fr;
-  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   width: 100%;
-  overflow: hidden;
-  transition: grid-template-columns 200ms var(--ease-smooth);
   font-feature-settings: 'ss01', 'cv11';
 }
-.docs-root.no-sidebar {
-  grid-template-columns: 0 1fr;
+.docs-root .docs-body {
+  display: flex;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* -------- Topbar -------- */
 .docs-root .topbar {
-  grid-column: 1 / -1;
-  grid-row: 1;
+  position: sticky;
+  top: 0;
+  height: 52px;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 0 20px;
   border-bottom: 1px solid var(--border-primary);
   background: var(--bg-primary);
-  z-index: 10;
+  z-index: 20;
 }
 .docs-root .topbar .brand {
   display: flex;
@@ -626,8 +632,11 @@ html[data-docs-theme='dark'] .docs-root .codeblock {
 
 /* -------- Sidebar -------- */
 .docs-root .sidebar {
-  grid-column: 1;
-  grid-row: 2;
+  position: sticky;
+  top: 52px;
+  flex: 0 0 260px;
+  width: 260px;
+  height: calc(100vh - 52px);
   border-right: 1px solid var(--border-primary);
   background: var(--bg-secondary);
   overflow-y: auto;
@@ -744,26 +753,26 @@ html[data-docs-theme='dark'] .docs-root .codeblock {
   line-height: 1.5;
 }
 
-/* -------- Content -------- */
+/* ------------------- Content ------------------------------- */
 .docs-root .content {
-  grid-column: 2;
-  grid-row: 2;
-  overflow-y: auto;
-  background: var(--bg-primary);
-  scroll-behavior: smooth;
+  flex: 1 1 auto;
   min-width: 0;
+  background: var(--bg-primary);
 }
 
 /* -------- Right-side "On this page" TOC -------- */
 .docs-root .page-toc {
   display: none; /* shown at ≥1400px via media query below */
-  grid-column: 3;
-  grid-row: 2;
+  position: sticky;
+  top: 52px;
+  flex: 0 0 240px;
+  width: 240px;
+  max-height: calc(100vh - 52px);
   overflow-y: auto;
   padding: 32px 20px 60px;
   border-left: 1px solid var(--border-primary);
   background: var(--bg-primary);
-  min-width: 0;
+  align-self: flex-start;
 }
 .docs-root .page-toc .toc-title {
   font-size: 11px;
@@ -1684,14 +1693,8 @@ html[data-docs-theme='dark'] .docs-root .tool-card .tc-badge.beta {
   background-clip: padding-box;
 }
 
-/* ---------- Wide desktop: add the "On this page" TOC column ---------- */
+/* ---------- Wide desktop: surface the "On this page" TOC ---------- */
 @media (min-width: 1400px) {
-  .docs-root {
-    grid-template-columns: 260px 1fr 240px;
-  }
-  .docs-root.no-sidebar {
-    grid-template-columns: 0 1fr 240px;
-  }
   .docs-root .page-toc {
     display: block;
   }
@@ -1733,14 +1736,6 @@ html[data-docs-theme='dark'] .docs-root .sidebar-backdrop {
 
 /* ---------- Mobile: slide-in sidebar overlay, slim topbar ---------- */
 @media (max-width: 720px) {
-  .docs-root {
-    grid-template-columns: 1fr;
-    grid-template-rows: 52px 1fr;
-  }
-  .docs-root.no-sidebar {
-    grid-template-columns: 1fr;
-  }
-
   .docs-root .topbar {
     padding: 0 12px;
     gap: 8px;
@@ -1796,9 +1791,9 @@ html[data-docs-theme='dark'] .docs-root .sidebar-backdrop {
     display: block;
   }
 
-  /* Sidebar becomes an off-canvas overlay on mobile. Override the
-     desktop `.no-sidebar .sidebar { display:none }` rule with the same
-     specificity-plus-one so mobile wins regardless of toggle state. */
+  /* Sidebar becomes an off-canvas overlay on mobile, anchored to the
+     viewport via position:fixed. The `.no-sidebar` toggle on desktop
+     uses display:none, so we re-enable it here. */
   .docs-root .sidebar,
   .docs-root.no-sidebar .sidebar {
     display: block;
@@ -1807,6 +1802,8 @@ html[data-docs-theme='dark'] .docs-root .sidebar-backdrop {
     left: 0;
     bottom: 0;
     width: min(320px, 85vw);
+    height: auto;
+    flex: none;
     border-right: 1px solid var(--border-primary);
     background: var(--bg-secondary);
     z-index: 50;
@@ -1824,12 +1821,6 @@ html[data-docs-theme='dark'] .docs-root .sidebar-backdrop {
     display: block;
     opacity: 1;
     pointer-events: auto;
-  }
-
-  /* Content always fills viewport on mobile */
-  .docs-root .content {
-    grid-column: 1;
-    grid-row: 2;
   }
 
   .docs-root .page {

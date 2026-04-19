@@ -47,7 +47,6 @@ export function DocsShell({ activeSlug, children }: DocsShellProps) {
   const [theme, setTheme] = useState<Theme>(() => readInitialTheme())
   const [sidebarOn, setSidebarOn] = useState<boolean>(() => readInitialSidebar())
   const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false)
-  const contentRef = useRef<HTMLElement | null>(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
@@ -72,7 +71,7 @@ export function DocsShell({ activeSlug, children }: DocsShellProps) {
   }, [sidebarOn])
 
   useEffect(() => {
-    if (contentRef.current) contentRef.current.scrollTop = 0
+    if (typeof window !== "undefined") window.scrollTo(0, 0)
     setMobileNavOpen(false)
   }, [pathname])
 
@@ -196,103 +195,108 @@ export function DocsShell({ activeSlug, children }: DocsShellProps) {
         </Link>
       </div>
 
-      <div
-        className="sidebar-backdrop"
-        aria-hidden
-        onClick={() => setMobileNavOpen(false)}
-      />
-      <aside className="sidebar" onClick={(e) => {
-        const a = (e.target as HTMLElement).closest("a")
-        if (a) setMobileNavOpen(false)
-      }}>
-        <div className="sb-search">
-          <span className="si">
-            <Icons.Search size={14} />
-          </span>
-          <input
-            placeholder="Search docs, tools, env vars…"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                const q = (e.target as HTMLInputElement).value.trim().toLowerCase()
-                if (!q) return
-                setMobileNavOpen(false)
-                if (isDocSlug(q)) {
-                  router.push(q === "introduction" ? "/docs" : `/docs/${q}`)
-                } else {
-                  router.push(`/docs/tools?q=${encodeURIComponent(q)}`)
+      <div className="docs-body">
+        <div
+          className="sidebar-backdrop"
+          aria-hidden
+          onClick={() => setMobileNavOpen(false)}
+        />
+        <aside
+          className="sidebar"
+          onClick={(e) => {
+            const a = (e.target as HTMLElement).closest("a")
+            if (a) setMobileNavOpen(false)
+          }}
+        >
+          <div className="sb-search">
+            <span className="si">
+              <Icons.Search size={14} />
+            </span>
+            <input
+              placeholder="Search docs, tools, env vars…"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const q = (e.target as HTMLInputElement).value.trim().toLowerCase()
+                  if (!q) return
+                  setMobileNavOpen(false)
+                  if (isDocSlug(q)) {
+                    router.push(q === "introduction" ? "/docs" : `/docs/${q}`)
+                  } else {
+                    router.push(`/docs/tools?q=${encodeURIComponent(q)}`)
+                  }
                 }
-              }
-            }}
-          />
-        </div>
-        {SIDEBAR_GROUPS.map((group) => {
-          const GroupIcon = Icons[group.icon]
-          return (
-            <div key={group.label}>
-              <div className="sb-group-label">{group.label}</div>
-              {group.items.map((item, idx) => {
-                const route = PAGE_META[item.slug]
-                const childIsActive = !!item.children?.some((c) => c === activeSlug)
-                return (
-                  <div key={item.slug}>
-                    <Link
-                      className={
-                        "sb-item" +
-                        (isActive(item.slug) || childIsActive ? " active" : "")
-                      }
-                      href={`/docs/${item.slug === "introduction" ? "" : item.slug}`}
-                    >
-                      <span className="sb-icon">
-                        {idx === 0 ? (
-                          <GroupIcon size={14} />
-                        ) : (
-                          <span style={{ width: 14, display: "inline-block" }} />
-                        )}
-                      </span>
-                      {route.title}
-                    </Link>
-                    {item.children && (isActive(item.slug) || childIsActive) ? (
-                      <div className="sb-sub">
-                        {item.children.map((childSlug) => {
-                          const child = PAGE_META[childSlug]
-                          return (
-                            <Link
-                              key={childSlug}
-                              className={
-                                "sb-item sb-sub-item" +
-                                (isActive(childSlug) ? " active" : "")
-                              }
-                              href={`/docs/${childSlug}`}
-                            >
-                              <span className="sb-icon">
-                                <span style={{ width: 14, display: "inline-block" }} />
-                              </span>
-                              {child.title}
-                            </Link>
-                          )
-                        })}
-                      </div>
-                    ) : null}
-                  </div>
-                )
-              })}
-            </div>
-          )
-        })}
-        <div className="sb-version">
-          <div className="sb-version-title">v{manifest.version}</div>
-          <div className="sb-version-sub">
-            Live from <code style={{ fontSize: 10 }}>{manifest.ref}</code>
+              }}
+            />
           </div>
-        </div>
-      </aside>
+          {SIDEBAR_GROUPS.map((group) => {
+            const GroupIcon = Icons[group.icon]
+            return (
+              <div key={group.label}>
+                <div className="sb-group-label">{group.label}</div>
+                {group.items.map((item, idx) => {
+                  const route = PAGE_META[item.slug]
+                  const childIsActive = !!item.children?.some((c) => c === activeSlug)
+                  return (
+                    <div key={item.slug}>
+                      <Link
+                        className={
+                          "sb-item" +
+                          (isActive(item.slug) || childIsActive ? " active" : "")
+                        }
+                        href={`/docs/${item.slug === "introduction" ? "" : item.slug}`}
+                      >
+                        <span className="sb-icon">
+                          {idx === 0 ? (
+                            <GroupIcon size={14} />
+                          ) : (
+                            <span style={{ width: 14, display: "inline-block" }} />
+                          )}
+                        </span>
+                        {route.title}
+                      </Link>
+                      {item.children && (isActive(item.slug) || childIsActive) ? (
+                        <div className="sb-sub">
+                          {item.children.map((childSlug) => {
+                            const child = PAGE_META[childSlug]
+                            return (
+                              <Link
+                                key={childSlug}
+                                className={
+                                  "sb-item sb-sub-item" +
+                                  (isActive(childSlug) ? " active" : "")
+                                }
+                                href={`/docs/${childSlug}`}
+                              >
+                                <span className="sb-icon">
+                                  <span style={{ width: 14, display: "inline-block" }} />
+                                </span>
+                                {child.title}
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      ) : null}
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })}
+          <div className="sb-version">
+            <div className="sb-version-title">v{manifest.version}</div>
+            <div className="sb-version-sub">
+              Live from <code style={{ fontSize: 10 }}>{manifest.ref}</code>
+            </div>
+          </div>
+        </aside>
 
-      <main className="content" ref={contentRef}>
-        <div className="page">
-          <div className="prose">{children}</div>
-        </div>
-      </main>
-      <PageToc />
+        <main className="content">
+          <div className="page">
+            <div className="prose">{children}</div>
+          </div>
+        </main>
+        <PageToc />
+      </div>
     </div>
   )
 }
