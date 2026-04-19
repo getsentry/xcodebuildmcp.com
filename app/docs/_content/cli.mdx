@@ -27,6 +27,7 @@ xcodebuildmcp simulator build --help
 | `tools` | List every tool, grouped by workflow. |
 | `setup` | Interactive wizard to create or update `.xcodebuildmcp/config.yaml`. |
 | `init` | Install the MCP or CLI agent skill (Claude Code, Cursor, Codex). |
+| `upgrade` | Self-update the CLI using the package manager it was installed with. |
 | `simulator` | Build, install, launch, test, log capture on simulators. |
 | `device` | Install, launch, test on physical Apple devices. |
 | `macos` | Build, run, test macOS targets. |
@@ -118,6 +119,20 @@ xcodebuildmcp simulator record-video \
 <Callout variant="info" title="Streaming JSON output">
   Every command accepts <code>--output json</code> for JSONL event streams, suitable for CI pipelines and scripting.
 </Callout>
+
+## Keeping the CLI up to date
+
+Run `xcodebuildmcp upgrade` to check for a newer version and install it in place. No need to remember whether you installed via Homebrew or npm, the command figures that out and runs the right upgrade for you.
+
+```shell
+xcodebuildmcp upgrade           # show current vs latest, release notes, and confirm
+xcodebuildmcp upgrade --check   # just tell me if there's an update, don't prompt
+xcodebuildmcp upgrade --yes     # upgrade without asking
+```
+
+If you installed via `npx`, the command will tell you how to pick up the latest version the next time you invoke it (npx installs are ephemeral, so there's nothing to upgrade in place).
+
+In CI or other non-interactive contexts, pass `--check` or `--yes`. Without either flag in a non-TTY context, the command exits non-zero instead of hanging on a prompt.
 
 ## Per-workspace daemon
 
