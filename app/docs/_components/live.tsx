@@ -8,7 +8,7 @@ import { useManifest } from "./manifest-provider"
  * explorer, so edits to the upstream repo show up here within one
  * revalidation tick without a redeploy.
  *
- * Registered globally via mdx-components.tsx — no imports needed in MDX files.
+ * Registered globally via mdx-components.tsx, no imports needed in MDX files.
  */
 
 export function LiveToolCount() {

@@ -45,9 +45,9 @@ The [Xcode IDE Bridge](/docs/xcode-ide) is opted in via `enabledWorkflows: ["xco
 
 When multiple sources are present, they merge with clear precedence (highest wins):
 
-1. `session_set_defaults` tool — agent runtime overrides, set during a session
-2. `.xcodebuildmcp/config.yaml` — project-local, version-controlled
-3. Environment variables — MCP client bootstrap
+1. `session_set_defaults` tool, agent runtime overrides, set during a session
+2. `.xcodebuildmcp/config.yaml`, project-local, version-controlled
+3. Environment variables, MCP client bootstrap
 
 This follows the `git config` pattern. Each layer serves a different context:
 
@@ -62,7 +62,7 @@ Every option in `.xcodebuildmcp/config.yaml`:
 ```yaml
 schemaVersion: 1
 
-# Workflow selection — see /docs/workflows
+# Workflow selection, see /docs/workflows
 enabledWorkflows: ["simulator", "ui-automation", "debugging"]
 customWorkflows:
   my-workflow:
@@ -71,7 +71,7 @@ customWorkflows:
     - screenshot
 experimentalWorkflowDiscovery: false
 
-# Session defaults — see /docs/session-defaults
+# Session defaults, see /docs/session-defaults
 disableSessionDefaults: false
 sessionDefaults:
   projectPath: "./MyApp.xcodeproj"
@@ -126,4 +126,4 @@ macosTemplateVersion: "v1.2.3"
 | `macosTemplatePath` | string | GitHub default |
 | `macosTemplateVersion` | string | Bundled |
 
-For mode-specific options (incremental builds, debugger backend, UI guard mode, template overrides), see the comments in `xcodebuildmcp setup`'s generated file — each option includes a short explanation of when to change it.
+For mode-specific options (incremental builds, debugger backend, UI guard mode, template overrides), see the comments in `xcodebuildmcp setup`'s generated file, each option includes a short explanation of when to change it.

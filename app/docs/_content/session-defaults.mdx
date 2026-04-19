@@ -33,7 +33,7 @@ Session defaults are **on by default**.
 }
 ```
 
-By default these live in memory only. Pass `persist: true` to write them back to `.xcodebuildmcp/config.yaml` — patch-only, so only the keys in that call are updated.
+By default these live in memory only. Pass `persist: true` to write them back to `.xcodebuildmcp/config.yaml`, patch-only, so only the keys in that call are updated.
 
 ### From config (startup)
 
@@ -90,7 +90,7 @@ See [Environment Variables](/docs/env-vars) for the full list.
 
 ## Named profiles
 
-For monorepos, keep separate defaults per sub-project. Each profile is strictly isolated — values are not inherited from the global profile.
+For monorepos, keep separate defaults per sub-project. Each profile is strictly isolated, values are not inherited from the global profile.
 
 ```yaml
 schemaVersion: 1
@@ -150,12 +150,12 @@ This restores the legacy behavior where every parameter must be passed on every 
 
 ## CLI behavior
 
-The CLI auto-fills matching flags from session defaults. If your config sets `scheme`, `projectPath`, and `simulatorName`, `xcodebuildmcp simulator build` just works — no need to repeat those flags. Override for a single call with `--profile <name>` or by passing the flag explicitly.
+The CLI auto-fills matching flags from session defaults. If your config sets `scheme`, `projectPath`, and `simulatorName`, `xcodebuildmcp simulator build` just works, no need to repeat those flags. Override for a single call with `--profile <name>` or by passing the flag explicitly.
 
 See [CLI](/docs/cli) for more.
 
 ## Related
 
-- [Configuration](/docs/configuration) — everything else XcodeBuildMCP reads on startup
-- [Environment Variables](/docs/env-vars) — env-based bootstrap
-- [Workflows](/docs/workflows) — pick which tool groups are loaded
+- [Configuration](/docs/configuration), everything else XcodeBuildMCP reads on startup
+- [Environment Variables](/docs/env-vars), env-based bootstrap
+- [Workflows](/docs/workflows), pick which tool groups are loaded

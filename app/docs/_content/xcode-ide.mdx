@@ -41,7 +41,7 @@ When `xcode-ide` is enabled and `mcpbridge` is available, XcodeBuildMCP exposes 
 | `xcode_ide_list_tools` | List the tools Xcode's MCP server advertises, with names, descriptions, and JSON schemas. |
 | `xcode_ide_call_tool` | Call a remote Xcode tool by name with a JSON argument payload. |
 
-These two tools are stable and always present when the workflow is enabled. The actual tool catalog they proxy depends on your Xcode version — expect the set to grow as Xcode ships new IDE-facing tools.
+These two tools are stable and always present when the workflow is enabled. The actual tool catalog they proxy depends on your Xcode version, expect the set to grow as Xcode ships new IDE-facing tools.
 
 The CLI continues to use dynamic `xcode_tools_*` proxy naming.
 
@@ -57,9 +57,9 @@ Xcode may show trust/allow prompts when the bridge connects and/or when tools ar
 
 The following are hidden unless you set `debug: true`, because they're primarily for troubleshooting:
 
-- `xcode_tools_bridge_status` — bridge availability, connection state, last error, proxied tool count.
-- `xcode_tools_bridge_sync` — one-shot connect + re-sync (use this if Xcode's startup sync was blocked).
-- `xcode_tools_bridge_disconnect` — disconnect and unregister the proxied tools.
+- `xcode_tools_bridge_status`, bridge availability, connection state, last error, proxied tool count.
+- `xcode_tools_bridge_sync`, one-shot connect + re-sync (use this if Xcode's startup sync was blocked).
+- `xcode_tools_bridge_disconnect`, disconnect and unregister the proxied tools.
 
 ## Targeting a specific Xcode
 

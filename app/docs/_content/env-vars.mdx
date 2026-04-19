@@ -7,7 +7,7 @@ import { PageHeader } from "../_components/page-header"
   lede="Every env var XcodeBuildMCP reads on startup. Use these to bootstrap MCP clients that can't supply workspace context directly."
 />
 
-Set env vars in the `env` field of your MCP client config (for example `mcp_config.json` for Windsurf, `.vscode/mcp.json` for VS Code, or `claude_desktop_config.json` for Claude Desktop). For repo-scoped structured settings, prefer `.xcodebuildmcp/config.yaml` — see [Configuration](/docs/configuration).
+Set env vars in the `env` field of your MCP client config (for example `mcp_config.json` for Windsurf, `.vscode/mcp.json` for VS Code, or `claude_desktop_config.json` for Claude Desktop). For repo-scoped structured settings, prefer `.xcodebuildmcp/config.yaml`, see [Configuration](/docs/configuration).
 
 ## Precedence
 
@@ -81,9 +81,9 @@ Set env vars in the `env` field of your MCP client config (for example `mcp_conf
 
 ## Exporting from setup
 
-`xcodebuildmcp setup --format mcp-json` prints an env-based bootstrap block for your MCP client, based on the choices made in the interactive wizard. This is intended for MCP client bootstrap only — it does not replace `config.yaml` as the canonical project configuration.
+`xcodebuildmcp setup --format mcp-json` prints an env-based bootstrap block for your MCP client, based on the choices made in the interactive wizard. This is intended for MCP client bootstrap only, it does not replace `config.yaml` as the canonical project configuration.
 
 ## Related
 
-- [Configuration](/docs/configuration) — the config file schema
-- [Session Defaults](/docs/session-defaults) — the stateful layer that wins over env
+- [Configuration](/docs/configuration), the config file schema
+- [Session Defaults](/docs/session-defaults), the stateful layer that wins over env

@@ -11,11 +11,11 @@ import { PageHeader } from "../_components/page-header"
 
 Your agent connects to XcodeBuildMCP over MCP. Pick your editor and paste its config block:
 
-- **[Claude Code](/docs/clients#claude-code)** — one command
-- **[Cursor](/docs/clients#cursor)** — project-scoped `.cursor/mcp.json`
-- **[Codex CLI](/docs/clients#codex-cli)** — `~/.codex/config.toml`
+- **[Claude Code](/docs/clients#claude-code)**: one command
+- **[Cursor](/docs/clients#cursor)**: project-scoped `.cursor/mcp.json`
+- **[Codex CLI](/docs/clients#codex-cli)**: `~/.codex/config.toml`
 - **[Claude Desktop](/docs/clients#claude-desktop)**, **[VS Code](/docs/clients#vs-code)**, **[Windsurf](/docs/clients#windsurf)**, **[Kiro](/docs/clients#kiro)**, **[Trae](/docs/clients#trae)**
-- **[Xcode (Codex Agent)](/docs/clients#xcode-codex-agent)** or **[Xcode (Claude Code Agent)](/docs/clients#xcode-claude-code-agent)** — requires Xcode 26.3+
+- **[Xcode (Codex Agent)](/docs/clients#xcode-codex-agent)** or **[Xcode (Claude Code Agent)](/docs/clients#xcode-claude-code-agent)**: requires Xcode 26.3+
 
 See the full list with copy-paste snippets on the [MCP Clients](/docs/clients) page.
 
@@ -31,10 +31,10 @@ xcodebuildmcp setup
 
 The wizard walks you through:
 
-- **Workflows** — which tool groups to enable (simulator, device, macOS, debugging, UI automation, etc.)
-- **Project defaults** — your workspace or project path, scheme, configuration
-- **Simulator defaults** — preferred simulator by name or UDID
-- **Debug options** — whether to enable debug logging and the doctor tool
+- **Workflows**: which tool groups to enable (simulator, device, macOS, debugging, UI automation, etc.)
+- **Project defaults**: your workspace or project path, scheme, configuration
+- **Simulator defaults**: preferred simulator by name or UDID
+- **Debug options**: whether to enable debug logging and the doctor tool
 
 Non-interactive mode is available for CI and scripts (`xcodebuildmcp setup --help`).
 
@@ -69,11 +69,11 @@ I'll start by discovering your project.
 → (logs are captured to the path returned above)
 ```
 
-After the first `session_set_defaults` call, every subsequent tool call reuses those values — no more repeating project/scheme/simulator on each turn. See [Session Defaults](/docs/session-defaults) for profiles, persistence, and how the agent manages them.
+After the first `session_set_defaults` call, every subsequent tool call reuses those values, no more repeating project/scheme/simulator on each turn. See [Session Defaults](/docs/session-defaults) for profiles, persistence, and how the agent manages them.
 
 ## 5. Common next steps
 
-- **Enable more workflows** when you need them. `device` for physical hardware, `debugging` for LLDB, `ui-automation` for tap/swipe/screenshot — see [Workflows](/docs/workflows) for the full list.
+- **Enable more workflows** when you need them. `device` for physical hardware, `debugging` for LLDB, `ui-automation` for tap/swipe/screenshot, see [Workflows](/docs/workflows) for the full list.
 - **Expand [Tools Reference](/docs/tools)** to browse every tool by name and workflow.
 - **Explore the [CLI](/docs/cli)** if you want direct terminal access, scripting, or CI usage.
 - **Monorepo?** Use [named profiles](/docs/session-defaults#named-profiles) to keep separate defaults per sub-project.

@@ -11,16 +11,16 @@ XcodeBuildMCP uses [Sentry](https://sentry.io) for internal error monitoring. Th
 
 ## What's sent
 
-- **Internal XcodeBuildMCP failures only** — for example, daemon or MCP runtime faults, unexpected exceptions in server code.
+- **Internal XcodeBuildMCP failures only**: for example, daemon or MCP runtime faults, unexpected exceptions in server code.
 - **Internal operational logs** only when explicitly marked for Sentry (`{ sentry: true }` in server code). Standard console logs are not auto-forwarded.
-- **Redacted event payloads** — user home paths become `/Users/<redacted>/...`, request/user context is scrubbed before send.
+- **Redacted event payloads**: user home paths become `/Users/<redacted>/...`, request/user context is scrubbed before send.
 
 ## What's never sent
 
-- **User-domain errors** — project build/test failures, invalid user config, missing scheme/destination, simulator/app-state errors are not sent.
-- **Tool inputs and outputs** — tool arguments and return values are not captured by MCP wrapper telemetry (`recordInputs: false`, `recordOutputs: false`).
-- **Environment variables and system state** — not attached as telemetry tags.
-- **Source code, build artifacts, binary content, certificates, provisioning profiles** — none of these leave your machine.
+- **User-domain errors**: project build/test failures, invalid user config, missing scheme/destination, simulator/app-state errors are not sent.
+- **Tool inputs and outputs**: tool arguments and return values are not captured by MCP wrapper telemetry (`recordInputs: false`, `recordOutputs: false`).
+- **Environment variables and system state**: not attached as telemetry tags.
+- **Source code, build artifacts, binary content, certificates, provisioning profiles**: none of these leave your machine.
 
 ## Opting out
 
@@ -56,5 +56,5 @@ The telemetry scope was tightened in [v2.1.0](https://github.com/getsentry/Xcode
 
 ## Related
 
-- [Configuration](/docs/configuration) — for `sentryDisabled` in the config file
+- [Configuration](/docs/configuration), for `sentryDisabled` in the config file
 - [Troubleshooting](/docs/troubleshooting)

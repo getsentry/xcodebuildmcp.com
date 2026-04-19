@@ -149,9 +149,9 @@ The MCP server remains the recommended way to use XcodeBuildMCP with an agent. T
 
 Why MCP is preferred:
 
-- **Automatic tool discovery** — tools are registered with the agent at session start.
-- **Session defaults** — the server maintains stateful defaults across tool calls, so the agent doesn't re-supply project details on every invocation. Significantly reduces errors.
-- **Stateful operations** — log capture, debugging sessions, and other long-running operations are managed by the server.
+- **Automatic tool discovery**: tools are registered with the agent at session start.
+- **Session defaults**: the server maintains stateful defaults across tool calls, so the agent doesn't re-supply project details on every invocation. Significantly reduces errors.
+- **Stateful operations**: log capture, debugging sessions, and other long-running operations are managed by the server.
 
 The CLI avoids the per-turn context cost of MCP tool definitions, but loses session defaults and forces the agent to pass every parameter on every call. In practice, agents use MCP more reliably.
 
@@ -159,8 +159,8 @@ The CLI avoids the per-turn context cost of MCP tool definitions, but loses sess
 
 v2 introduces two optional agent skills that prime the agent with usage conventions:
 
-- **CLI Skill** — strongly recommended when using the CLI with an agent.
-- **MCP Skill** — optional when using the MCP server.
+- **CLI Skill**: strongly recommended when using the CLI with an agent.
+- **MCP Skill**: optional when using the MCP server.
 
 Install:
 
