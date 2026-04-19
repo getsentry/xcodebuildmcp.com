@@ -1,0 +1,135 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "MCP Server Mode"]}
+  title="MCP Server Mode"
+  lede="What the server exposes, how it behaves, and where the edges are."
+/>
+
+## Starting the server
+
+MCP clients spawn the server over stdio. You don't run it yourself, your client does, based on the config you set in [MCP Clients](/docs/clients).
+
+```shell
+xcodebuildmcp mcp
+```
+
+## What's advertised
+
+The server advertises **tools** and **resources** to the client. Tool surface is controlled by `enabledWorkflows` in your config file or the `XCODEBUILDMCP_ENABLED_WORKFLOWS` env var, defaulting to just `simulator` to keep agent context small.
+
+## Feature support matrix
+
+| Client | Tools | Resources | Tool-list-changed | Env vars in config |
+|--------|:-----:|:---------:|:-----------------:|:------------------:|
+| Claude Code | ✓ | ✓ | ✓ | ✓ |
+| Claude Desktop | ✓ | ✓ | — | ✓ |
+| Cursor | ✓ | ✓ | — | ✓ |
+| Codex CLI | ✓ | ✓ | — | ✓ |
+| VS Code (Agent mode) | ✓ | ✓ | — | ✓ |
+| Windsurf | ✓ | — | — | ✓ |
+| Kiro | ✓ | ✓ | — | ✓ |
+| Xcode (Codex / Claude) | ✓ | — | — | ✓ |
+
+## Session defaults
+
+Session defaults are enabled by default and are the single biggest token saver. The agent calls `session_set_defaults` once, and every subsequent tool call reuses the values:
+
+```json
+{"name":"session_set_defaults","arguments":{
+  "workspacePath":"/repo/MyApp.xcworkspace",
+  "scheme":"MyApp",
+  "simulatorName":"iPhone 17 Pro"
+}}
+```
+
+Defaults can also be:
+
+- Seeded at startup via `.xcodebuildmcp/config.yaml` (`sessionDefaults:`)
+- Set from env vars (`XCODEBUILDMCP_WORKSPACE_PATH`, `XCODEBUILDMCP_SCHEME`, etc.)
+- Persisted to disk by passing `persist: true` on `session_set_defaults`
+
+Tool schemas adjust automatically. When a default is set, the corresponding parameter becomes optional (and is filled from the default). Pass `disableSessionDefaults: true` to restore the legacy behavior where every parameter is required on every call.
+
+See [Session Defaults](/docs/session-defaults) for the full schema.
+
+### Named profiles
+
+For monorepos, keep separate defaults for each sub-project:
+
+```json
+{"name":"session_use_defaults_profile","arguments":{"profile":"ios","persist":true}}
+{"name":"session_set_defaults","arguments":{
+  "workspacePath":"/repo/MyApp.xcworkspace",
+  "scheme":"MyApp-iOS",
+  "simulatorName":"iPhone 17 Pro",
+  "persist":true
+}}
+```
+
+Switch profiles mid-session with `session_use_defaults_profile`. Profiles are strictly isolated, they don't inherit from `global`.
+
+## Workflow selection
+
+Load only the workflows your agent needs. Each dropped workflow saves tool-list tokens at boot.
+
+```yaml
+# .xcodebuildmcp/config.yaml
+schemaVersion: 1
+enabledWorkflows:
+  - simulator
+  - debugging
+  - ui-automation
+```
+
+Or via env (for clients with limited workspace context):
+
+```json
+{
+  "env": {
+    "XCODEBUILDMCP_ENABLED_WORKFLOWS": "simulator,debugging,ui-automation"
+  }
+}
+```
+
+### Custom workflows
+
+Define your own named workflow with an explicit tool list:
+
+```yaml
+enabledWorkflows: ["my-workflow"]
+customWorkflows:
+  my-workflow:
+    - build_run_sim
+    - record_sim_video
+    - screenshot
+```
+
+Unknown tool names are ignored and logged. Custom workflow names are normalized to lowercase.
+
+### Experimental workflow discovery
+
+Opt into the `manage-workflows` tool so the agent can add/remove workflows at runtime:
+
+```yaml
+experimentalWorkflowDiscovery: true
+```
+
+<Callout variant="warn" title="Requires tool-list-changed support">
+  At the time of writing, Cursor, Claude Code, and Codex do not surface <code>tools/list_changed</code> notifications, so runtime workflow changes won&apos;t reflect until the session restarts.
+</Callout>
+
+## Xcode IDE bridge
+
+Enable `xcode-ide` to expose Xcode 26+'s `xcrun mcpbridge` tools through XcodeBuildMCP. Two meta-tools appear: `xcode_ide_list_tools` and `xcode_ide_call_tool`. The bridge runs as a persistent daemon-backed session. See [Xcode IDE Bridge](/docs/xcode-ide) for details.
+
+## Tool annotations
+
+Every tool declares read-only, destructive, and open-world hints. MCP clients that respect annotations (Codex, recent Claude Code) use them to reduce unnecessary confirmation prompts.
+
+| Annotation | Meaning |
+|------------|---------|
+| `readOnlyHint: true` | Tool does not modify state. |
+| `destructiveHint: true` | Tool may delete or overwrite. |
+| `openWorldHint: true` | Tool makes network/filesystem requests beyond the project. |

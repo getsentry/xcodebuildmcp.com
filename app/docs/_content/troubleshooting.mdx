@@ -1,0 +1,150 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Guides", "Troubleshooting"]}
+  title="Troubleshooting"
+  lede="The problems people actually hit, with the fixes that actually work."
+/>
+
+## Quick triage
+
+- Run the doctor and include its output when filing issues.
+- Confirm Xcode and Command Line Tools are installed.
+- Verify the required workflows are enabled in your config.
+- Check simulator and device availability + permissions.
+
+## Run the doctor
+
+The doctor checks system configuration and reports dependency/capability status for key XcodeBuildMCP workflows and runtime features.
+
+```shell
+npx --package xcodebuildmcp@latest xcodebuildmcp-doctor
+```
+
+Or, if you installed globally:
+
+```shell
+xcodebuildmcp-doctor
+```
+
+It reports on:
+
+- System and Node.js environment
+- Xcode installation and configuration
+- Dependency and capability status (xcodebuild, UI automation binary, debugger backend)
+- Environment variables affecting XcodeBuildMCP
+- Feature availability status
+
+<Callout variant="info" title="Agent-driven doctor">
+  You can also ask your agent to call the <code>doctor</code> tool. It returns a more representative report because it runs inside the MCP session and sees the exact server environment.
+</Callout>
+
+## UI automation is unavailable
+
+UI automation (`tap`, `swipe`, `type`, `snapshot_ui`) and simulator video capture rely on a bundled helper binary. If the doctor reports it as missing:
+
+- Confirm `bundled/` artifacts exist in your install. If not, reinstall XcodeBuildMCP.
+- If you need to point at a custom binary, set `axePath` in `.xcodebuildmcp/config.yaml` (or the `XCODEBUILDMCP_AXE_PATH` env var). See [Environment Variables](/docs/env-vars).
+- Re-run the doctor to confirm detection.
+
+## Tool timeouts
+
+Some MCP clients have short tool timeouts. If you see `timed out awaiting tools/call after 60s` or similar:
+
+```toml
+# ~/.codex/config.toml
+tool_timeout_sec = 600
+```
+
+Claude Code and Cursor don't surface tool timeouts directly, but you can extend the daemon startup timeout with:
+
+```shell
+export XCODEBUILDMCP_STARTUP_TIMEOUT_MS=10000
+```
+
+## Missing tools
+
+If tools don't appear, your client is probably running with the default `simulator` workflow only. Expand:
+
+```yaml
+# .xcodebuildmcp/config.yaml
+enabledWorkflows: ["simulator", "device", "debugging", "ui-automation"]
+```
+
+Or via env in your MCP client config:
+
+```json
+{
+  "env": { "XCODEBUILDMCP_ENABLED_WORKFLOWS": "simulator,device,debugging,ui-automation" }
+}
+```
+
+See [Workflows](/docs/workflows) for the full list.
+
+## Server doesn't start in Codex Agent or Xcode agent
+
+Agents running inside Xcode start with a minimal `PATH`. If `npx` can't be found, wrap the command with `zsh -lc` and prepend a known-good `PATH`:
+
+```toml
+[mcp_servers.XcodeBuildMCP]
+args = [
+  "-lc",
+  "PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin; export NVM_DIR=\"$HOME/.nvm\"; [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"; nvm use --silent >/dev/null 2>&1 || true; npx -y xcodebuildmcp@latest mcp"
+]
+command = "/bin/zsh"
+enabled = true
+tool_timeout_sec = 10000
+```
+
+See the [Xcode (Codex Agent) client config](/docs/clients#xcode-codex-agent) for the complete version.
+
+## Device build fails with "No signing certificate found"
+
+This is always a signing misconfiguration. XcodeBuildMCP can't fix it; Xcode has to. Open the project in Xcode, enable automatic signing, pick a development team, and try again. See [Device Code Signing](/docs/device-signing).
+
+## Simulator is "booted" but nothing launches
+
+A stale simulator is the most common culprit:
+
+```shell
+xcrun simctl shutdown all
+# wait ~5 seconds, then retry your tool
+```
+
+If it persists, erase the simulator and reboot:
+
+```shell
+xcrun simctl erase <UDID>
+xcodebuildmcp simulator boot --simulator-id <UDID>
+```
+
+## Daemon won't start
+
+```shell
+# Check for stale sockets
+xcodebuildmcp daemon list
+
+# Force restart
+xcodebuildmcp daemon restart
+
+# Run in the foreground to see logs
+xcodebuildmcp daemon start --foreground
+```
+
+## Socket permission errors
+
+```shell
+chmod 700 ~/.xcodebuildmcp
+chmod -R 700 ~/.xcodebuildmcp/daemons
+```
+
+## Still stuck?
+
+Open an issue at [getsentry/XcodeBuildMCP/issues](https://github.com/getsentry/XcodeBuildMCP/issues) with your doctor output and a short reproduction. The more surface area the team sees, the faster the fix.
+
+## Related
+
+- [Configuration](/docs/configuration)
+- [Privacy](/docs/privacy)
+- [Tools Reference](/docs/tools)

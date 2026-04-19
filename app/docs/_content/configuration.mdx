@@ -1,0 +1,129 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Reference", "Configuration"]}
+  title="Configuration"
+  lede="Everything XcodeBuildMCP reads on startup: the config file, where values come from, and how layers combine."
+/>
+
+XcodeBuildMCP reads configuration from environment variables and a project-local config file. Both are optional but together give you deterministic per-session behavior. To create or update your config interactively, run:
+
+```shell
+xcodebuildmcp setup
+```
+
+## Config file
+
+The config file is the canonical home for structured, repo-scoped, version-controlled settings. Create it at your workspace root:
+
+```path
+<workspace-root>/.xcodebuildmcp/config.yaml
+```
+
+Minimal example:
+
+```yaml
+schemaVersion: 1
+enabledWorkflows: ["simulator", "ui-automation", "debugging"]
+```
+
+`schemaVersion: 1` is required.
+
+## Configuration topics
+
+| Topic | Covers |
+|-------|--------|
+| [Session Defaults](/docs/session-defaults) | Setting shared workspace/scheme/simulator values once, named profiles for monorepos |
+| [Environment Variables](/docs/env-vars) | Every env var XcodeBuildMCP reads, including MCP client bootstrap |
+| [Workflows](/docs/workflows) | Enabling and disabling tool groups via `enabledWorkflows` and custom workflows |
+| [Privacy](/docs/privacy) | Telemetry scope and opt-out (`sentryDisabled`) |
+
+The [Xcode IDE Bridge](/docs/xcode-ide) is opted in via `enabledWorkflows: ["xcode-ide"]` and is documented on its own page.
+
+## Configuration layering
+
+When multiple sources are present, they merge with clear precedence (highest wins):
+
+1. `session_set_defaults` tool — agent runtime overrides, set during a session
+2. `.xcodebuildmcp/config.yaml` — project-local, version-controlled
+3. Environment variables — MCP client bootstrap
+
+This follows the `git config` pattern. Each layer serves a different context:
+
+- **Config file** for structured, repo-scoped, version-controlled settings.
+- **Env vars** for bootstrap defaults in MCP clients with limited workspace support.
+- **Tool calls** for agent-driven runtime adjustments.
+
+## Full schema
+
+Every option in `.xcodebuildmcp/config.yaml`:
+
+```yaml
+schemaVersion: 1
+
+# Workflow selection — see /docs/workflows
+enabledWorkflows: ["simulator", "ui-automation", "debugging"]
+customWorkflows:
+  my-workflow:
+    - build_run_sim
+    - record_sim_video
+    - screenshot
+experimentalWorkflowDiscovery: false
+
+# Session defaults — see /docs/session-defaults
+disableSessionDefaults: false
+sessionDefaults:
+  projectPath: "./MyApp.xcodeproj"
+  scheme: "MyApp"
+  simulatorName: "iPhone 17"
+
+# Build settings
+incrementalBuildsEnabled: false
+
+# Debugging and telemetry
+debug: false
+sentryDisabled: false
+debuggerBackend: "dap"
+dapRequestTimeoutMs: 30000
+dapLogEvents: false
+launchJsonWaitMs: 8000
+
+# UI automation
+uiDebuggerGuardMode: "error"
+axePath: "/opt/axe/bin/axe"
+
+# Project templates used by scaffold tools
+iosTemplatePath: "/path/to/ios/templates"
+iosTemplateVersion: "v1.2.3"
+macosTemplatePath: "/path/to/macos/templates"
+macosTemplateVersion: "v1.2.3"
+```
+
+## Quick reference
+
+| Option | Type | Default |
+|--------|------|---------|
+| `schemaVersion` | number | Required (`1`) |
+| `enabledWorkflows` | string[] | `["simulator"]` |
+| `customWorkflows` | object | `{}` |
+| `experimentalWorkflowDiscovery` | boolean | `false` |
+| `disableSessionDefaults` | boolean | `false` |
+| `sessionDefaults` | object | `{}` |
+| `sessionDefaultsProfiles` | object | `{}` |
+| `activeSessionDefaultsProfile` | string | `global` |
+| `incrementalBuildsEnabled` | boolean | `false` |
+| `debug` | boolean | `false` |
+| `sentryDisabled` | boolean | `false` |
+| `debuggerBackend` | string | `"dap"` |
+| `dapRequestTimeoutMs` | number | `30000` |
+| `dapLogEvents` | boolean | `false` |
+| `launchJsonWaitMs` | number | `8000` |
+| `uiDebuggerGuardMode` | string | `"error"` |
+| `axePath` | string | Bundled |
+| `iosTemplatePath` | string | GitHub default |
+| `iosTemplateVersion` | string | Bundled |
+| `macosTemplatePath` | string | GitHub default |
+| `macosTemplateVersion` | string | Bundled |
+
+For mode-specific options (incremental builds, debugger backend, UI guard mode, template overrides), see the comments in `xcodebuildmcp setup`'s generated file — each option includes a short explanation of when to change it.

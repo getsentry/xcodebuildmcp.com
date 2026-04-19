@@ -1,0 +1,199 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Guides", "Migration from v1"]}
+  title="Migration from v1"
+  lede="Upgrading from XcodeBuildMCP 1.x to 2.x. Two breaking changes; most users only need the first."
+/>
+
+## The short version
+
+### 1. Append `mcp` to your server launch command
+
+XcodeBuildMCP 2.x is a CLI first. To start the MCP server you must pass the `mcp` subcommand:
+
+```shell
+# v1.x
+npx -y xcodebuildmcp@latest
+
+# v2.x
+npx -y xcodebuildmcp@latest mcp
+```
+
+If you added the server via a CLI command, remove and re-add:
+
+```shell
+# Claude Code
+claude mcp remove XcodeBuildMCP
+claude mcp add XcodeBuildMCP -- npx -y xcodebuildmcp@latest mcp
+
+# Codex CLI
+codex mcp remove XcodeBuildMCP
+codex mcp add XcodeBuildMCP -- npx -y xcodebuildmcp@latest mcp
+```
+
+If you manage the config file directly, add `"mcp"` as the last entry in the `args` array.
+
+### 2. Check your workflow configuration
+
+In v1.x, all workflows loaded by default. v2.x defaults to loading only the `simulator` workflow to keep the agent's tool schema footprint small.
+
+**Already set `enabledWorkflows` or `XCODEBUILDMCP_ENABLED_WORKFLOWS`?** Nothing changes.
+
+**Relied on the default?** Your agent will now only see simulator tools until you opt in to additional workflows:
+
+```yaml
+# .xcodebuildmcp/config.yaml
+schemaVersion: 1
+enabledWorkflows:
+  - simulator
+  - ui-automation
+  - debugging
+```
+
+See [Workflows](/docs/workflows) for the full list.
+
+---
+
+## Detailed reference
+
+### MCP server launch requires the `mcp` subcommand
+
+Wherever your v1.x setup invoked `xcodebuildmcp` (or `npx -y xcodebuildmcp@latest`), append `mcp` so the final token is `mcp`.
+
+Common config file locations:
+
+| Client | File |
+|--------|------|
+| Claude Code | `~/.claude.json` |
+| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Cursor (project) | `.cursor/mcp.json` |
+| Cursor (global) | `~/.cursor/mcp.json` |
+| VS Code (project) | `.vscode/mcp.json` |
+| VS Code (global) | `~/Library/Application Support/Code/User/mcp.json` |
+| Windsurf | `~/.codeium/windsurf/mcp_config.json` |
+| Trae | `~/Library/Application Support/Trae/User/mcp.json` |
+| Codex CLI | `~/.codex/config.toml` |
+
+JSON example:
+
+```json
+"XcodeBuildMCP": {
+  "command": "npx",
+  "args": ["-y", "xcodebuildmcp@latest", "mcp"]
+}
+```
+
+TOML example (Codex CLI):
+
+```toml
+[mcp_servers.XcodeBuildMCP]
+command = "npx"
+args = ["-y", "xcodebuildmcp@latest", "mcp"]
+```
+
+### Why default workflows changed
+
+In v1.x, all workflows loaded by default, exposing 70+ tools. Every tool definition and its schema is sent to the LLM on each turn, consuming context window space throughout the session. While most providers cache these tokens to reduce re-inference cost, they still occupy context that could otherwise be used for your code and conversation.
+
+v2.x defaults to the `simulator` workflow. Other workflows (`ui-automation`, `debugging`, `device`, `macos`, `swift-package`, and more) are opt-in. Enable only what you need, when you need it.
+
+### Enabling additional workflows
+
+**Config file (recommended):**
+
+```yaml
+schemaVersion: 1
+enabledWorkflows:
+  - simulator
+  - device
+  - macos
+  - ui-automation
+  - debugging
+  - swift-package
+```
+
+**Environment variable:**
+
+```json
+"XcodeBuildMCP": {
+  "command": "npx",
+  "args": ["-y", "xcodebuildmcp@latest", "mcp"],
+  "env": {
+    "XCODEBUILDMCP_ENABLED_WORKFLOWS": "simulator,device,macos,ui-automation,debugging,swift-package"
+  }
+}
+```
+
+## New in v2: CLI and skills
+
+### CLI mode
+
+The same `xcodebuildmcp` binary is now a CLI first. You can invoke tools directly:
+
+```shell
+npm install -g xcodebuildmcp@latest
+
+xcodebuildmcp tools
+xcodebuildmcp simulator build-and-run --scheme MyApp --project-path ./MyApp.xcodeproj
+xcodebuildmcp simulator screenshot
+xcodebuildmcp ui-automation tap --label "Submit"
+```
+
+See [CLI](/docs/cli) for the full guide.
+
+### MCP vs CLI for agents
+
+The MCP server remains the recommended way to use XcodeBuildMCP with an agent. The CLI is provided as an alternative for scripting, CI, and direct terminal use.
+
+Why MCP is preferred:
+
+- **Automatic tool discovery** — tools are registered with the agent at session start.
+- **Session defaults** — the server maintains stateful defaults across tool calls, so the agent doesn't re-supply project details on every invocation. Significantly reduces errors.
+- **Stateful operations** — log capture, debugging sessions, and other long-running operations are managed by the server.
+
+The CLI avoids the per-turn context cost of MCP tool definitions, but loses session defaults and forces the agent to pass every parameter on every call. In practice, agents use MCP more reliably.
+
+### Agent skills
+
+v2 introduces two optional agent skills that prime the agent with usage conventions:
+
+- **CLI Skill** — strongly recommended when using the CLI with an agent.
+- **MCP Skill** — optional when using the MCP server.
+
+Install:
+
+```shell
+xcodebuildmcp init
+```
+
+See [Agent Skills](/docs/skills) for flags and supported clients.
+
+## New in v2: project config
+
+v2 adds support for a project-local config file at `.xcodebuildmcp/config.yaml`. It replaces the need for scattered environment variables and gives you deterministic, repo-scoped behavior. Env vars still work but the config file takes precedence.
+
+```yaml
+schemaVersion: 1
+enabledWorkflows: ["simulator", "debugging"]
+sessionDefaults:
+  workspacePath: ./MyApp.xcworkspace
+  scheme: MyApp
+  simulatorName: iPhone 17 Pro
+```
+
+Create or update it interactively:
+
+```shell
+xcodebuildmcp setup
+```
+
+See [Configuration](/docs/configuration) for the full schema.
+
+## Related
+
+- [Setup](/docs/setup)
+- [Configuration](/docs/configuration)
+- [Workflows](/docs/workflows)
+- [Session Defaults](/docs/session-defaults)

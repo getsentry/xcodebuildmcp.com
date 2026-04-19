@@ -1,0 +1,1274 @@
+{
+  "source": "github:getsentry/XcodeBuildMCP@v2.3.2",
+  "ref": "v2.3.2",
+  "syncedAt": "2026-04-19T18:51:34.777Z",
+  "version": "2.3.2",
+  "workflows": [
+    {
+      "id": "coverage",
+      "title": "Code Coverage",
+      "description": "View code coverage data from xcresult bundles produced by test runs.",
+      "defaultEnabled": false,
+      "tools": [
+        "get_coverage_report",
+        "get_file_coverage"
+      ]
+    },
+    {
+      "id": "debugging",
+      "title": "LLDB Debugging",
+      "description": "Attach LLDB debugger to simulator apps, set breakpoints, inspect variables and call stacks.",
+      "defaultEnabled": false,
+      "tools": [
+        "debug_attach_sim",
+        "debug_breakpoint_add",
+        "debug_breakpoint_remove",
+        "debug_continue",
+        "debug_detach",
+        "debug_lldb_command",
+        "debug_stack",
+        "debug_variables"
+      ]
+    },
+    {
+      "id": "device",
+      "title": "iOS Device Development",
+      "description": "Complete iOS development workflow for physical devices (iPhone, iPad, Apple Watch, Apple TV, Apple Vision Pro).",
+      "defaultEnabled": false,
+      "tools": [
+        "build_device",
+        "build_run_device",
+        "test_device",
+        "list_devices",
+        "install_app_device",
+        "launch_app_device",
+        "stop_app_device",
+        "get_device_app_path",
+        "clean",
+        "discover_projs",
+        "list_schemes",
+        "show_build_settings",
+        "get_app_bundle_id",
+        "start_device_log_cap",
+        "stop_device_log_cap",
+        "get_coverage_report",
+        "get_file_coverage"
+      ]
+    },
+    {
+      "id": "doctor",
+      "title": "MCP Doctor",
+      "description": "Diagnostic tool providing comprehensive information about the MCP server environment, dependencies, and configuration.",
+      "defaultEnabled": false,
+      "tools": [
+        "doctor"
+      ]
+    },
+    {
+      "id": "logging",
+      "title": "Log Capture",
+      "description": "Capture and retrieve logs from simulator and device apps.",
+      "defaultEnabled": false,
+      "tools": [
+        "start_sim_log_cap",
+        "stop_sim_log_cap",
+        "start_device_log_cap",
+        "stop_device_log_cap"
+      ]
+    },
+    {
+      "id": "macos",
+      "title": "macOS Development",
+      "description": "Complete macOS development workflow for both .xcodeproj and .xcworkspace files. Build, test, deploy, and manage macOS applications.",
+      "defaultEnabled": false,
+      "tools": [
+        "build_macos",
+        "build_run_macos",
+        "test_macos",
+        "launch_mac_app",
+        "stop_mac_app",
+        "get_mac_app_path",
+        "get_mac_bundle_id",
+        "clean",
+        "discover_projs",
+        "list_schemes",
+        "show_build_settings",
+        "get_coverage_report",
+        "get_file_coverage"
+      ]
+    },
+    {
+      "id": "project-discovery",
+      "title": "Project Discovery",
+      "description": "Discover and examine Xcode projects, workspaces, and Swift packages. Analyze project structure, schemes, build settings, and bundle information.",
+      "defaultEnabled": false,
+      "tools": [
+        "discover_projs",
+        "list_schemes",
+        "show_build_settings",
+        "get_app_bundle_id",
+        "get_mac_bundle_id"
+      ]
+    },
+    {
+      "id": "project-scaffolding",
+      "title": "Project Scaffolding",
+      "description": "Scaffold new iOS and macOS projects from templates.",
+      "defaultEnabled": false,
+      "tools": [
+        "scaffold_ios_project",
+        "scaffold_macos_project"
+      ]
+    },
+    {
+      "id": "session-management",
+      "title": "Session Management",
+      "description": "Manage session defaults for project/workspace paths, scheme, configuration, simulator/device settings.",
+      "defaultEnabled": true,
+      "tools": [
+        "session_show_defaults",
+        "session_use_defaults_profile",
+        "session_set_defaults",
+        "session_clear_defaults",
+        "sync_xcode_defaults"
+      ]
+    },
+    {
+      "id": "simulator",
+      "title": "iOS Simulator Development",
+      "description": "Complete iOS development workflow for both .xcodeproj and .xcworkspace files targeting simulators.",
+      "defaultEnabled": true,
+      "tools": [
+        "list_sims",
+        "boot_sim",
+        "open_sim",
+        "build_sim",
+        "build_run_sim",
+        "test_sim",
+        "get_sim_app_path",
+        "install_app_sim",
+        "launch_app_sim",
+        "launch_app_logs_sim",
+        "stop_app_sim",
+        "record_sim_video",
+        "clean",
+        "discover_projs",
+        "list_schemes",
+        "show_build_settings",
+        "get_app_bundle_id",
+        "screenshot",
+        "snapshot_ui",
+        "stop_sim_log_cap",
+        "start_sim_log_cap",
+        "get_coverage_report",
+        "get_file_coverage"
+      ]
+    },
+    {
+      "id": "simulator-management",
+      "title": "Simulator Management",
+      "description": "Tools for managing simulators from booting, opening simulators, listing simulators, stopping simulators, erasing simulator content and settings, and setting simulator environment options like location, network, statusbar and appearance.",
+      "defaultEnabled": false,
+      "tools": [
+        "boot_sim",
+        "list_sims",
+        "open_sim",
+        "erase_sims",
+        "set_sim_location",
+        "reset_sim_location",
+        "set_sim_appearance",
+        "sim_statusbar"
+      ]
+    },
+    {
+      "id": "swift-package",
+      "title": "Swift Package Development",
+      "description": "Build, test, run and manage Swift Package Manager projects.",
+      "defaultEnabled": false,
+      "tools": [
+        "swift_package_build",
+        "swift_package_test",
+        "swift_package_clean",
+        "swift_package_run",
+        "swift_package_stop",
+        "swift_package_list",
+        "get_coverage_report",
+        "get_file_coverage"
+      ]
+    },
+    {
+      "id": "ui-automation",
+      "title": "UI Automation",
+      "description": "UI automation and accessibility testing tools for iOS simulators. Perform gestures, interactions, screenshots, and UI analysis for automated testing workflows.",
+      "defaultEnabled": false,
+      "tools": [
+        "tap",
+        "touch",
+        "long_press",
+        "swipe",
+        "gesture",
+        "button",
+        "key_press",
+        "key_sequence",
+        "type_text",
+        "screenshot",
+        "snapshot_ui"
+      ]
+    },
+    {
+      "id": "utilities",
+      "title": "Build Utilities",
+      "description": "Utility tools for cleaning build products and managing build artifacts.",
+      "defaultEnabled": false,
+      "tools": [
+        "clean"
+      ]
+    },
+    {
+      "id": "workflow-discovery",
+      "title": "Workflow Discovery",
+      "description": "Manage enabled workflows at runtime.",
+      "defaultEnabled": false,
+      "tools": [
+        "manage_workflows"
+      ]
+    },
+    {
+      "id": "xcode-ide",
+      "title": "Xcode IDE Integration",
+      "description": "Bridge tools for connecting to Xcode's built-in MCP server (mcpbridge) to access IDE-specific functionality.",
+      "defaultEnabled": false,
+      "tools": [
+        "xcode_ide_list_tools",
+        "xcode_ide_call_tool",
+        "xcode_tools_bridge_status",
+        "xcode_tools_bridge_sync",
+        "xcode_tools_bridge_disconnect"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "id": "boot_sim",
+      "mcpName": "boot_sim",
+      "cliName": "boot",
+      "description": "Boot iOS simulator for manual/non-build flows. Not required before simulator build-and-run (build_run_sim).",
+      "title": "Boot Simulator",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/boot_sim",
+      "predicates": []
+    },
+    {
+      "id": "build_device",
+      "mcpName": "build_device",
+      "cliName": "build",
+      "description": "Build for device.",
+      "title": "Build Device",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/device/build_device",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "build_macos",
+      "mcpName": "build_macos",
+      "cliName": "build",
+      "description": "Build macOS app.",
+      "title": "Build macOS",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/macos/build_macos",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "build_run_device",
+      "mcpName": "build_run_device",
+      "cliName": "build-and-run",
+      "description": "Build, install, and launch on physical device. Preferred single-step run tool when defaults are set.",
+      "title": "Build Run Device",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/device/build_run_device",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "build_run_macos",
+      "mcpName": "build_run_macos",
+      "cliName": "build-and-run",
+      "description": "Build and run macOS app.",
+      "title": "Build Run macOS",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/macos/build_run_macos",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "build_run_sim",
+      "mcpName": "build_run_sim",
+      "cliName": "build-and-run",
+      "description": "Build, install, and launch on iOS Simulator; boots simulator and attempts to open Simulator.app as needed. Preferred single-step run tool when defaults are set.",
+      "title": "Build Run Simulator",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/build_run_sim",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "build_sim",
+      "mcpName": "build_sim",
+      "cliName": "build",
+      "description": "Build for iOS sim (compile-only, no launch).",
+      "title": "Build Simulator",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/build_sim",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "button",
+      "mcpName": "button",
+      "cliName": "button",
+      "description": "Press simulator hardware button.",
+      "title": "Hardware Button",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/button",
+      "predicates": []
+    },
+    {
+      "id": "clean",
+      "mcpName": "clean",
+      "cliName": "clean",
+      "description": "Clean build products.",
+      "title": "Clean",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "module": "mcp/tools/utilities/clean",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "debug_attach_sim",
+      "mcpName": "debug_attach_sim",
+      "cliName": "attach",
+      "description": "Attach LLDB to sim app.",
+      "title": "Debug Attach Sim",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/debugging/debug_attach_sim",
+      "predicates": []
+    },
+    {
+      "id": "debug_breakpoint_add",
+      "mcpName": "debug_breakpoint_add",
+      "cliName": "add-breakpoint",
+      "description": "Add breakpoint.",
+      "title": "Debug Breakpoint Add",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/debugging/debug_breakpoint_add",
+      "predicates": []
+    },
+    {
+      "id": "debug_breakpoint_remove",
+      "mcpName": "debug_breakpoint_remove",
+      "cliName": "remove-breakpoint",
+      "description": "Remove breakpoint.",
+      "title": "Debug Breakpoint Remove",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/debugging/debug_breakpoint_remove",
+      "predicates": []
+    },
+    {
+      "id": "debug_continue",
+      "mcpName": "debug_continue",
+      "cliName": "continue",
+      "description": "Continue debug session.",
+      "title": "Debug Continue",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/debugging/debug_continue",
+      "predicates": []
+    },
+    {
+      "id": "debug_detach",
+      "mcpName": "debug_detach",
+      "cliName": "detach",
+      "description": "Detach debugger.",
+      "title": "Debug Detach",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/debugging/debug_detach",
+      "predicates": []
+    },
+    {
+      "id": "debug_lldb_command",
+      "mcpName": "debug_lldb_command",
+      "cliName": "lldb-command",
+      "description": "Run LLDB command.",
+      "title": "Debug LLDB Command",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "module": "mcp/tools/debugging/debug_lldb_command",
+      "predicates": []
+    },
+    {
+      "id": "debug_stack",
+      "mcpName": "debug_stack",
+      "cliName": "stack",
+      "description": "Get backtrace.",
+      "title": "Debug Stack",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/debugging/debug_stack",
+      "predicates": []
+    },
+    {
+      "id": "debug_variables",
+      "mcpName": "debug_variables",
+      "cliName": "variables",
+      "description": "Get frame variables.",
+      "title": "Debug Variables",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/debugging/debug_variables",
+      "predicates": []
+    },
+    {
+      "id": "discover_projs",
+      "mcpName": "discover_projs",
+      "cliName": "discover-projects",
+      "description": "Scans a directory (defaults to workspace root) to find Xcode project (.xcodeproj) and workspace (.xcworkspace) files. Use when project/workspace path is unknown.",
+      "title": "Discover Projects",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/project-discovery/discover_projs",
+      "predicates": []
+    },
+    {
+      "id": "doctor",
+      "mcpName": "doctor",
+      "cliName": "doctor",
+      "description": "MCP environment info.",
+      "title": "Doctor",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/doctor/doctor",
+      "predicates": []
+    },
+    {
+      "id": "erase_sims",
+      "mcpName": "erase_sims",
+      "cliName": "erase",
+      "description": "Erase simulator.",
+      "title": "Erase Simulators",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "module": "mcp/tools/simulator-management/erase_sims",
+      "predicates": []
+    },
+    {
+      "id": "gesture",
+      "mcpName": "gesture",
+      "cliName": "gesture",
+      "description": "Simulator gesture preset.",
+      "title": "Gesture",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/gesture",
+      "predicates": []
+    },
+    {
+      "id": "get_app_bundle_id",
+      "mcpName": "get_app_bundle_id",
+      "cliName": "get-app-bundle-id",
+      "description": "Extract bundle id from .app.",
+      "title": "Get App Bundle ID",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/project-discovery/get_app_bundle_id",
+      "predicates": []
+    },
+    {
+      "id": "get_coverage_report",
+      "mcpName": "get_coverage_report",
+      "cliName": "get-coverage-report",
+      "description": "Show per-target code coverage from an xcresult bundle.",
+      "title": "Get Coverage Report",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/coverage/get_coverage_report",
+      "predicates": []
+    },
+    {
+      "id": "get_device_app_path",
+      "mcpName": "get_device_app_path",
+      "cliName": "get-app-path",
+      "description": "Get device built app path.",
+      "title": "Get Device App Path",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/device/get_device_app_path",
+      "predicates": []
+    },
+    {
+      "id": "get_file_coverage",
+      "mcpName": "get_file_coverage",
+      "cliName": "get-file-coverage",
+      "description": "Show function-level coverage and uncovered line ranges for a specific file.",
+      "title": "Get File Coverage",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/coverage/get_file_coverage",
+      "predicates": []
+    },
+    {
+      "id": "get_mac_app_path",
+      "mcpName": "get_mac_app_path",
+      "cliName": "get-app-path",
+      "description": "Get macOS built app path.",
+      "title": "Get macOS App Path",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/macos/get_mac_app_path",
+      "predicates": []
+    },
+    {
+      "id": "get_mac_bundle_id",
+      "mcpName": "get_mac_bundle_id",
+      "cliName": "get-macos-bundle-id",
+      "description": "Extract bundle id from macOS .app.",
+      "title": "Get Mac Bundle ID",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/project-discovery/get_mac_bundle_id",
+      "predicates": []
+    },
+    {
+      "id": "get_sim_app_path",
+      "mcpName": "get_sim_app_path",
+      "cliName": "get-app-path",
+      "description": "Get sim built app path.",
+      "title": "Get Simulator App Path",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/get_sim_app_path",
+      "predicates": []
+    },
+    {
+      "id": "install_app_device",
+      "mcpName": "install_app_device",
+      "cliName": "install",
+      "description": "Install app on device.",
+      "title": "Install App Device",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/device/install_app_device",
+      "predicates": []
+    },
+    {
+      "id": "install_app_sim",
+      "mcpName": "install_app_sim",
+      "cliName": "install",
+      "description": "Install app on sim.",
+      "title": "Install App Simulator",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/install_app_sim",
+      "predicates": []
+    },
+    {
+      "id": "key_press",
+      "mcpName": "key_press",
+      "cliName": "key-press",
+      "description": "Press key by keycode.",
+      "title": "Key Press",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/key_press",
+      "predicates": []
+    },
+    {
+      "id": "key_sequence",
+      "mcpName": "key_sequence",
+      "cliName": "key-sequence",
+      "description": "Press a sequence of keys by their keycodes.",
+      "title": "Key Sequence",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/key_sequence",
+      "predicates": []
+    },
+    {
+      "id": "launch_app_device",
+      "mcpName": "launch_app_device",
+      "cliName": "launch",
+      "description": "Launch app on device.",
+      "title": "Launch App Device",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/device/launch_app_device",
+      "predicates": []
+    },
+    {
+      "id": "launch_app_logs_sim",
+      "mcpName": "launch_app_logs_sim",
+      "cliName": "launch-app-with-logs",
+      "description": "Launch sim app with logs.",
+      "title": "Launch App Logs Simulator",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/launch_app_logs_sim",
+      "predicates": []
+    },
+    {
+      "id": "launch_app_sim",
+      "mcpName": "launch_app_sim",
+      "cliName": "launch-app",
+      "description": "Launch app on simulator.",
+      "title": "Launch App Simulator",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/launch_app_sim",
+      "predicates": []
+    },
+    {
+      "id": "launch_mac_app",
+      "mcpName": "launch_mac_app",
+      "cliName": "launch",
+      "description": "Launch macOS app.",
+      "title": "Launch macOS App",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/macos/launch_mac_app",
+      "predicates": []
+    },
+    {
+      "id": "list_devices",
+      "mcpName": "list_devices",
+      "cliName": "list",
+      "description": "List connected devices.",
+      "title": "List Devices",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/device/list_devices",
+      "predicates": []
+    },
+    {
+      "id": "list_schemes",
+      "mcpName": "list_schemes",
+      "cliName": "list-schemes",
+      "description": "List Xcode schemes.",
+      "title": "List Schemes",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/project-discovery/list_schemes",
+      "predicates": []
+    },
+    {
+      "id": "list_sims",
+      "mcpName": "list_sims",
+      "cliName": "list",
+      "description": "List iOS simulators.",
+      "title": "List Simulators",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/list_sims",
+      "predicates": []
+    },
+    {
+      "id": "long_press",
+      "mcpName": "long_press",
+      "cliName": "long-press",
+      "description": "Long press at coords.",
+      "title": "Long Press",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/long_press",
+      "predicates": []
+    },
+    {
+      "id": "manage_workflows",
+      "mcpName": "manage-workflows",
+      "cliName": "manage-workflows",
+      "description": "Workflows are groups of tools exposed by XcodeBuildMCP. By default, not all workflows (and therefore tools) are enabled; only simulator tools are enabled by default. Some workflows are mandatory and can't be disabled.",
+      "title": "Manage Workflows",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/workflow-discovery/manage_workflows",
+      "predicates": []
+    },
+    {
+      "id": "open_sim",
+      "mcpName": "open_sim",
+      "cliName": "open",
+      "description": "Open Simulator.app for visibility/manual workflows. Not required before simulator build-and-run (build_run_sim).",
+      "title": "Open Simulator",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/open_sim",
+      "predicates": []
+    },
+    {
+      "id": "record_sim_video",
+      "mcpName": "record_sim_video",
+      "cliName": "record-video",
+      "description": "Record sim video.",
+      "title": "Record Simulator Video",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/record_sim_video",
+      "predicates": []
+    },
+    {
+      "id": "reset_sim_location",
+      "mcpName": "reset_sim_location",
+      "cliName": "reset-location",
+      "description": "Reset sim location.",
+      "title": "Reset Simulator Location",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator-management/reset_sim_location",
+      "predicates": []
+    },
+    {
+      "id": "scaffold_ios_project",
+      "mcpName": "scaffold_ios_project",
+      "cliName": "scaffold-ios",
+      "description": "Scaffold iOS project.",
+      "title": "Scaffold iOS Project",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/project-scaffolding/scaffold_ios_project",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "scaffold_macos_project",
+      "mcpName": "scaffold_macos_project",
+      "cliName": "scaffold-macos",
+      "description": "Scaffold macOS project.",
+      "title": "Scaffold macOS Project",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/project-scaffolding/scaffold_macos_project",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "screenshot",
+      "mcpName": "screenshot",
+      "cliName": "screenshot",
+      "description": "Capture screenshot.",
+      "title": "Screenshot",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/screenshot",
+      "predicates": []
+    },
+    {
+      "id": "session_clear_defaults",
+      "mcpName": "session_clear_defaults",
+      "cliName": "clear-defaults",
+      "description": "Clear session defaults for the active profile or a specified profile.",
+      "title": "Clear Session Defaults",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "module": "mcp/tools/session-management/session_clear_defaults",
+      "predicates": []
+    },
+    {
+      "id": "session_set_defaults",
+      "mcpName": "session_set_defaults",
+      "cliName": "set-defaults",
+      "description": "Set session defaults for the active profile, or for a specified profile and make it active.",
+      "title": "Set Session Defaults",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/session-management/session_set_defaults",
+      "predicates": []
+    },
+    {
+      "id": "session_show_defaults",
+      "mcpName": "session_show_defaults",
+      "cliName": "show-defaults",
+      "description": "Show current active defaults. Required before your first build/run/test call in a session — do not assume defaults are configured.",
+      "title": "Show Session Defaults",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/session-management/session_show_defaults",
+      "predicates": []
+    },
+    {
+      "id": "session_use_defaults_profile",
+      "mcpName": "session_use_defaults_profile",
+      "cliName": "use-defaults-profile",
+      "description": "Switch the active session defaults profile.",
+      "title": "Use Session Defaults Profile",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/session-management/session_use_defaults_profile",
+      "predicates": []
+    },
+    {
+      "id": "set_sim_appearance",
+      "mcpName": "set_sim_appearance",
+      "cliName": "set-appearance",
+      "description": "Set sim appearance.",
+      "title": "Set Simulator Appearance",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator-management/set_sim_appearance",
+      "predicates": []
+    },
+    {
+      "id": "set_sim_location",
+      "mcpName": "set_sim_location",
+      "cliName": "set-location",
+      "description": "Set sim location.",
+      "title": "Set Simulator Location",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator-management/set_sim_location",
+      "predicates": []
+    },
+    {
+      "id": "show_build_settings",
+      "mcpName": "show_build_settings",
+      "cliName": "show-build-settings",
+      "description": "Show build settings.",
+      "title": "Show Build Settings",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/project-discovery/show_build_settings",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "sim_statusbar",
+      "mcpName": "sim_statusbar",
+      "cliName": "statusbar",
+      "description": "Set sim status bar network.",
+      "title": "Simulator Statusbar",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator-management/sim_statusbar",
+      "predicates": []
+    },
+    {
+      "id": "snapshot_ui",
+      "mcpName": "snapshot_ui",
+      "cliName": "snapshot-ui",
+      "description": "Print view hierarchy with precise view coordinates (x, y, width, height) for visible elements.",
+      "title": "Snapshot UI",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/snapshot_ui",
+      "predicates": []
+    },
+    {
+      "id": "start_device_log_cap",
+      "mcpName": "start_device_log_cap",
+      "cliName": "start-device-log-capture",
+      "description": "Start device log capture.",
+      "title": "Start Device Log Capture",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/logging/start_device_log_cap",
+      "predicates": []
+    },
+    {
+      "id": "start_sim_log_cap",
+      "mcpName": "start_sim_log_cap",
+      "cliName": "start-simulator-log-capture",
+      "description": "Start sim log capture.",
+      "title": "Start Simulator Log Capture",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/logging/start_sim_log_cap",
+      "predicates": []
+    },
+    {
+      "id": "stop_app_device",
+      "mcpName": "stop_app_device",
+      "cliName": "stop",
+      "description": "Stop device app.",
+      "title": "Stop App Device",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/device/stop_app_device",
+      "predicates": []
+    },
+    {
+      "id": "stop_app_sim",
+      "mcpName": "stop_app_sim",
+      "cliName": "stop",
+      "description": "Stop sim app.",
+      "title": "Stop App Simulator",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/stop_app_sim",
+      "predicates": []
+    },
+    {
+      "id": "stop_device_log_cap",
+      "mcpName": "stop_device_log_cap",
+      "cliName": "stop-device-log-capture",
+      "description": "Stop device app and return logs.",
+      "title": "Stop Device and Return Logs",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/logging/stop_device_log_cap",
+      "predicates": []
+    },
+    {
+      "id": "stop_mac_app",
+      "mcpName": "stop_mac_app",
+      "cliName": "stop",
+      "description": "Stop macOS app.",
+      "title": "Stop macOS App",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/macos/stop_mac_app",
+      "predicates": []
+    },
+    {
+      "id": "stop_sim_log_cap",
+      "mcpName": "stop_sim_log_cap",
+      "cliName": "stop-simulator-log-capture",
+      "description": "Stop sim app and return logs.",
+      "title": "Stop Simulator and Return Logs",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/logging/stop_sim_log_cap",
+      "predicates": []
+    },
+    {
+      "id": "swift_package_build",
+      "mcpName": "swift_package_build",
+      "cliName": "build",
+      "description": "swift package target build.",
+      "title": "Swift Package Build",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/swift-package/swift_package_build",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "swift_package_clean",
+      "mcpName": "swift_package_clean",
+      "cliName": "clean",
+      "description": "swift package clean.",
+      "title": "Swift Package Clean",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "module": "mcp/tools/swift-package/swift_package_clean",
+      "predicates": []
+    },
+    {
+      "id": "swift_package_list",
+      "mcpName": "swift_package_list",
+      "cliName": "list",
+      "description": "List SwiftPM processes.",
+      "title": "Swift Package List",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/swift-package/swift_package_list",
+      "predicates": []
+    },
+    {
+      "id": "swift_package_run",
+      "mcpName": "swift_package_run",
+      "cliName": "run",
+      "description": "swift package target run.",
+      "title": "Swift Package Run",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/swift-package/swift_package_run",
+      "predicates": []
+    },
+    {
+      "id": "swift_package_stop",
+      "mcpName": "swift_package_stop",
+      "cliName": "stop",
+      "description": "Stop SwiftPM run.",
+      "title": "Swift Package Stop",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/swift-package/swift_package_stop",
+      "predicates": []
+    },
+    {
+      "id": "swift_package_test",
+      "mcpName": "swift_package_test",
+      "cliName": "test",
+      "description": "Run swift package target tests.",
+      "title": "Swift Package Test",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/swift-package/swift_package_test",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "swipe",
+      "mcpName": "swipe",
+      "cliName": "swipe",
+      "description": "Swipe between points.",
+      "title": "Swipe",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/swipe",
+      "predicates": []
+    },
+    {
+      "id": "sync_xcode_defaults",
+      "mcpName": "sync_xcode_defaults",
+      "cliName": "sync-xcode-defaults",
+      "description": "Sync session defaults (scheme, simulator) from Xcode's current IDE selection.",
+      "title": "Sync Xcode Defaults",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/xcode-ide/sync_xcode_defaults",
+      "predicates": [
+        "xcodeAutoSyncDisabled"
+      ]
+    },
+    {
+      "id": "tap",
+      "mcpName": "tap",
+      "cliName": "tap",
+      "description": "Tap UI element by accessibility id/label (recommended) or coordinates as fallback.",
+      "title": "Tap",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/tap",
+      "predicates": []
+    },
+    {
+      "id": "test_device",
+      "mcpName": "test_device",
+      "cliName": "test",
+      "description": "Test on device.",
+      "title": "Test Device",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/device/test_device",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "test_macos",
+      "mcpName": "test_macos",
+      "cliName": "test",
+      "description": "Test macOS target.",
+      "title": "Test macOS",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/macos/test_macos",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "test_sim",
+      "mcpName": "test_sim",
+      "cliName": "test",
+      "description": "Test on iOS sim.",
+      "title": "Test Simulator",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/simulator/test_sim",
+      "predicates": [
+        "hideWhenXcodeAgentMode"
+      ]
+    },
+    {
+      "id": "touch",
+      "mcpName": "touch",
+      "cliName": "touch",
+      "description": "Touch down/up at coords.",
+      "title": "Touch",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/touch",
+      "predicates": []
+    },
+    {
+      "id": "type_text",
+      "mcpName": "type_text",
+      "cliName": "type-text",
+      "description": "Type text.",
+      "title": "Type Text",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/ui-automation/type_text",
+      "predicates": []
+    },
+    {
+      "id": "xcode_ide_call_tool",
+      "mcpName": "xcode_ide_call_tool",
+      "cliName": "call-tool",
+      "description": "Call a remote Xcode IDE MCP tool.",
+      "title": "Call Xcode IDE Tool",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "module": "mcp/tools/xcode-ide/xcode_ide_call_tool",
+      "predicates": []
+    },
+    {
+      "id": "xcode_ide_list_tools",
+      "mcpName": "xcode_ide_list_tools",
+      "cliName": "list-tools",
+      "description": "Lists Xcode-IDE-only MCP capabilities (Use for: SwiftUI previews image capture, code snippet execution, issue Navigator/build logs, and window/tab context).",
+      "title": "List Xcode IDE Tools",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/xcode-ide/xcode_ide_list_tools",
+      "predicates": []
+    },
+    {
+      "id": "xcode_tools_bridge_disconnect",
+      "mcpName": "xcode_tools_bridge_disconnect",
+      "cliName": "bridge-disconnect",
+      "description": "Disconnect bridge and unregister proxied `xcode_tools_*` tools.",
+      "title": "Disconnect Xcode Tools Bridge",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/xcode-ide/xcode_tools_bridge_disconnect",
+      "predicates": [
+        "debugEnabled"
+      ]
+    },
+    {
+      "id": "xcode_tools_bridge_status",
+      "mcpName": "xcode_tools_bridge_status",
+      "cliName": "bridge-status",
+      "description": "Show xcrun mcpbridge availability and proxy tool sync status.",
+      "title": "Xcode Tools Bridge Status",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/xcode-ide/xcode_tools_bridge_status",
+      "predicates": [
+        "debugEnabled"
+      ]
+    },
+    {
+      "id": "xcode_tools_bridge_sync",
+      "mcpName": "xcode_tools_bridge_sync",
+      "cliName": "bridge-sync",
+      "description": "One-shot connect + tools/list sync (manual retry; avoids background prompt spam).",
+      "title": "Sync Xcode Tools Bridge",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "module": "mcp/tools/xcode-ide/xcode_tools_bridge_sync",
+      "predicates": [
+        "debugEnabled"
+      ]
+    }
+  ]
+}

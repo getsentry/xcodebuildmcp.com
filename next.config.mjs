@@ -1,3 +1,8 @@
+import createMDX from "@next/mdx"
+import remarkGfm from "remark-gfm"
+import rehypeSlug from "rehype-slug"
+import rehypeAutolinkHeadings from "rehype-autolink-headings"
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
@@ -9,6 +14,33 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  pageExtensions: ["ts", "tsx", "md", "mdx"],
 }
 
-export default nextConfig
+const withMDX = createMDX({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [
+      rehypeSlug,
+      [
+        rehypeAutolinkHeadings,
+        {
+          behavior: "append",
+          properties: {
+            className: ["heading-anchor"],
+            "aria-label": "Link to this section",
+          },
+          content: {
+            type: "element",
+            tagName: "span",
+            properties: { className: ["heading-anchor-icon"] },
+            children: [{ type: "text", value: "#" }],
+          },
+        },
+      ],
+    ],
+  },
+})
+
+export default withMDX(nextConfig)

@@ -1,0 +1,47 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Guides", "Demos"]}
+  title="Demos"
+  lede="Short clips of XcodeBuildMCP in action, handling build errors, automating UI, and running full build-and-launch cycles from inside an MCP client."
+/>
+
+## Autonomously fixing build errors in Cursor
+
+An agent runs a build, reads the structured diagnostics, makes edits, rebuilds, and repeats until the project compiles — without human intervention.
+
+<img
+  src="https://github.com/user-attachments/assets/173e6450-8743-4379-a76c-de2dd2b678a3"
+  alt="Cursor agent iterating on build errors until the project compiles"
+  loading="lazy"
+  style={{ width: "100%", borderRadius: 8, border: "1px solid var(--border-primary)" }}
+/>
+
+## UI automation and screen capture
+
+Tap, swipe, type, and capture screenshots from inside an agent session. The view hierarchy is returned with precise coordinates so the agent can target elements by label or id instead of guessing pixel positions.
+
+<img
+  src="https://github.com/user-attachments/assets/17300a18-f47a-428a-aad3-dc094859c1b2"
+  alt="UI automation driving a simulator with taps, swipes, and screenshot capture"
+  loading="lazy"
+  style={{ width: "100%", borderRadius: 8, border: "1px solid var(--border-primary)" }}
+/>
+
+## Building and running iOS apps in Claude Desktop
+
+A single `build_run_sim` call compiles the scheme, boots the simulator, installs the app, launches it, and starts streaming logs — all in one structured tool invocation.
+
+<video
+  controls
+  preload="metadata"
+  style={{ width: "100%", borderRadius: 8, border: "1px solid var(--border-primary)" }}
+  src="https://github.com/user-attachments/assets/e3c08d75-8be6-4857-b4d0-9350b26ef086"
+/>
+
+## Related
+
+- [Introduction](/docs) — what XcodeBuildMCP is for
+- [Setup](/docs/setup) — get your own agent running in 5 minutes
+- [Tools Reference](/docs/tools) — every tool the agent has access to

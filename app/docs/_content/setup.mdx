@@ -1,0 +1,83 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Getting Started", "Setup"]}
+  title="Setup"
+  lede="You've installed XcodeBuildMCP. Here's how to wire it into your editor, configure defaults for your project, and run your first build."
+/>
+
+## 1. Add XcodeBuildMCP to your editor
+
+Your agent connects to XcodeBuildMCP over MCP. Pick your editor and paste its config block:
+
+- **[Claude Code](/docs/clients#claude-code)** — one command
+- **[Cursor](/docs/clients#cursor)** — project-scoped `.cursor/mcp.json`
+- **[Codex CLI](/docs/clients#codex-cli)** — `~/.codex/config.toml`
+- **[Claude Desktop](/docs/clients#claude-desktop)**, **[VS Code](/docs/clients#vs-code)**, **[Windsurf](/docs/clients#windsurf)**, **[Kiro](/docs/clients#kiro)**, **[Trae](/docs/clients#trae)**
+- **[Xcode (Codex Agent)](/docs/clients#xcode-codex-agent)** or **[Xcode (Claude Code Agent)](/docs/clients#xcode-claude-code-agent)** — requires Xcode 26.3+
+
+See the full list with copy-paste snippets on the [MCP Clients](/docs/clients) page.
+
+Once the server is connected, your agent can list tools. With the default configuration it will see the simulator toolset.
+
+## 2. Run the setup wizard
+
+Run this in your project root. It creates or updates `.xcodebuildmcp/config.yaml` with everything your agent needs to stop asking for the basics on every call:
+
+```shell
+xcodebuildmcp setup
+```
+
+The wizard walks you through:
+
+- **Workflows** — which tool groups to enable (simulator, device, macOS, debugging, UI automation, etc.)
+- **Project defaults** — your workspace or project path, scheme, configuration
+- **Simulator defaults** — preferred simulator by name or UDID
+- **Debug options** — whether to enable debug logging and the doctor tool
+
+Non-interactive mode is available for CI and scripts (`xcodebuildmcp setup --help`).
+
+<Callout variant="info" title="No MCP client context? No problem.">
+  If your client doesn't read `.xcodebuildmcp/config.yaml` from the workspace (some don't), you can export an env-based config block with `xcodebuildmcp setup --format mcp-json` and paste it into your MCP client config.
+</Callout>
+
+## 3. (Optional) Install an agent skill
+
+If you're using Claude Code, Cursor, or Codex, installing the agent skill helps your agent use XcodeBuildMCP effectively without burning tokens rediscovering conventions:
+
+```shell
+xcodebuildmcp init
+```
+
+The installer auto-detects your client and drops the right skill (CLI or MCP) in the right directory. See [Agent Skills](/docs/skills) for flags and supported clients.
+
+## 4. First build
+
+Open your editor, point your agent at the project, and give it a normal instruction:
+
+```prompt
+You
+Build and run my app on an iPhone 17 simulator and show me any runtime errors.
+
+Agent
+I'll start by discovering your project.
+→ discover_projs()
+→ list_schemes(projectPath: "./MyApp.xcodeproj")
+→ session_set_defaults(projectPath: "./MyApp.xcodeproj", scheme: "MyApp", simulatorName: "iPhone 17")
+→ build_run_sim()
+→ (logs are captured to the path returned above)
+```
+
+After the first `session_set_defaults` call, every subsequent tool call reuses those values — no more repeating project/scheme/simulator on each turn. See [Session Defaults](/docs/session-defaults) for profiles, persistence, and how the agent manages them.
+
+## 5. Common next steps
+
+- **Enable more workflows** when you need them. `device` for physical hardware, `debugging` for LLDB, `ui-automation` for tap/swipe/screenshot — see [Workflows](/docs/workflows) for the full list.
+- **Expand [Tools Reference](/docs/tools)** to browse every tool by name and workflow.
+- **Explore the [CLI](/docs/cli)** if you want direct terminal access, scripting, or CI usage.
+- **Monorepo?** Use [named profiles](/docs/session-defaults#named-profiles) to keep separate defaults per sub-project.
+
+## Troubleshooting
+
+If the server doesn't start or tools don't appear, see [Troubleshooting](/docs/troubleshooting). Always paste `xcodebuildmcp doctor` output when filing an issue.

@@ -118,6 +118,12 @@ export default function XcodeBuildMCPLanding() {
                   {item}
                 </a>
               ))}
+              <Link
+                href="/docs"
+                className="text-sm text-sentry-text-secondary hover:text-white transition-colors"
+              >
+                Docs
+              </Link>
             </nav>
 
             <div className="flex items-center gap-3">
@@ -156,6 +162,13 @@ export default function XcodeBuildMCPLanding() {
                     {item}
                   </a>
                 ))}
+                <Link
+                  href="/docs"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-sentry-text-secondary hover:text-white transition-colors"
+                >
+                  Docs
+                </Link>
               </nav>
             </div>
           )}
@@ -729,7 +742,7 @@ sessionDefaults:
 
           <div className="mt-8 text-center">
             <Link
-              href="https://github.com/getsentry/XcodeBuildMCP"
+              href="/docs"
               className="inline-flex items-center gap-2 text-sm text-sentry-purple-light hover:text-sentry-purple transition-colors"
             >
               View full documentation

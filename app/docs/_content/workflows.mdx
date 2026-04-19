@@ -1,0 +1,67 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "Workflows"]}
+  title="Workflows"
+  lede="Tools are grouped into workflow packages. Enable only what your agent needs, each dropped workflow saves context."
+/>
+
+By default only the `simulator` workflow is enabled. Enable more via `.xcodebuildmcp/config.yaml`:
+
+```yaml
+schemaVersion: 1
+enabledWorkflows:
+  - simulator
+  - debugging
+  - ui-automation
+```
+
+Or via env var (comma-separated):
+
+```shell
+export XCODEBUILDMCP_ENABLED_WORKFLOWS="simulator,debugging,ui-automation"
+```
+
+## Available workflows
+
+This list is generated live from the latest [getsentry/XcodeBuildMCP](https://github.com/getsentry/XcodeBuildMCP) release.
+
+<LiveWorkflowsTable />
+
+## Custom workflows
+
+Define your own workflow in `config.yaml` with an explicit tool list:
+
+```yaml
+schemaVersion: 1
+enabledWorkflows: ["my-workflow"]
+customWorkflows:
+  my-workflow:
+    - build_run_sim
+    - record_sim_video
+    - screenshot
+```
+
+Notes:
+
+- Session-management tools are always auto-included.
+- The `doctor` workflow is auto-included when `debug: true`.
+- Custom workflow names are normalized to lowercase.
+- Unknown tool names are ignored and logged as warnings.
+
+## Experimental: workflow discovery
+
+Expose a `manage-workflows` tool so agents can add/remove workflows at runtime:
+
+```yaml
+experimentalWorkflowDiscovery: true
+```
+
+<Callout variant="warn" title="Requires client support">
+  This depends on MCP `tools/list_changed` notifications. Cursor, Claude Code, and Codex do not support this at the time of writing; a session restart is required for changes to take effect.
+</Callout>
+
+<Callout variant="info" title="Context savings">
+  Cutting from the full catalog to <code>simulator,debugging</code> drops advertised tool count from <LiveToolCount /> to <LiveWorkflowToolCount workflow="simulator" /> + <LiveWorkflowToolCount workflow="debugging" /> (minus overlaps), saving roughly 70% of tool-list tokens on agent boot.
+</Callout>

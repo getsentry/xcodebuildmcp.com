@@ -1,0 +1,172 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Usage", "CLI"]}
+  title="CLI"
+  lede="Direct terminal access to every XcodeBuildMCP tool. Useful for scripts, CI, and sanity-checking your agent's behavior."
+/>
+
+## Synopsis
+
+```shell
+xcodebuildmcp <workflow> <tool> [options]
+```
+
+Each tool takes `--help` for flag details:
+
+```shell
+xcodebuildmcp simulator build --help
+```
+
+## Top-level commands
+
+| Command | What it does |
+|---------|--------------|
+| `mcp` | Start the MCP server on stdio. Used by MCP clients. |
+| `tools` | List every tool, grouped by workflow. |
+| `setup` | Interactive wizard to create or update `.xcodebuildmcp/config.yaml`. |
+| `init` | Install the MCP or CLI agent skill (Claude Code, Cursor, Codex). |
+| `simulator` | Build, install, launch, test, log capture on simulators. |
+| `device` | Install, launch, test on physical Apple devices. |
+| `macos` | Build, run, test macOS targets. |
+| `swift-package` | Build, test, clean Swift packages. |
+| `debugging` | Attach LLDB, set breakpoints, inspect stacks/variables. |
+| `ui-automation` | Tap, swipe, type, gesture, screenshot. |
+| `doctor` | Environment and capability report. Include its output on every issue. |
+| `daemon` | Inspect, start, stop the per-workspace daemon. |
+
+Run `xcodebuildmcp --help` for the full list.
+
+## Passing arguments
+
+```shell
+# As flags
+xcodebuildmcp simulator build --scheme MyApp --project-path ./MyApp.xcodeproj
+
+# As JSON (useful for complex nested options)
+xcodebuildmcp simulator build --json '{"scheme":"MyApp","projectPath":"./MyApp.xcodeproj"}'
+
+# Output format
+xcodebuildmcp simulator list --output json
+```
+
+## Session defaults auto-fill
+
+If your project has `.xcodebuildmcp/config.yaml` with `sessionDefaults` set, the CLI fills matching flags automatically:
+
+```yaml
+# .xcodebuildmcp/config.yaml
+schemaVersion: 1
+sessionDefaults:
+  scheme: MyApp
+  projectPath: ./MyApp.xcodeproj
+  simulatorName: iPhone 17 Pro
+```
+
+```shell
+# Before: flags on every invocation
+xcodebuildmcp simulator build --scheme MyApp --project-path ./MyApp.xcodeproj
+
+# Now: flags come from session defaults
+xcodebuildmcp simulator build
+```
+
+This also works with named profiles for monorepos. Use `--profile <name>` to override the active profile for a single call. See [Session Defaults → Named profiles](/docs/session-defaults#named-profiles).
+
+## Common recipes
+
+### Build for an iOS simulator
+
+```shell
+xcodebuildmcp simulator build \
+  --scheme MyApp \
+  --project-path ./MyApp.xcodeproj \
+  --simulator-name "iPhone 17 Pro"
+```
+
+### Build and run in one step
+
+```shell
+xcodebuildmcp simulator build-and-run \
+  --scheme MyApp \
+  --project-path ./MyApp.xcodeproj
+```
+
+### Run XCTests with pre-resolved test cases and live progress
+
+```shell
+xcodebuildmcp simulator test --json '{
+  "workspacePath": "./MyApp.xcworkspace",
+  "scheme": "MyApp",
+  "simulatorName": "iPhone 17 Pro",
+  "progress": true,
+  "extraArgs": ["-only-testing:MyAppTests"]
+}'
+```
+
+### Record a simulator video
+
+Useful for bug reports, demos, and agent-run UI flows. Video capture runs through the daemon as a stateful session.
+
+```shell
+xcodebuildmcp simulator record-video \
+  --simulator-id <UDID> \
+  --output-path ./session.mp4
+```
+
+<Callout variant="info" title="Streaming JSON output">
+  Every command accepts <code>--output json</code> for JSONL event streams, suitable for CI pipelines and scripting.
+</Callout>
+
+## Per-workspace daemon
+
+The CLI auto-starts a daemon only when needed. Stateless tools (`build`, `test`, `list`, discovery) run in-process. Stateful tools route through the daemon:
+
+- Log capture
+- Video recording
+- LLDB debugging
+- Background Swift Package processes
+
+Daemon behavior:
+
+- **Workspace identity**: derived from the location of `.xcodebuildmcp/config.yaml`, or falls back to the current directory.
+- **Socket**: each daemon runs on a Unix socket at `~/.xcodebuildmcp/daemons/<workspace-key>/daemon.sock`.
+- **Auto-start**: on first stateful tool invocation; no manual setup.
+- **Auto-shutdown**: after 10 minutes idle, only when no active stateful sessions.
+
+### Daemon commands
+
+```shell
+xcodebuildmcp daemon status
+xcodebuildmcp daemon start
+xcodebuildmcp daemon stop
+xcodebuildmcp daemon restart
+xcodebuildmcp daemon list
+xcodebuildmcp daemon list --json
+```
+
+### Troubleshooting the daemon
+
+```shell
+# See logs in the foreground
+xcodebuildmcp daemon start --foreground
+
+# Extend startup timeout
+export XCODEBUILDMCP_STARTUP_TIMEOUT_MS=10000
+
+# Socket permission issues
+chmod 700 ~/.xcodebuildmcp
+chmod -R 700 ~/.xcodebuildmcp/daemons
+```
+
+## CLI vs MCP mode
+
+| | CLI | MCP (`xcodebuildmcp mcp`) |
+|---|-----|---------------------------|
+| Invocation | Direct terminal | MCP client over stdio |
+| Session state | Stateless direct + daemon for stateful tools | In-process |
+| Use case | Scripts, CI, manual | AI-assisted development |
+| Configuration | Same `config.yaml` | Same `config.yaml` |
+
+Both share the same tool implementations.

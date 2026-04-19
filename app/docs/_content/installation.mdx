@@ -1,0 +1,72 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Getting Started", "Installation"]}
+  title="Installation"
+  lede="Install XcodeBuildMCP via Homebrew or npm. Both give you the CLI and the MCP server. Once installed, head to Setup to wire it into your editor."
+  meta={["Requires macOS 14.5+", "Xcode 16.x+", "Node.js 18+ (npm only)"]}
+/>
+
+## Requirements
+
+- macOS 14.5 Sonoma or later
+- Xcode 16.x or later (Xcode 26+ unlocks the [Xcode IDE Bridge](/docs/xcode-ide))
+- Node.js 18+ if using the npm install path
+- Homebrew if using the Homebrew install path
+
+## Option A — Homebrew (recommended, no Node.js)
+
+```shell
+brew tap getsentry/xcodebuildmcp
+brew install xcodebuildmcp
+```
+
+Upgrade later:
+
+```shell
+brew update && brew upgrade xcodebuildmcp
+```
+
+## Option B — npm / npx
+
+For CLI use, install globally:
+
+```shell
+npm install -g xcodebuildmcp@latest
+xcodebuildmcp --help
+```
+
+For MCP-server-only use, no global install needed — just reference `npx` in your MCP client config (covered in [Setup](/docs/setup)).
+
+Pin a specific version by replacing `@latest` with a tag, for example `@2.3.2`.
+
+## Verify
+
+Run the doctor to check your environment:
+
+```shell
+npx --package xcodebuildmcp@latest xcodebuildmcp-doctor
+```
+
+Or, if you installed globally:
+
+```shell
+xcodebuildmcp-doctor
+```
+
+The doctor reports on Node/Xcode versions, required dependencies, environment variables, and feature availability. Always include its output when filing an issue.
+
+## Uninstall
+
+```shell
+# Homebrew
+brew uninstall xcodebuildmcp
+
+# npm
+npm uninstall -g xcodebuildmcp
+```
+
+## Next step
+
+With XcodeBuildMCP installed, head to [Setup](/docs/setup) to wire it into your editor, run the project config wizard, and do your first build.

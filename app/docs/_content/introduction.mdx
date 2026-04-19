@@ -1,0 +1,116 @@
+import Link from "next/link"
+import { Icons } from "../_components/icons"
+import { Hero } from "../_components/hero"
+
+<Hero />
+
+<div className="stat-row">
+  <div className="stat">
+    <div className="stat-v"><LiveToolCount /></div>
+    <div className="stat-l">Tools</div>
+  </div>
+  <div className="stat">
+    <div className="stat-v"><LiveWorkflowCount /></div>
+    <div className="stat-l">Workflows</div>
+  </div>
+  <div className="stat">
+    <div className="stat-v">11</div>
+    <div className="stat-l">Clients</div>
+  </div>
+  <div className="stat">
+    <div className="stat-v"><span className="accent">MIT</span></div>
+    <div className="stat-l">Licence</div>
+  </div>
+</div>
+
+## What's inside
+
+XcodeBuildMCP gives AI coding agents up-to <LiveToolCount /> tools across <LiveWorkflowCount /> workflows for iOS, iPadOS, macOS, watchOS, tvOS, and visionOS development. Build, test, debug, and deploy your iOS and macOS apps without leaving your agent.
+
+<div className="feature-grid">
+  <div className="feature">
+    <div className="f-icon"><Icons.Package size={16} /></div>
+    <div className="f-title">Project discovery</div>
+    <div className="f-desc">Find <code>.xcodeproj</code>, <code>.xcworkspace</code>, and Swift packages automatically.</div>
+  </div>
+  <div className="feature">
+    <div className="f-icon"><Icons.Wrench size={16} /></div>
+    <div className="f-title">Build, test, clean</div>
+    <div className="f-desc">Structured build, test, and clean for simulators, devices, and macOS targets.</div>
+  </div>
+  <div className="feature">
+    <div className="f-icon"><Icons.Play size={16} /></div>
+    <div className="f-title">Build and run</div>
+    <div className="f-desc">One tool call compiles, installs, launches, and streams logs, no multi-step dance for the agent to get wrong.</div>
+  </div>
+  <div className="feature">
+    <div className="f-icon"><Icons.Phone size={16} /></div>
+    <div className="f-title">Simulator lifecycle</div>
+    <div className="f-desc">Boot, install, launch, capture logs, record video, and reset state.</div>
+  </div>
+  <div className="feature">
+    <div className="f-icon"><Icons.Laptop size={16} /></div>
+    <div className="f-title">Physical devices</div>
+    <div className="f-desc">Install and launch on paired iPhones, iPads, Apple Watches, and Vision Pros, over USB or Wi-Fi.</div>
+  </div>
+  <div className="feature">
+    <div className="f-icon"><Icons.Bug size={16} /></div>
+    <div className="f-title">LLDB debugging</div>
+    <div className="f-desc">Attach, set breakpoints, inspect frames and variables, run raw LLDB commands.</div>
+  </div>
+  <div className="feature">
+    <div className="f-icon"><Icons.Image size={16} /></div>
+    <div className="f-title">UI automation</div>
+    <div className="f-desc">Tap, swipe, type, gesture, and inspect the view hierarchy with precise coordinates.</div>
+  </div>
+  <div className="feature">
+    <div className="f-icon"><Icons.Shield size={16} /></div>
+    <div className="f-title">Code coverage</div>
+    <div className="f-desc">Per-target summaries and function-level uncovered-line reports from xcresult.</div>
+  </div>
+  <div className="feature">
+    <div className="f-icon"><Icons.Layers size={16} /></div>
+    <div className="f-title">Swift Package Manager</div>
+    <div className="f-desc">Build, test, and run Swift packages — executables included, with background processes managed through the daemon.</div>
+  </div>
+  <div className="feature">
+    <div className="f-icon"><Icons.Settings size={16} /></div>
+    <div className="f-title">Session defaults</div>
+    <div className="f-desc">Set workspace, scheme, and simulator once. Saves tokens on every turn and cuts the agent mistakes caused by re-supplying project details on each call.</div>
+  </div>
+</div>
+
+## Two modes, one binary
+
+<Tabs tabs={[
+  { label: "MCP server", content: (
+    <CodeBlock lang="shell" plain={"xcodebuildmcp mcp"}>
+{`# Started by your MCP client via stdio
+xcodebuildmcp mcp`}
+    </CodeBlock>
+  ) },
+  { label: "CLI", content: (
+    <CodeBlock lang="shell" plain={"xcodebuildmcp simulator build --scheme MyApp --project-path ./MyApp.xcodeproj"}>
+{`# Run any tool directly from your terminal
+xcodebuildmcp simulator build \\
+  --scheme MyApp \\
+  --project-path ./MyApp.xcodeproj`}
+    </CodeBlock>
+  ) },
+]} />
+
+The MCP server speaks [Model Context Protocol](https://modelcontextprotocol.io/) over stdio. The CLI exposes every tool directly for scripting, CI, and manual debugging. Both share the same code, the same config file, and the same per-workspace daemon.
+
+## Why XcodeBuildMCP
+
+Agents shelling out to <code>xcodebuild</code> get brittle, verbose, and inconsistent results. XcodeBuildMCP gives them:
+
+- **Stable tool names and flags**, versioned per release.
+- **Structured outputs** with pre-parsed build diagnostics, durable preflight/footer sections, and JSONL streams on demand.
+- **Session defaults** that eliminate repeated scheme/project/simulator boilerplate across tool calls.
+- **Two optional agent skills** (`xcodebuildmcp init`) that prime Claude Code, Cursor, and Codex with the right conventions.
+- **Per-workspace daemon** for stateful operations (log capture, debugging, video) with automatic start/stop.
+
+<Callout variant="info" title="You know what we do for a living.">
+  XcodeBuildMCP ships with Sentry for internal runtime errors only. User project failures (build, test, config) are never sent, and tool arguments/outputs are never captured. Opt out any time with <code>XCODEBUILDMCP_SENTRY_DISABLED=true</code>. See <Link href="/docs/privacy">Privacy &amp; Telemetry</Link>.
+</Callout>

@@ -1,0 +1,76 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Reference", "Xcode IDE Bridge"]}
+  title="Xcode IDE Bridge"
+  lede="Proxy Xcode 26's built-in MCP service through XcodeBuildMCP to reach IDE-only tools like Preview rendering, Issue Navigator queries, and documentation search."
+/>
+
+XcodeBuildMCP can optionally proxy Xcode's built-in MCP service via Xcode 26's `xcrun mcpbridge`. This exposes IDE-only tools that are not available via `xcodebuild`:
+
+- Preview rendering
+- Issue Navigator queries
+- Documentation search
+- Project Navigator operations
+- And more, depending on your Xcode version
+
+## Requirements
+
+- Xcode 26.3 or later
+- `mcpbridge` available at `xcrun mcpbridge` (shipped with Xcode)
+- XcodeBuildMCP with the `xcode-ide` workflow enabled
+
+## Enable
+
+Add `xcode-ide` to `enabledWorkflows` in `.xcodebuildmcp/config.yaml`:
+
+```yaml
+schemaVersion: 1
+enabledWorkflows: ["simulator", "debugging", "xcode-ide"]
+```
+
+If the workflow isn't enabled, XcodeBuildMCP doesn't start the bridge.
+
+## Tools exposed
+
+When `xcode-ide` is enabled and `mcpbridge` is available, XcodeBuildMCP exposes two gateway tools to MCP clients:
+
+| Tool | Purpose |
+|------|---------|
+| `xcode_ide_list_tools` | List the tools Xcode's MCP server advertises, with names, descriptions, and JSON schemas. |
+| `xcode_ide_call_tool` | Call a remote Xcode tool by name with a JSON argument payload. |
+
+These two tools are stable and always present when the workflow is enabled. The actual tool catalog they proxy depends on your Xcode version — expect the set to grow as Xcode ships new IDE-facing tools.
+
+The CLI continues to use dynamic `xcode_tools_*` proxy naming.
+
+## Trust prompts
+
+Xcode may show trust/allow prompts when the bridge connects and/or when tools are invoked. Recommended flow:
+
+1. Launch Xcode.
+2. Start XcodeBuildMCP with `xcode-ide` enabled.
+3. If `xcode_ide_list_tools` fails, enable `debug: true` in your config and call `xcode_tools_bridge_status` to inspect the bridge state; retry after approving prompts.
+
+## Debug tools
+
+The following are hidden unless you set `debug: true`, because they're primarily for troubleshooting:
+
+- `xcode_tools_bridge_status` — bridge availability, connection state, last error, proxied tool count.
+- `xcode_tools_bridge_sync` — one-shot connect + re-sync (use this if Xcode's startup sync was blocked).
+- `xcode_tools_bridge_disconnect` — disconnect and unregister the proxied tools.
+
+## Targeting a specific Xcode
+
+If you have multiple Xcodes installed and need to scope the bridge to a specific one, set these env vars. XcodeBuildMCP forwards them to the bridge:
+
+| Env var | Forwards as |
+|---------|-------------|
+| `XCODEBUILDMCP_XCODE_PID` | `MCP_XCODE_PID` |
+| `XCODEBUILDMCP_XCODE_SESSION_ID` | `MCP_XCODE_SESSION_ID` |
+
+## Related
+
+- [Configuration](/docs/configuration)
+- [Workflows](/docs/workflows)

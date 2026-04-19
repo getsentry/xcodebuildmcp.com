@@ -1,0 +1,287 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Getting Started", "MCP Clients"]}
+  title="MCP Clients"
+  lede="Drop-in config for every major MCP-speaking editor. Pick yours and paste."
+/>
+
+<div className="client-grid">
+  <a className="client-card" href="#claude-code">
+    <div className="logo" style={{ background: "#D97757", color: "#fff" }}>C</div>
+    <div>
+      <div className="ch-name">Claude Code</div>
+      <div className="ch-sub">Anthropic CLI</div>
+    </div>
+  </a>
+  <a className="client-card" href="#cursor">
+    <div className="logo" style={{ background: "#000", color: "#fff" }}>Cu</div>
+    <div>
+      <div className="ch-name">Cursor</div>
+      <div className="ch-sub">cursor.sh</div>
+    </div>
+  </a>
+  <a className="client-card" href="#codex-cli">
+    <div className="logo" style={{ background: "#000", color: "#fff" }}>Cx</div>
+    <div>
+      <div className="ch-name">Codex CLI</div>
+      <div className="ch-sub">OpenAI</div>
+    </div>
+  </a>
+  <a className="client-card" href="#claude-desktop">
+    <div className="logo" style={{ background: "#D97757", color: "#fff" }}>CD</div>
+    <div>
+      <div className="ch-name">Claude Desktop</div>
+      <div className="ch-sub">Anthropic app</div>
+    </div>
+  </a>
+  <a className="client-card" href="#vs-code">
+    <div className="logo" style={{ background: "#0078D4", color: "#fff" }}>VS</div>
+    <div>
+      <div className="ch-name">VS Code</div>
+      <div className="ch-sub">Agent mode</div>
+    </div>
+  </a>
+  <a className="client-card" href="#kiro">
+    <div className="logo" style={{ background: "#6C47FF", color: "#fff" }}>Ki</div>
+    <div>
+      <div className="ch-name">Kiro</div>
+      <div className="ch-sub">kiro.dev</div>
+    </div>
+  </a>
+  <a className="client-card" href="#windsurf">
+    <div className="logo" style={{ background: "#0BBD8B", color: "#fff" }}>W</div>
+    <div>
+      <div className="ch-name">Windsurf</div>
+      <div className="ch-sub">Codeium</div>
+    </div>
+  </a>
+  <a className="client-card" href="#trae">
+    <div className="logo" style={{ background: "#000", color: "#fff" }}>Tr</div>
+    <div>
+      <div className="ch-name">Trae</div>
+      <div className="ch-sub">trae.ai</div>
+    </div>
+  </a>
+  <a className="client-card" href="#xcode-codex-agent">
+    <div className="logo" style={{ background: "#147EFB", color: "#fff" }}>Xc</div>
+    <div>
+      <div className="ch-name">Xcode (Codex)</div>
+      <div className="ch-sub">In-IDE agent</div>
+    </div>
+  </a>
+  <a className="client-card" href="#xcode-claude-code-agent">
+    <div className="logo" style={{ background: "#D97757", color: "#fff" }}>Xc</div>
+    <div>
+      <div className="ch-name">Xcode (Claude)</div>
+      <div className="ch-sub">In-IDE agent</div>
+    </div>
+  </a>
+  <a className="client-card" href="#adal-cli">
+    <div className="logo" style={{ background: "#F23F1A", color: "#fff" }}>A</div>
+    <div>
+      <div className="ch-name">AdaL CLI</div>
+      <div className="ch-sub">adal.dev</div>
+    </div>
+  </a>
+</div>
+
+All examples below use the npx command. If you installed via Homebrew, replace `command` with `"xcodebuildmcp"` and `args` with `["mcp"]` to skip the npx download check on startup.
+
+## Claude Code
+
+```bash
+claude mcp add XcodeBuildMCP -- npx -y xcodebuildmcp@latest mcp
+```
+
+Or with env-based session defaults:
+
+```bash
+claude mcp add XcodeBuildMCP -e XCODEBUILDMCP_SENTRY_DISABLED=false -- npx -y xcodebuildmcp@latest mcp
+```
+
+## Cursor
+
+Project-scoped (recommended): create `.cursor/mcp.json` in your workspace root:
+
+```json
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "npx",
+      "args": ["-y", "xcodebuildmcp@latest", "mcp"]
+    }
+  }
+}
+```
+
+For global Cursor config at `~/.cursor/mcp.json`, use this variant so startup runs from the active workspace:
+
+```json
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "/bin/zsh",
+      "args": [
+        "-lc",
+        "cd \"${workspaceFolder}\" && exec npx -y xcodebuildmcp@latest mcp"
+      ]
+    }
+  }
+}
+```
+
+## Codex CLI
+
+Run inside your terminal:
+
+```bash
+codex mcp add XcodeBuildMCP -- npx -y xcodebuildmcp@latest mcp
+```
+
+Or edit `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.XcodeBuildMCP]
+command = "npx"
+args = ["-y", "xcodebuildmcp@latest", "mcp"]
+```
+
+If you hit `timed out awaiting tools/call after 60s`, bump the timeout:
+
+```toml
+tool_timeout_sec = 600
+```
+
+## Claude Desktop
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "npx",
+      "args": ["-y", "xcodebuildmcp@latest", "mcp"]
+    }
+  }
+}
+```
+
+## VS Code
+
+Add to your VS Code settings JSON:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "XcodeBuildMCP": {
+        "command": "npx",
+        "args": ["-y", "xcodebuildmcp@latest", "mcp"]
+      }
+    }
+  }
+}
+```
+
+## Kiro
+
+Workspace-scoped at `.kiro/settings/mcp.json`, or user-scoped at `~/.kiro/settings/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "npx",
+      "args": ["-y", "xcodebuildmcp@latest", "mcp"]
+    }
+  }
+}
+```
+
+## Windsurf
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "npx",
+      "args": ["-y", "xcodebuildmcp@latest", "mcp"]
+    }
+  }
+}
+```
+
+## Trae
+
+Add to `~/Library/Application Support/Trae/User/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "npx",
+      "args": ["-y", "xcodebuildmcp@latest", "mcp"]
+    }
+  }
+}
+```
+
+## Xcode (Codex Agent)
+
+Requires **Xcode 26.3 or later** with the Codex agent installed under _Xcode Settings → Intelligence → Open AI_. At the time of writing, Xcode's Codex agent only supports a project-scoped `.codex/config.toml` at your project workspace root:
+
+```toml
+[mcp_servers.XcodeBuildMCP]
+args = [
+  "-lc",
+  "PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin; export NVM_DIR=\"$HOME/.nvm\"; [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"; nvm use --silent >/dev/null 2>&1 || true; npx -y xcodebuildmcp@latest mcp"
+]
+command = "/bin/zsh"
+enabled = true
+tool_timeout_sec = 10000
+```
+
+<Callout variant="warn" title="Limited PATH">
+  Codex Agent inside Xcode starts with a minimal <code>PATH</code>. If the server won&apos;t start, it&apos;s usually because <code>npx</code> can&apos;t be found. The zsh wrapper above handles Homebrew and nvm; adjust to match your toolchain.
+</Callout>
+
+## Xcode (Claude Code Agent)
+
+Requires **Xcode 26.3 or later** with the Claude Code agent installed under _Xcode Settings → Intelligence → Anthropic_. Edit the config at:
+
+```path
+~/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/.claude.json
+```
+
+Add or replace the `mcpServers` block:
+
+```json
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "/bin/zsh",
+      "args": [
+        "-lc",
+        "PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin; export NVM_DIR=\"$HOME/.nvm\"; [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"; nvm use --silent >/dev/null 2>&1 || true; npx -y xcodebuildmcp@latest mcp"
+      ]
+    }
+  }
+}
+```
+
+## AdaL CLI
+
+At the AdaL prompt:
+
+```console
+/mcp add XcodeBuildMCP --command npx --args "-y,xcodebuildmcp@latest,mcp"
+```
+
+## Verifying the connection
+
+Once configured, ask your agent to list tools. With the default `simulator` workflow enabled you should see the simulator toolset. Expand `enabledWorkflows` in your [configuration](/docs/configuration) to surface more, or browse every tool in the [Tools Reference](/docs/tools).

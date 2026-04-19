@@ -1,0 +1,83 @@
+import { Suspense } from "react"
+import { PageHeader } from "../_components/page-header"
+import { ToolExplorer } from "../_components/tool-explorer"
+
+<PageHeader
+  breadcrumbs={["Docs", "Reference", "Tools"]}
+  title="Tools Reference"
+  lede={<>All <LiveToolCount /> tools XcodeBuildMCP advertises, grouped by workflow. Data is fetched live from the latest tag of getsentry/XcodeBuildMCP and cached for one hour.</>}
+/>
+
+<Suspense fallback={<div style={{ padding: 24, color: "var(--fg-muted)" }}>Loading tools…</div>}>
+  <ToolExplorer />
+</Suspense>
+
+## Example: `build_run_sim`
+
+The one-shot tool your agent will reach for most. Builds the scheme, installs the resulting `.app` on a booted simulator, and launches it, with logs captured to a file.
+
+<div className="params">
+  <div className="param">
+    <div>
+      <div className="param-name">scheme<span className="req">*</span></div>
+      <div className="param-type">string</div>
+    </div>
+    <div className="param-desc">
+      The scheme to build. Use <code>list_schemes</code> to discover valid values. Optional when set in session defaults.
+    </div>
+  </div>
+  <div className="param">
+    <div>
+      <div className="param-name">projectPath<span className="req">*</span></div>
+      <div className="param-type">string</div>
+    </div>
+    <div className="param-desc">
+      Absolute or relative path to <code>.xcodeproj</code>. Mutually exclusive with <code>workspacePath</code>. Optional when set in session defaults.
+    </div>
+  </div>
+  <div className="param">
+    <div>
+      <div className="param-name">workspacePath</div>
+      <div className="param-type">string</div>
+    </div>
+    <div className="param-desc">
+      Absolute or relative path to <code>.xcworkspace</code>. Takes precedence over <code>projectPath</code> if both are set.
+    </div>
+  </div>
+  <div className="param">
+    <div>
+      <div className="param-name">simulatorName</div>
+      <div className="param-type">string</div>
+    </div>
+    <div className="param-desc">
+      Human name, e.g. <code>"iPhone 17 Pro"</code>. <span className="default">Default: first booted simulator</span>
+    </div>
+  </div>
+  <div className="param">
+    <div>
+      <div className="param-name">simulatorId</div>
+      <div className="param-type">string</div>
+    </div>
+    <div className="param-desc">
+      Simulator UUID. Takes precedence over <code>simulatorName</code> if both are set.
+    </div>
+  </div>
+  <div className="param">
+    <div>
+      <div className="param-name">configuration</div>
+      <div className="param-type">string</div>
+    </div>
+    <div className="param-desc">
+      Build configuration. <span className="default">Default: <code>Debug</code></span>
+    </div>
+  </div>
+</div>
+
+## Naming conventions
+
+- **MCP name**: what the server advertises to MCP clients (for example `build_run_sim`).
+- **CLI name**: the short verb used under a workflow in the CLI (for example `build-and-run` under `simulator`). Click a tool card to see both.
+
+<Callout variant="info" title="Always up to date">
+  This page is generated live from the latest release tag of [getsentry/XcodeBuildMCP](https://github.com/getsentry/XcodeBuildMCP). Every tool name, description, and workflow assignment matches the shipped release; a new version of XcodeBuildMCP shows up here within an hour of publishing.
+</Callout>

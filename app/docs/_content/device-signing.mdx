@@ -1,0 +1,48 @@
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Guides", "Device Code Signing"]}
+  title="Device Code Signing"
+  lede="Getting device tools to install and launch on real hardware."
+/>
+
+<Callout variant="warn" title="One-time setup required in Xcode">
+  XcodeBuildMCP cannot configure code signing automatically. You need to complete this once in Xcode, after which the device workflow tools work unattended.
+</Callout>
+
+## Steps
+
+1. Open your project in Xcode.
+2. Select your project target.
+3. Open the **Signing & Capabilities** tab.
+4. Enable **Automatically manage signing** and select your development team.
+5. Ensure a valid provisioning profile is selected.
+
+## What XcodeBuildMCP can and cannot do
+
+| | XcodeBuildMCP |
+|---|---|
+| Build, install, launch, test on paired devices once signing is configured | ✓ |
+| Capture runtime logs and pids from device apps | ✓ |
+| Configure code signing automatically | ✗ |
+| Create or manage provisioning profiles | ✗ |
+| Enroll a new development team | ✗ |
+
+## Verifying
+
+After configuring signing, plug in your device, trust the computer, and confirm it's visible to the CLI:
+
+```shell
+xcodebuildmcp device list
+```
+
+If the device shows as `unreachable`, re-pair it over USB first in **Window → Devices and Simulators** inside Xcode.
+
+## Wi-Fi devices
+
+XcodeBuildMCP detects devices paired over Wi-Fi as well as USB. Device discovery uses Apple's `devicectl` under the hood, so Wi-Fi pairing from Xcode carries over directly.
+
+## Related
+
+- [Troubleshooting](/docs/troubleshooting)
+- [Tools Reference](/docs/tools) (filter for the `device` workflow)

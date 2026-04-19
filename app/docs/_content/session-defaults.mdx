@@ -1,0 +1,161 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Reference", "Configuration", "Session Defaults"]}
+  title="Session Defaults"
+  lede="Set shared values once per session (workspace, scheme, simulator, etc.) and every tool reuses them automatically."
+/>
+
+Session defaults are the single biggest token saver when working with an agent. Instead of your agent re-asking for project path, scheme, and simulator on every tool call, it sets them once and all subsequent calls reuse the values.
+
+Session defaults are **on by default**.
+
+## How it works
+
+1. The agent calls `session_set_defaults` once at the start of the session (or you seed them in config).
+2. Every tool call with a matching parameter uses the default if not explicitly passed.
+3. The agent can call `session_show_defaults` to inspect the current values at any time.
+4. The agent can call `session_clear_defaults` when switching contexts.
+
+## Setting defaults
+
+### From the agent (runtime)
+
+```json
+{
+  "name": "session_set_defaults",
+  "arguments": {
+    "workspacePath": "/repo/MyApp.xcworkspace",
+    "scheme": "MyApp",
+    "simulatorName": "iPhone 17 Pro"
+  }
+}
+```
+
+By default these live in memory only. Pass `persist: true` to write them back to `.xcodebuildmcp/config.yaml` — patch-only, so only the keys in that call are updated.
+
+### From config (startup)
+
+Seed defaults when the server boots by adding a `sessionDefaults` block to `.xcodebuildmcp/config.yaml`:
+
+```yaml
+schemaVersion: 1
+sessionDefaults:
+  projectPath: "./MyApp.xcodeproj"
+  scheme: "MyApp"
+  simulatorName: "iPhone 17 Pro"
+  configuration: "Debug"
+```
+
+### From environment variables (MCP client bootstrap)
+
+When your MCP client can't supply workspace context directly, use env vars:
+
+```json
+{
+  "env": {
+    "XCODEBUILDMCP_WORKSPACE_PATH": "/repo/MyApp.xcworkspace",
+    "XCODEBUILDMCP_SCHEME": "MyApp",
+    "XCODEBUILDMCP_SIMULATOR_NAME": "iPhone 17 Pro"
+  }
+}
+```
+
+See [Environment Variables](/docs/env-vars) for the full list.
+
+## Reference
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `projectPath` | string | Path to `.xcodeproj`. Mutually exclusive with `workspacePath`. |
+| `workspacePath` | string | Path to `.xcworkspace`. Takes precedence if both are set. |
+| `scheme` | string | Build scheme name. |
+| `configuration` | string | Build configuration (`Debug`, `Release`). |
+| `simulatorName` | string | Simulator name (e.g. `iPhone 17`). Mutually exclusive with `simulatorId`. |
+| `simulatorId` | string | Simulator UUID. Takes precedence if both are set. |
+| `deviceId` | string | Physical device UUID. |
+| `platform` | string | Target platform (`iOS`, `macOS`, `watchOS`, `tvOS`, `visionOS`). |
+| `useLatestOS` | boolean | Use the latest available OS for the simulator. |
+| `arch` | string | Build architecture (`arm64`, `x86_64`). |
+| `suppressWarnings` | boolean | Suppress compiler warnings in build output. |
+| `derivedDataPath` | string | Custom derived data path. |
+| `preferXcodebuild` | boolean | Use `xcodebuild` instead of experimental incremental builds per call. |
+| `bundleId` | string | App bundle identifier. |
+
+### Mutual exclusivity
+
+- `projectPath` vs `workspacePath` → `workspacePath` wins if both are set.
+- `simulatorId` vs `simulatorName` → `simulatorId` wins if both are set.
+
+## Named profiles
+
+For monorepos, keep separate defaults per sub-project. Each profile is strictly isolated — values are not inherited from the global profile.
+
+```yaml
+schemaVersion: 1
+sessionDefaultsProfiles:
+  ios:
+    workspacePath: ./MyApp.xcworkspace
+    scheme: MyApp-iOS
+    simulatorName: iPhone 17 Pro
+  watch:
+    workspacePath: ./MyApp.xcworkspace
+    scheme: MyApp-watchOS
+    simulatorName: Apple Watch Series 10 (45mm)
+activeSessionDefaultsProfile: ios
+```
+
+The agent switches profiles with `session_use_defaults_profile`:
+
+```json
+{
+  "name": "session_use_defaults_profile",
+  "arguments": { "profile": "watch", "persist": true }
+}
+```
+
+Pass `global: true` to switch back to the unnamed global profile. Pass `createIfNotExists: true` on `session_set_defaults` to create a new profile in one call.
+
+### Recommended startup flow (monorepo)
+
+Copy/paste for an agent starting a new session:
+
+```json
+{"name":"session_use_defaults_profile","arguments":{"profile":"ios","persist":true}}
+{"name":"session_set_defaults","arguments":{
+  "workspacePath":"/repo/MyApp.xcworkspace",
+  "scheme":"MyApp-iOS",
+  "simulatorName":"iPhone 17 Pro",
+  "persist":true
+}}
+{"name":"session_show_defaults","arguments":{}}
+```
+
+## Opting out
+
+If you prefer explicit parameters on every tool call, set this at the top level of your config:
+
+```yaml
+disableSessionDefaults: true
+```
+
+Or via env:
+
+```shell
+export XCODEBUILDMCP_DISABLE_SESSION_DEFAULTS=true
+```
+
+This restores the legacy behavior where every parameter must be passed on every call.
+
+## CLI behavior
+
+The CLI auto-fills matching flags from session defaults. If your config sets `scheme`, `projectPath`, and `simulatorName`, `xcodebuildmcp simulator build` just works — no need to repeat those flags. Override for a single call with `--profile <name>` or by passing the flag explicitly.
+
+See [CLI](/docs/cli) for more.
+
+## Related
+
+- [Configuration](/docs/configuration) — everything else XcodeBuildMCP reads on startup
+- [Environment Variables](/docs/env-vars) — env-based bootstrap
+- [Workflows](/docs/workflows) — pick which tool groups are loaded
