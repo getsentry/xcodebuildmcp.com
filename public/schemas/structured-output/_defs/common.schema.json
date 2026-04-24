@@ -96,6 +96,12 @@
           "items": {
             "$ref": "https://xcodebuildmcp.com/schemas/structured-output/_defs/common.schema.json#/$defs/diagnosticEntry"
           }
+        },
+        "rawOutput": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [
@@ -146,6 +152,12 @@
           "type": "array",
           "items": {
             "$ref": "https://xcodebuildmcp.com/schemas/structured-output/_defs/common.schema.json#/$defs/testFailureEntry"
+          }
+        },
+        "rawOutput": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       },
@@ -382,6 +394,167 @@
         "platform",
         "bundleId",
         "env"
+      ]
+    },
+    "buildInvocationRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scheme": { "type": "string" },
+        "workspacePath": { "type": "string" },
+        "projectPath": { "type": "string" },
+        "packagePath": { "type": "string" },
+        "targetName": { "type": "string" },
+        "configuration": { "type": "string" },
+        "platform": { "type": "string" },
+        "target": {
+          "enum": ["simulator", "device", "macos", "swift-package"]
+        },
+        "simulatorName": { "type": "string" },
+        "simulatorId": { "type": "string" },
+        "deviceId": { "type": "string" },
+        "executableName": { "type": "string" },
+        "arch": { "type": "string" },
+        "derivedDataPath": { "type": "string" },
+        "onlyTesting": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "skipTesting": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "appPathRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scheme": { "type": "string" },
+        "projectPath": { "type": "string" },
+        "workspacePath": { "type": "string" },
+        "configuration": { "type": "string" },
+        "platform": { "type": "string" },
+        "simulator": { "type": "string" }
+      }
+    },
+    "sessionDefaultsOperation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "show" }
+          },
+          "required": ["type"]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "sync-xcode" }
+          },
+          "required": ["type"]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "set" },
+            "changedKeys": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "persisted": { "type": "boolean" },
+            "activatedProfile": { "type": "string" },
+            "notices": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "required": ["type"]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "const": "clear" },
+            "scope": { "enum": ["all", "profile", "current"] },
+            "profile": { "type": "string" },
+            "clearedKeys": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "required": ["type", "scope"]
+        }
+      ]
+    },
+    "bridgeStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "workflowEnabled": {
+          "type": "boolean"
+        },
+        "bridgeAvailable": {
+          "type": "boolean"
+        },
+        "bridgePath": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "xcodeRunning": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "connected": {
+          "type": "boolean"
+        },
+        "bridgePid": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "proxiedToolCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lastError": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "xcodePid": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "xcodeSessionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "workflowEnabled",
+        "bridgeAvailable",
+        "bridgePath",
+        "xcodeRunning",
+        "connected",
+        "bridgePid",
+        "proxiedToolCount",
+        "lastError",
+        "xcodePid",
+        "xcodeSessionId"
       ]
     }
   }
