@@ -20,7 +20,6 @@ If you are new to the architecture, this page leans on a few terms that are defi
 | Workflow manifest | `manifests/workflows/<workflow>.yaml` | References the tool ID so the tool appears in one or more workflows. |
 | Output schema | `schemas/structured-output/<schema>/<version>.schema.json` | Validates the structured JSON response returned through MCP `structuredContent` and CLI JSON output. |
 | Fixtures | `src/snapshot-tests/__fixtures__/{mcp,cli,json}/...` | Lock the MCP text, CLI text, and JSON response contracts. |
-| Generated docs | `docs/TOOLS.md`, `docs/TOOLS-CLI.md` | Generated from manifests and schemas. Do not edit them by hand. |
 
 The final structured result is the canonical output. Rendered text is derived from that result, fragments, and runtime-specific rendering rules. See [Tool Lifecycle](/docs/architecture-tool-lifecycle#streaming-vs-non-streaming-tools) for the runtime model and [Output Formats](/docs/output-formats) for the response shape.
 
@@ -159,12 +158,11 @@ tools:
 
 A tool can appear in multiple workflows, but it should have one tool manifest. Workflow selection and predicates decide which runtimes expose it.
 
-### 6. Regenerate docs and validate schemas
+### 6. Validate docs and schemas
 
 If you add, remove, or change tool metadata, run:
 
 ```shell
-npm run docs:update
 npm run docs:check
 ```
 
@@ -174,8 +172,6 @@ If the tool produces structured output, also run:
 npm run test:schema-fixtures
 npx vitest run src/core/__tests__/structured-output-schema.test.ts
 ```
-
-`npm run docs:update` updates generated tool reference files. Do not hand-edit generated tool docs.
 
 ### 7. Add fixtures
 
@@ -327,7 +323,7 @@ Use this pipeline only when the tool wraps `xcodebuild`. For any other long-runn
   { label: "Metadata", content: (
     <>
       <p>Change <code>manifests/tools/&lt;tool&gt;.yaml</code> first. Metadata includes descriptions, names, annotations, availability, predicates, routing, next-step templates, and output schema metadata.</p>
-      <p>Run <code>npm run docs:update</code> and <code>npm run docs:check</code>. If a name changes, update tests, fixtures, and any next-step references that call the old name.</p>
+      <p>Run <code>npm run docs:check</code>. If a name changes, update tests, fixtures, and any next-step references that call the old name.</p>
     </>
   ) },
   { label: "Input schema", content: (
@@ -346,8 +342,8 @@ Use this pipeline only when the tool wraps `xcodebuild`. For any other long-runn
 
 | Change | Required follow-up |
 |--------|--------------------|
-| Metadata only | Regenerate generated docs and update fixture text if descriptions or names are visible. |
-| Input schema | Update Zod schema, parameter tests, generated docs, and any snapshots affected by validation text. |
+| Metadata only | Run docs checks and update fixture text if descriptions or names are visible. |
+| Input schema | Update Zod schema, parameter tests, docs checks, and any snapshots affected by validation text. |
 | Compatible output addition | Update the existing schema, implementation, JSON fixtures, and schema fixture tests. |
 | Breaking output change | Add `schemas/structured-output/<schema>/2.schema.json`, emit `schemaVersion: '2'`, update manifest `outputSchema.version`, and update fixtures. |
 | Runtime behavior | Update logic tests, MCP text fixtures, CLI text fixtures, JSON fixtures, and changelog if user-facing. |
@@ -365,7 +361,7 @@ Use a deletion checklist. Tool removal affects user-visible surfaces.
 3. Delete the implementation file if no other code imports it.
 4. Delete tests that only cover that tool.
 5. Delete MCP, CLI, and JSON fixtures for that tool.
-6. Run `npm run docs:update` and `npm run docs:check`.
+6. Run `npm run docs:check`.
 7. Run `npm run typecheck`, `npm test`, and `npm run test:schema-fixtures`.
 
 Do not delete a shared schema just because one tool stopped using it. Schemas are published contracts. Remove one only when it is unpublished or clearly unused after checking consumers.
@@ -379,7 +375,6 @@ Do not delete a shared schema just because one tool stopped using it. Schemas ar
 - Using `createStreamingExecutionContext(...)` in a non-streaming tool.
 - Relying on streamed fragments for final JSON data.
 - Changing JSON payload shape without updating schemas and JSON fixtures.
-- Hand-editing generated tool docs.
 - Updating snapshots before understanding why they changed.
 - Preserving legacy fallback behavior instead of making the requested path canonical.
 

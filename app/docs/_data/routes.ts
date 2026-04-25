@@ -30,7 +30,9 @@ export type DocSlug =
   | "architecture-tool-lifecycle"
   | "architecture-rendering-output"
   | "architecture-daemon"
+  | "architecture-debugging"
   | "tool-authoring"
+  | "schema-versioning"
   | "testing"
 
 export interface DocRoute {
@@ -82,7 +84,9 @@ export const PAGES_ORDER: DocSlug[] = [
   "architecture-tool-lifecycle",
   "architecture-rendering-output",
   "architecture-daemon",
+  "architecture-debugging",
   "tool-authoring",
+  "schema-versioning",
   "testing",
 ]
 
@@ -267,11 +271,23 @@ export const PAGE_META: Record<DocSlug, DocRoute> = {
     group: "Contributing",
     description: "Why stateful CLI tools use a per-workspace daemon and how its transport lifecycle works.",
   },
+  "architecture-debugging": {
+    slug: "architecture-debugging",
+    title: "Debugging",
+    group: "Contributing",
+    description: "How simulator debugging sessions, DAP, and LLDB CLI backends are wired.",
+  },
   "tool-authoring": {
     slug: "tool-authoring",
     title: "Tool Authoring",
     group: "Contributing",
     description: "Add, modify, or remove a tool end to end.",
+  },
+  "schema-versioning": {
+    slug: "schema-versioning",
+    title: "Schema Versioning",
+    group: "Contributing",
+    description: "How structured output JSON Schemas are versioned and published.",
   },
   testing: {
     slug: "testing",
@@ -339,9 +355,11 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
           "architecture-tool-lifecycle",
           "architecture-rendering-output",
           "architecture-daemon",
+          "architecture-debugging",
         ],
       },
       { slug: "tool-authoring" },
+      { slug: "schema-versioning" },
       { slug: "testing" },
     ],
   },

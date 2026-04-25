@@ -29,7 +29,9 @@ import ArchitectureManifestVisibilityPage from "./architecture-manifest-visibili
 import ArchitectureToolLifecyclePage from "./architecture-tool-lifecycle.mdx"
 import ArchitectureRenderingOutputPage from "./architecture-rendering-output.mdx"
 import ArchitectureDaemonPage from "./architecture-daemon.mdx"
+import ArchitectureDebuggingPage from "./architecture-debugging.mdx"
 import ToolAuthoringPage from "./tool-authoring.mdx"
+import SchemaVersioningPage from "./schema-versioning.mdx"
 import TestingPage from "./testing.mdx"
 
 export const PAGE_COMPONENTS: Record<DocSlug, ComponentType> = {
@@ -62,6 +64,8 @@ export const PAGE_COMPONENTS: Record<DocSlug, ComponentType> = {
   "architecture-tool-lifecycle": ArchitectureToolLifecyclePage,
   "architecture-rendering-output": ArchitectureRenderingOutputPage,
   "architecture-daemon": ArchitectureDaemonPage,
+  "architecture-debugging": ArchitectureDebuggingPage,
   "tool-authoring": ToolAuthoringPage,
+  "schema-versioning": SchemaVersioningPage,
   testing: TestingPage,
 }

@@ -1,0 +1,159 @@
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Contributing", "Architecture", "Debugging"]}
+  title="Debugging Architecture"
+  lede="How simulator debugging tools attach to running apps, keep sessions alive, and route debugger operations through the DAP and LLDB CLI backends."
+/>
+
+This page is for contributors working on the debugging workflow. It covers how the public debugging tools are wired to the shared debugger manager, how sessions are kept alive, and how the two backend implementations map tool calls to debugger operations.
+
+## Scope
+
+| Area | Files |
+|------|-------|
+| Tool entrypoints | `src/mcp/tools/debugging/*` |
+| Debugger subsystem | `src/utils/debugger/*` |
+| Backend implementations | `src/utils/debugger/backends/dap-backend.ts`, `src/utils/debugger/backends/lldb-cli-backend.ts` |
+| DAP protocol support | `src/utils/debugger/dap/*` |
+| External execution | `src/utils/execution/*`, `xcrun simctl`, `xcrun lldb`, `lldb-dap`, `xcodebuild` |
+
+## Registration and wiring
+
+Debugging tools are loaded through workflow manifests, like every other tool group. Runtime visibility decides whether the debugging workflow is exposed, then tool handlers are created through the typed tool factory.
+
+Debugging tools use two factory shapes:
+
+- `createTypedToolWithContext` for standard tools with Zod validation and dependency injection.
+- `createSessionAwareToolWithContext` for tools that merge session defaults before validation.
+
+The injected debugging context provides:
+
+| Dependency | Purpose |
+|------------|---------|
+| `executor` | Runs external commands such as `simctl` and adapter discovery. |
+| `debugger` | Shared `DebuggerManager` instance that owns sessions and backend routing. |
+
+`debug_attach_sim` is session-aware, so callers can omit simulator selectors when session defaults provide them.
+
+## Session lifecycle
+
+`DebuggerManager` owns lifecycle, state, and backend selection.
+
+Backend selection order:
+
+1. Explicit backend argument on the attach call.
+2. `XCODEBUILDMCP_DEBUGGER_BACKEND` or `debuggerBackend` from resolved config.
+3. Default config value, currently `dap`.
+
+Accepted backend values are:
+
+| Value | Backend |
+|-------|---------|
+| `dap` | `lldb-dap` Debug Adapter Protocol backend. |
+| `lldb-cli` | Long-lived `xcrun lldb` command-line backend. |
+| `lldb` | Normalized to `lldb-cli` when read from config. |
+
+Attach flow:
+
+1. `debug_attach_sim` resolves simulator UUID and target process ID.
+2. It calls `DebuggerManager.createSession` with simulator ID, PID, and backend preference if supplied.
+3. The manager creates the selected backend and calls `backend.attach`.
+4. On success, the manager stores session metadata and marks the current session.
+5. Follow-up tools resolve an explicit session ID or use the current session.
+6. `debug_detach` calls `DebuggerManager.detachSession`, which detaches and disposes the backend.
+
+## Tool to backend mapping
+
+| MCP tool | Manager operation | DAP request mapping | LLDB CLI behavior |
+|----------|-------------------|---------------------|-------------------|
+| `debug_attach_sim` | `createSession` then `attach` | `initialize`, `attach`, `configurationDone` | Spawns `xcrun lldb`, initializes prompt/sentinel parsing, attaches to PID. |
+| `debug_lldb_command` | `runCommand` | `evaluate` with `context: "repl"` | Writes the command to the interactive LLDB process. |
+| `debug_stack` | `getStack` | `threads`, then `stackTrace` | Runs an LLDB stack command and sanitizes output. |
+| `debug_variables` | `getVariables` | `threads`, `stackTrace`, `scopes`, `variables` | Runs LLDB variable inspection and sanitizes output. |
+| `debug_breakpoint_add` | `addBreakpoint` | `setBreakpoints` or `setFunctionBreakpoints` | Creates an LLDB breakpoint and applies conditions internally. |
+| `debug_breakpoint_remove` | `removeBreakpoint` | Reissues breakpoint lists without the removed entry. | Removes the LLDB breakpoint by ID. |
+| `debug_detach` | `detachSession` | `disconnect` | Detaches and disposes the LLDB process. |
+
+## DAP backend
+
+The DAP backend is implemented by `src/utils/debugger/backends/dap-backend.ts`. It starts one `lldb-dap` subprocess per debug session and talks to it over the Debug Adapter Protocol.
+
+Supporting modules:
+
+| Module | Purpose |
+|--------|---------|
+| `src/utils/debugger/dap/types.ts` | Minimal DAP types used by the backend. |
+| `src/utils/debugger/dap/transport.ts` | `Content-Length` framing, request correlation, event handling, and process disposal. |
+| `src/utils/debugger/dap/adapter-discovery.ts` | Resolves `lldb-dap` with `xcrun --find lldb-dap` and reports dependency errors. |
+
+Lifecycle details:
+
+- Adapter discovery happens before the backend attaches.
+- Missing `lldb-dap` raises a dependency error that tells the user to install/configure Xcode or switch to `lldb-cli`.
+- The transport supports concurrent DAP requests by correlating request sequence IDs.
+- Backend state mutations, such as breakpoint registry updates, are serialized where needed.
+- `dispose()` is best-effort and must not throw, because attach failure cleanup calls it.
+
+### Breakpoint strategy
+
+DAP breakpoint removal is stateful. The adapter does not remove one breakpoint by ID directly. Instead, the backend keeps registries and reissues the complete remaining set for that source or function list:
+
+- File/line breakpoints are grouped by source path and sent through `setBreakpoints`.
+- Function breakpoints are sent through `setFunctionBreakpoints`.
+- Conditions are part of the breakpoint request body.
+- The backend stores returned IDs so later `debug_breakpoint_remove` calls can find and remove the right registry entry.
+
+This is why conditional breakpoint handling belongs inside the backend API rather than as an extra LLDB command after creation.
+
+### Stack and variables
+
+DAP stack and variable requests usually require a stopped thread. If the target is still running, the backend returns guidance instead of pretending stack data is available. The normal flow is to set a breakpoint, trigger it, then call stack or variable tools after the process stops.
+
+## LLDB CLI backend
+
+The LLDB CLI backend is implemented by `src/utils/debugger/backends/lldb-cli-backend.ts`. It keeps one long-lived `xcrun lldb` process per session.
+
+The backend uses an interactive process model:
+
+1. Spawn `xcrun lldb --no-lldbinit` with a custom prompt.
+2. Write a command.
+3. Write a sentinel command that prints `__XCODEBUILDMCP_DONE__`.
+4. Buffer stdout and stderr until the sentinel appears.
+5. Trim the buffer to the next prompt.
+6. Remove prompt echoes, sentinel lines, and helper command echoes.
+7. Return the sanitized command output.
+
+The prompt indicates the REPL is ready for the next command. The sentinel provides an explicit end-of-output marker for arbitrary LLDB command output.
+
+Commands are serialized through a queue so two tool calls cannot interleave output in the same LLDB process.
+
+## External tool invocation
+
+| External tool | Used for |
+|---------------|----------|
+| `xcrun simctl list devices available -j` | Resolve simulator names to UUIDs. |
+| `xcrun simctl spawn <simulatorId> launchctl list` | Resolve a simulator app process ID by bundle ID. |
+| `xcrun --find lldb-dap` | Locate the DAP adapter. |
+| `xcrun lldb` | Run the LLDB CLI backend. |
+| `xcodebuild` | Build and launch context before attaching. |
+
+Debugging assumes a running simulator app. The common user flow is to build and launch with simulator tools, attach with `debug_attach_sim`, inspect or control the process, then detach.
+
+## Testing and injection
+
+Debugger code must stay test-safe. Default executors and spawners throw under Vitest, so tests inject fakes instead of spawning real debugger processes.
+
+Useful test seams:
+
+- Inject a custom backend factory into `DebuggerManager` for selection and lifecycle tests.
+- Inject a fake command executor for adapter discovery.
+- Inject a fake interactive spawner for DAP transport and LLDB CLI backend tests.
+- Keep `dispose()` idempotent and non-throwing so failure-path tests can clean up reliably.
+
+## Related
+
+- [Daemon Lifecycle](/docs/architecture-daemon), why debug sessions route through the daemon in CLI mode
+- [Runtime Boundaries](/docs/architecture-runtime-boundaries), how MCP and CLI share tool handlers
+- [Tool Authoring](/docs/tool-authoring), handler and manifest conventions
+- [Configuration](/docs/configuration), user-facing debugger backend settings

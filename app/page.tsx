@@ -773,7 +773,7 @@ sessionDefaults:
                   View Issues
                 </Link>
                 <Link
-                  href="https://github.com/getsentry/XcodeBuildMCP/blob/main/docs/dev/CONTRIBUTING.md"
+                  href="/docs/contributing"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-sentry-dark-600 hover:border-sentry-dark-700 text-sentry-text-primary hover:bg-sentry-dark-400/50 transition-colors"
                 >
                   <BookOpen className="w-4 h-4" />
