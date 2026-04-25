@@ -1,0 +1,108 @@
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Contributing", "Architecture", "Tool Lifecycle"]}
+  title="Tool Lifecycle"
+  lede="What runs when XcodeBuildMCP performs one Xcode action — the input it accepts, the work it does, and the result and progress it hands back."
+/>
+
+A tool in XcodeBuildMCP is one user-visible action — listing simulators, building a scheme, running a test, capturing a screenshot. Each tool is a small module responsible for three things: validating its input, doing the actual Xcode work, and producing one canonical result. Anything to do with how that result gets formatted for an MCP client, a terminal, or a JSON pipeline lives outside the tool. This page is the contract for that small module.
+
+## Terms used here
+
+- **tool handler** — The function inside a tool module that performs one validated action and writes its outcome onto the call context.
+- **schema** — The Zod (a TypeScript schema-validation library) shape exported alongside the handler that validates input and feeds generated docs and CLI argument metadata.
+- **fragment** — A typed progress event the handler emits while work is still running (a log line, a transcript chunk, an attachment); not the final result.
+- **structured output** — The single canonical JSON result the handler sets at the end of a call, validated against a published schema.
+- **next step** — A follow-up suggestion attached to the call, normally taken from a manifest template and optionally filled in with runtime values.
+
+For the canonical glossary, see [Core terms](/docs/architecture#core-terms).
+
+## Why the tool contract is narrow
+
+A tool should express three things clearly: accepted input, work execution, and canonical structured output. Runtime-specific concerns belong outside the handler. That separation lets the MCP registry, CLI invoker, daemon server, renderers, and tests all call the same implementation without duplicating behavior.
+
+## Tool module contract
+
+| Export | Purpose |
+|--------|---------|
+| `schema` | Zod schema shape used for runtime validation, generated docs, and command argument metadata. |
+| `handler` | Runtime-agnostic function created by a typed factory. It receives validated params and a tool context. |
+
+Handlers are normally created with one of the typed factories:
+
+- `createTypedTool(...)`
+- `createTypedToolWithContext(...)`
+- `createSessionAwareTool(...)`
+- `createSessionAwareToolWithContext(...)`
+
+Use the session-aware factories when the public schema can omit values supplied by session defaults. Use the simpler factories when the tool can validate its public input directly.
+
+## Handler context
+
+Document the context as the author-facing contract, not as every internal flag currently present in the TypeScript interface.
+
+```ts
+interface ToolHandlerContext {
+  emit: (fragment: AnyFragment) => void
+  attach: (image: ImageAttachment) => void
+  nextStepParams?: NextStepParamsMap
+  nextSteps?: NextStep[]
+  structuredOutput?: StructuredToolOutput
+}
+```
+
+| Field | Use |
+|-------|-----|
+| `emit` | Send live domain fragments for streaming tools. |
+| `attach` | Add image attachments that the runtime can return. |
+| `nextStepParams` | Provide runtime values for manifest next-step templates. |
+| `nextSteps` | Provide explicit dynamic follow-ups when templates cannot express the result. |
+| `structuredOutput` | Set the final canonical result, schema ID, and schema version. |
+
+The omitted progress flags are internal boundary controls. They exist in source today, but the public docs intentionally do not teach tool authors to branch on them.
+
+## Fragments versus structured output
+
+A handler produces two different things, and they serve different readers. Fragments are live progress and transcript material — log lines, build output, attachments — that callers and pipelines consume while the work is running. Structured output is the one final canonical result the handler sets at the end of the call. Fragments are never the final result; the structured output is what powers CLI `--output json`, MCP `structuredContent`, schema validation, fixtures, and stable integrations.
+
+| Type | Lifetime | Reader |
+|------|----------|--------|
+| Domain fragment | Emitted during execution. | Humans, agents, and pipelines watching live progress. |
+| Domain result | Set once at the end. | JSON consumers, MCP structured content, generated schema contracts, renderers. |
+
+A streaming tool can emit many fragments and still produce one final result. A non-streaming tool normally produces no fragments and only sets the final result.
+
+## Streaming vs non-streaming tools
+
+Choose the simpler non-streaming shape unless the user benefits from live progress.
+
+| Shape | Handler behavior | Good fit |
+|-------|------------------|----------|
+| Non-streaming | Do the work, then set `ctx.structuredOutput` once. Do not emit fragments. | Listing, discovery, metadata, cleanup, session defaults. |
+| Streaming | Emit domain fragments while work runs, then set one final `ctx.structuredOutput`. | Build, test, debugging, video, long-running Swift Package commands. |
+
+## Next-step resolution
+
+Follow-up instructions normally come from manifest templates. That keeps common suggestions consistent across MCP text, CLI text, and generated references.
+
+Handlers should prefer `ctx.nextStepParams` when the follow-up is template-shaped but needs runtime values. Use explicit `ctx.nextSteps` only for dynamic cases that cannot be represented by a manifest template.
+
+| Source | Use it when | Example |
+|--------|-------------|---------|
+| Manifest next-step template | The suggestion is stable for the tool. | After listing simulators, suggest a build command using the selected simulator. |
+| `ctx.nextStepParams` | The template needs values discovered at runtime. | Fill simulator ID, app path, bundle ID, or log path. |
+| `ctx.nextSteps` | The suggestion depends on a dynamic branch the manifest cannot model. | Suggest a different recovery command for a specific failure mode. |
+
+## Rendering handoff
+
+The handler does not decide whether output is MCP text, CLI text, JSON, JSONL, or raw transcript. It sets fragments, attachments, next-step data, and structured output. The runtime boundary and render session decide presentation.
+
+See [Rendering & Output](/docs/architecture-rendering-output) for that boundary. See [Output Formats](/docs/output-formats) for the public CLI and MCP response shapes.
+
+## Related
+
+- [Tool Authoring](/docs/tool-authoring), step-by-step tool changes
+- [Testing](/docs/testing), fixtures and schema validation
+- [Output Formats](/docs/output-formats), public JSON, JSONL, and MCP structured content
+- [Tools Reference](/docs/tools), generated catalog

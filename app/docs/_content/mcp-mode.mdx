@@ -34,15 +34,7 @@ The server advertises **tools** and **resources** to the client. Tool surface is
 
 ## Session defaults
 
-Session defaults are enabled by default and are the single biggest token saver. The agent calls `session_set_defaults` once, and every subsequent tool call reuses the values:
-
-```json
-{"name":"session_set_defaults","arguments":{
-  "workspacePath":"/repo/MyApp.xcworkspace",
-  "scheme":"MyApp",
-  "simulatorName":"iPhone 17 Pro"
-}}
-```
+Session defaults are enabled by default and are the single biggest token saver. Tell your agent which workspace (or project), scheme, and simulator to use, and the server stores those values. Every subsequent tool call reuses them automatically, so you do not need to repeat them and your agent does not have to re-state them on every call.
 
 Defaults can also be:
 
@@ -50,32 +42,21 @@ Defaults can also be:
 - Set from env vars (`XCODEBUILDMCP_WORKSPACE_PATH`, `XCODEBUILDMCP_SCHEME`, etc.)
 - Persisted to disk by passing `persist: true` on `session_set_defaults`
 
-Tool schemas adjust automatically. When a default is set, the corresponding parameter becomes optional (and is filled from the default). Pass `disableSessionDefaults: true` to restore the legacy behavior where every parameter is required on every call.
+Once a default is set, tools can be called without that parameter and the server fills it in. To require every parameter on every call, set `disableSessionDefaults: true` in `.xcodebuildmcp/config.yaml` (or `XCODEBUILDMCP_DISABLE_SESSION_DEFAULTS=true`).
 
 See [Session Defaults](/docs/session-defaults) for the full schema.
 
 ### Named profiles
 
-For monorepos, keep separate defaults for each sub-project:
-
-```json
-{"name":"session_use_defaults_profile","arguments":{"profile":"ios","persist":true}}
-{"name":"session_set_defaults","arguments":{
-  "workspacePath":"/repo/MyApp.xcworkspace",
-  "scheme":"MyApp-iOS",
-  "simulatorName":"iPhone 17 Pro",
-  "persist":true
-}}
-```
-
-Switch profiles mid-session with `session_use_defaults_profile`. Profiles are strictly isolated, they don't inherit from `global`.
+For monorepos, keep a separate defaults profile for each sub-project (for example one for the iOS app, one for the watchOS companion). Tell your agent to switch profiles, and it loads the defaults you stored for that profile. Each profile is strictly isolated; they do not inherit from `global`.
 
 ## Workflow selection
 
-Load only the workflows your agent needs. Each dropped workflow saves tool-list tokens at boot.
+The MCP server advertises only the tools in your enabled workflows. The default is just `simulator` to keep your agent's context window lean. See [Reference > Workflows](/docs/workflows) for the catalog of available workflows and what each one contains.
+
+Add more workflows in `.xcodebuildmcp/config.yaml`:
 
 ```yaml
-# .xcodebuildmcp/config.yaml
 schemaVersion: 1
 enabledWorkflows:
   - simulator
@@ -83,7 +64,7 @@ enabledWorkflows:
   - ui-automation
 ```
 
-Or via env (for clients with limited workspace context):
+Or via env (useful for clients that don't read your project's config file):
 
 ```json
 {
@@ -92,6 +73,10 @@ Or via env (for clients with limited workspace context):
   }
 }
 ```
+
+<Callout variant="info" title="Context savings">
+  Cutting from the full catalog to <code>simulator,debugging</code> drops advertised tool count from <LiveToolCount /> to <LiveWorkflowToolCount workflow="simulator" /> + <LiveWorkflowToolCount workflow="debugging" /> (minus overlaps), saving roughly 70% of the tool catalog tokens your agent has to keep in context.
+</Callout>
 
 ### Custom workflows
 
@@ -106,18 +91,23 @@ customWorkflows:
     - screenshot
 ```
 
-Unknown tool names are ignored and logged. Custom workflow names are normalized to lowercase.
+Notes:
+
+- Session-management tools are always auto-included.
+- The `doctor` workflow is auto-included when `debug: true`.
+- Custom workflow names are normalized to lowercase.
+- Unknown tool names are ignored and logged as warnings.
 
 ### Experimental workflow discovery
 
-Opt into the `manage-workflows` tool so the agent can add/remove workflows at runtime:
+Opt into the `manage-workflows` tool so the agent can add or remove workflows at runtime:
 
 ```yaml
 experimentalWorkflowDiscovery: true
 ```
 
-<Callout variant="warn" title="Requires tool-list-changed support">
-  At the time of writing, Cursor, Claude Code, and Codex do not surface <code>tools/list_changed</code> notifications, so runtime workflow changes won&apos;t reflect until the session restarts.
+<Callout variant="warn" title="Requires tools/list_changed support">
+  Some clients (including Cursor, Claude Code, and Codex at the time of writing) do not surface MCP <code>tools/list_changed</code> notifications, so runtime workflow changes won&apos;t reflect until the session is restarted.
 </Callout>
 
 ## Xcode IDE bridge
@@ -126,10 +116,6 @@ Enable `xcode-ide` to expose Xcode 26+'s `xcrun mcpbridge` tools through XcodeBu
 
 ## Tool annotations
 
-Every tool declares read-only, destructive, and open-world hints. MCP clients that respect annotations (Codex, recent Claude Code) use them to reduce unnecessary confirmation prompts.
+Every tool declares read-only, destructive, and open-world hints so MCP clients that respect annotations can skip unnecessary confirmation prompts for lower-risk calls and keep prompts for risky ones.
 
-| Annotation | Meaning |
-|------------|---------|
-| `readOnlyHint: true` | Tool does not modify state. |
-| `destructiveHint: true` | Tool may delete or overwrite. |
-| `openWorldHint: true` | Tool makes network/filesystem requests beyond the project. |
+See [MCP Protocol Support](/docs/mcp-protocol-support) for the full list of MCP features XcodeBuildMCP implements.

@@ -1079,6 +1079,9 @@ html[data-docs-theme='dark'] .docs-root .codeblock {
   border-bottom-color: var(--fg-accent);
   font-weight: 500;
 }
+.docs-root .tabs-content {
+  padding-top: 18px;
+}
 
 /* -------- Callouts -------- */
 .docs-root .callout {

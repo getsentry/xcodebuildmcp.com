@@ -2,26 +2,20 @@ import Link from "next/link"
 import { PageHeader } from "../_components/page-header"
 
 <PageHeader
-  breadcrumbs={["Docs", "Usage", "Workflows"]}
+  breadcrumbs={["Docs", "Reference", "Workflows"]}
   title="Workflows"
-  lede="Tools are grouped into workflow packages. Enable only what your agent needs, each dropped workflow saves context."
+  lede="The catalog of tool groups XcodeBuildMCP exposes through MCP, and what each one contains."
 />
 
-By default only the `simulator` workflow is enabled. Enable more via `.xcodebuildmcp/config.yaml`:
+## What workflows are
 
-```yaml
-schemaVersion: 1
-enabledWorkflows:
-  - simulator
-  - debugging
-  - ui-automation
-```
+A workflow is a named group of related tools (`simulator`, `debugging`, `ui-automation`, etc.). Workflows exist to control which tools the MCP server advertises in `tools/list`. Every advertised tool consumes context tokens in your agent, so picking only the workflows you need keeps the tool catalog lean.
 
-Or via env var (comma-separated):
+By default only the `simulator` workflow is enabled. To enable more (or define your own), see [MCP Server Mode → Workflow selection](/docs/mcp-mode#workflow-selection) for the full configuration surface, including custom workflows and experimental runtime discovery.
 
-```shell
-export XCODEBUILDMCP_ENABLED_WORKFLOWS="simulator,debugging,ui-automation"
-```
+<Callout variant="info" title="The CLI is different">
+  The CLI does not gate by enabled workflows. Every workflow's commands are always available as `xcodebuildmcp <workflow> <tool>`. The CLI does not pay an upfront context cost because agents and humans discover commands progressively via `--help`; `enabledWorkflows` only affects what the MCP server advertises.
+</Callout>
 
 ## Available workflows
 
@@ -29,39 +23,8 @@ This list is generated live from the latest [getsentry/XcodeBuildMCP](https://gi
 
 <LiveWorkflowsTable />
 
-## Custom workflows
+## Related
 
-Define your own workflow in `config.yaml` with an explicit tool list:
-
-```yaml
-schemaVersion: 1
-enabledWorkflows: ["my-workflow"]
-customWorkflows:
-  my-workflow:
-    - build_run_sim
-    - record_sim_video
-    - screenshot
-```
-
-Notes:
-
-- Session-management tools are always auto-included.
-- The `doctor` workflow is auto-included when `debug: true`.
-- Custom workflow names are normalized to lowercase.
-- Unknown tool names are ignored and logged as warnings.
-
-## Experimental: workflow discovery
-
-Expose a `manage-workflows` tool so agents can add/remove workflows at runtime:
-
-```yaml
-experimentalWorkflowDiscovery: true
-```
-
-<Callout variant="warn" title="Requires client support">
-  This depends on MCP `tools/list_changed` notifications. Cursor, Claude Code, and Codex do not support this at the time of writing; a session restart is required for changes to take effect.
-</Callout>
-
-<Callout variant="info" title="Context savings">
-  Cutting from the full catalog to <code>simulator,debugging</code> drops advertised tool count from <LiveToolCount /> to <LiveWorkflowToolCount workflow="simulator" /> + <LiveWorkflowToolCount workflow="debugging" /> (minus overlaps), saving roughly 70% of tool-list tokens on agent boot.
-</Callout>
+- [MCP Server Mode → Workflow selection](/docs/mcp-mode#workflow-selection): how to enable, customize, and override workflows.
+- [Tools Reference](/docs/tools): every tool by name, with the workflow it belongs to.
+- [Configuration](/docs/configuration): full config schema for `.xcodebuildmcp/config.yaml`.

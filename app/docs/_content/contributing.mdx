@@ -1,0 +1,235 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Contributing", "Contributing"]}
+  title="Contributing"
+  lede="How to set up, build, and submit changes to XcodeBuildMCP."
+/>
+
+XcodeBuildMCP lives at [getsentry/XcodeBuildMCP](https://github.com/getsentry/XcodeBuildMCP). Use the issue tracker for bugs, proposals, and larger changes that need design discussion before code.
+
+## Prerequisites
+
+| Requirement | Notes |
+|-------------|-------|
+| macOS | XcodeBuildMCP shells out to Apple developer tools, so development is macOS-only. |
+| Xcode | Install Xcode and make sure Command Line Tools point at the Xcode you use for testing. |
+| Node.js 18+ | The package targets Node 18 and later. |
+| npm | Used for install, build, test, and local scripts. |
+| AXe (optional) | Required only if you work on UI automation or simulator capture tools. Bundle it locally with `npm run bundle:axe`. The script downloads pre-built artifacts into `bundled/axe`, which the server resolves automatically at runtime. |
+
+```shell
+npm run bundle:axe
+```
+
+If you prefer a system-wide install on `PATH`, `brew tap cameroncooke/axe && brew install axe` also works, the resolver falls back to `PATH` after checking `bundled/`.
+
+## Clone, install, build
+
+```shell
+git clone https://github.com/getsentry/XcodeBuildMCP.git
+cd XcodeBuildMCP
+npm install
+npm run hooks:install
+npm run build
+
+# Verify the build via the CLI
+node build/cli.js --help
+
+# Or start the MCP server (stdio)
+node build/cli.js mcp
+```
+
+`npm run hooks:install` configures the repository-managed git hooks from `.githooks/`.
+
+## Point your MCP client at the dev build
+
+Use the built `cli.js` directly while developing. Replace the path with your checkout path.
+
+```json
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "node",
+      "args": ["/path/to/XcodeBuildMCP/build/cli.js", "mcp"],
+      "env": {
+        "XCODEBUILDMCP_DEBUG": "true"
+      }
+    }
+  }
+}
+```
+
+## Iterating
+
+Most XcodeBuildMCP code is shared between the CLI and MCP server: the tools themselves, the manifests that describe them, the runtime layer that receives a request, and the rendering layer that turns its output into text or JSON. That means most tool behavior is testable through the CLI without an MCP client in the loop:
+
+```shell
+node build/cli.js simulator list
+node build/cli.js simulator build --scheme MyApp --project-path ./MyApp.xcodeproj
+```
+
+Reach for the tools below only when you are validating MCP-specific behavior: tool advertising in `tools/list`, the structured content envelope, annotations, the server lifecycle, or anything the CLI surface does not exercise.
+
+### Testing the MCP layer
+
+When an MCP client launches the server, it spawns the server as a long-lived subprocess at startup. The running Node process holds the build that was on disk when it spawned, so rebuilding does not affect it. To pick up changes you have to kill and respawn the server, which drops the client's MCP connection and forces a reconnect (a manual click or a full editor restart, depending on the client). Three patterns avoid that loop:
+
+<Tabs tabs={[
+  { label: "Inspector UI", content: (
+    <>
+      <p>Run <code>npm run inspect</code> for the <a href="https://github.com/modelcontextprotocol/inspector">MCP Inspector</a> interactive UI. Browser-based MCP client where you can list tools, call them with form inputs, view structured responses, and (importantly) see the server's stderr logs that real MCP clients usually hide.</p>
+      <p>Best for human exploration and debugging when you want the full server-side picture.</p>
+      <CodeBlock lang="shell" plain={`npm run inspect`}>
+{`npm run inspect`}
+      </CodeBlock>
+    </>
+  ) },
+  { label: "Inspector CLI", content: (
+    <>
+      <p>The Inspector also runs non-interactively. Each invocation spawns a fresh server subprocess, so there is no long-lived process to manage and no plumbing into your real client. The inspector CLI acts as a transient MCP client per call.</p>
+      <p>Best for AI agents contributing to XcodeBuildMCP that want to verify MCP integration after each rebuild.</p>
+      <CodeBlock lang="shell" plain={`npx @modelcontextprotocol/inspector@latest --cli node build/cli.js mcp \\
+  --method tools/list
+
+npx @modelcontextprotocol/inspector@latest --cli node build/cli.js mcp \\
+  --method tools/call \\
+  --tool-name discover_projs \\
+  --tool-arg workspaceRoot=/path/to/sample/project`}>
+{`npx @modelcontextprotocol/inspector@latest --cli node build/cli.js mcp \\
+  --method tools/list
+
+npx @modelcontextprotocol/inspector@latest --cli node build/cli.js mcp \\
+  --method tools/call \\
+  --tool-name discover_projs \\
+  --tool-arg workspaceRoot=/path/to/sample/project`}
+      </CodeBlock>
+      <Callout variant="warn" title="Stateful behavior">
+        <p>Each invocation starts a fresh MCP server, so all in-process state (session defaults, log capture sessions, debug sessions, video recording, any running processes the server is tracking) dies the moment the call returns. You cannot test multi-call stateful flows with the Inspector CLI alone. Use the Reloaderoo tab to keep a long-lived server across calls, or exercise the stateful flow through the CLI runtime instead, where the per-workspace daemon owns that state and survives across invocations.</p>
+      </Callout>
+    </>
+  ) },
+  { label: "Reloaderoo", content: (
+    <>
+      <p>Use Reloaderoo when you need to drive the dev server through your real MCP client (Claude Code, Cursor, etc.) and keep the connection alive across rebuilds. Reloaderoo proxies MCP traffic and exposes a <code>restart_server</code> tool the agent calls after each rebuild.</p>
+      <CodeBlock lang="shell" plain={`npm install -g reloaderoo`}>
+{`npm install -g reloaderoo`}
+      </CodeBlock>
+      <CodeBlock lang="json" plain={`{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "reloaderoo",
+      "args": ["--", "node", "/path/to/XcodeBuildMCP/build/cli.js", "mcp"],
+      "env": { "XCODEBUILDMCP_DEBUG": "true" }
+    }
+  }
+}`}>
+{`{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "reloaderoo",
+      "args": ["--", "node", "/path/to/XcodeBuildMCP/build/cli.js", "mcp"],
+      "env": { "XCODEBUILDMCP_DEBUG": "true" }
+    }
+  }
+}`}
+      </CodeBlock>
+    </>
+  ) },
+]} />
+
+Run `npm run dev:tsup` in your terminal so the build rebuilds on save. The Inspector flows pick up the latest build on the next call (fresh subprocess); Reloaderoo needs an explicit `restart_server` call after each rebuild.
+
+## Pre-commit checks
+
+If you ran `npm run hooks:install`, the git pre-commit hook automatically runs `npm run format:check`, `npm run lint`, `npm run build`, and `npm run docs:check` when you commit. That is a safety net, not a substitute for development-time checks. Catching problems while you iterate is faster than catching them at commit time, and the hook does not run `typecheck`, `lint:fix`, or `test`.
+
+Full checklist to run yourself during development:
+
+```shell
+npm run lint:fix
+npm run typecheck
+npm run format
+npm run build
+npm run docs:check
+npm test
+```
+
+<Callout variant="warn" title="Type errors block changes">
+  Do not commit TypeScript errors. Fix the type issue instead of suppressing it with unsafe casts, <code>any</code>, <code>@ts-ignore</code>, or <code>@ts-nocheck</code>.
+</Callout>
+
+## Making a change
+
+Start from an up-to-date `main` branch and create a focused branch:
+
+```shell
+git checkout main
+git pull origin main
+git checkout -b feature/issue-123-add-simulator-filter
+```
+
+Common branch prefixes:
+
+| Prefix | Use it for |
+|--------|------------|
+| `feature/issue-123-description` | New behavior. |
+| `bugfix/issue-456-description` | Bug fixes. |
+| `hotfix/critical-description` | Urgent production fixes. |
+| `docs/update-topic` | Documentation-only work. |
+| `refactor/improve-topic` | Internal restructuring without behavior changes. |
+
+Keep commits atomic. Each commit should explain one logical change. If your change affects users, add a `CHANGELOG.md` entry under `## [Unreleased]` in the correct section: `Added`, `Changed`, `Fixed`, or `Removed`.
+
+Follow the existing TypeScript patterns:
+
+- Use Zod schemas for runtime validation.
+- Keep tool logic testable through injected executors when it orchestrates external commands.
+- Test logic functions, not handler functions.
+- Do not add formatted output by hand. Use the domain result and rendering model described in [Architecture](/docs/architecture).
+
+## Submitting
+
+Open a pull request from your branch and include:
+
+| Section | What reviewers need |
+|---------|---------------------|
+| Summary | What changed and why. |
+| Background or details | Context, issue links, and important constraints. |
+| Solution | The implementation approach and key tradeoffs. |
+| Testing | Commands you ran and any manual validation. |
+| Notes | Risk, follow-up work, or reviewer focus areas. |
+
+Link related issues. For major features or risky behavior changes, open an issue first and get alignment before spending time on implementation.
+
+## Project templates
+
+The scaffolding tools pull iOS and macOS templates from separate repositories:
+
+- [XcodeBuildMCP-iOS-Template](https://github.com/getsentry/XcodeBuildMCP-iOS-Template)
+- [XcodeBuildMCP-macOS-Template](https://github.com/getsentry/XcodeBuildMCP-macOS-Template)
+
+Use local template overrides when developing template changes:
+
+```shell
+export XCODEBUILDMCP_IOS_TEMPLATE_PATH=/path/to/XcodeBuildMCP-iOS-Template
+export XCODEBUILDMCP_MACOS_TEMPLATE_PATH=/path/to/XcodeBuildMCP-macOS-Template
+```
+
+Optional version overrides:
+
+| Env var | Scope |
+|---------|-------|
+| `XCODEBUILD_MCP_TEMPLATE_VERSION` | Shared fallback for both templates. |
+| `XCODEBUILD_MCP_IOS_TEMPLATE_VERSION` | iOS template only. |
+| `XCODEBUILD_MCP_MACOS_TEMPLATE_VERSION` | macOS template only. |
+
+When testing through an MCP client, put the same env vars in that client&apos;s `mcpServers.XcodeBuildMCP.env` block.
+
+## Related
+
+- [Architecture](/docs/architecture), how the runtime, manifests, and rendering model fit together
+- [Tool Authoring](/docs/tool-authoring), adding or changing tools end to end
+- [Testing](/docs/testing), test structure and snapshot rules
+- [GitHub repo](https://github.com/getsentry/XcodeBuildMCP), source, issues, and pull requests

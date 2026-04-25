@@ -4,7 +4,7 @@ import { PageHeader } from "../_components/page-header"
 <PageHeader
   breadcrumbs={["Docs", "Usage", "CLI"]}
   title="CLI"
-  lede="Direct terminal access to every XcodeBuildMCP tool. Useful for scripts, CI, and sanity-checking your agent's behavior."
+  lede="Direct terminal access to every XcodeBuildMCP tool. Use it from scripts, CI, manual checks, or from coding agents that have shell access and want to compose, pipe, or script tool calls. Long-running operations stream live progress to stdout so callers get immediate feedback instead of blocking until the whole operation finishes."
 />
 
 ## Synopsis
@@ -115,25 +115,31 @@ xcodebuildmcp simulator record-video \
   --output-path ./session.mp4
 ```
 
-<Callout variant="info" title="Streaming JSON output">
-  Every command accepts <code>--output json</code> for JSONL event streams, suitable for CI pipelines and scripting.
-</Callout>
+## Streaming output and live progress
+
+Long-running tool calls (builds, tests, video recording, debugging sessions) emit progress in real time. The calling shell, script, or agent sees continuous activity instead of waiting for the whole operation to finish. Even between semantic milestones, raw subprocess stdout and stderr stream as the underlying tool emits them, which acts as a continuous liveness signal during long operations.
+
+What you get depends on `--output`:
+
+- **`text`** (default): human-readable progress lines stream to stdout as they happen. Build phases, test pass / fail, raw subprocess output, and runtime status messages all appear live.
+- **`jsonl`**: one NDJSON event per fragment. Same content as `text` mode in a structured shape that agents and scripts can parse line by line. Each event has a `kind` (for example `build`, `test`, `transcript`, `infrastructure`) and a `fragment` field describing what happened.
+- **`json`**: does not stream. The CLI waits for the tool to reach its terminal state, then emits a single structured final result.
+
+For agents driving long operations through the shell, `jsonl` is usually the right choice: the calling agent can react to events as they arrive (surface a test failure the moment it appears, abort a build that has gone past a budget, forward live progress to the user). `text` is best for humans and for agents that only need to confirm the call is alive while it runs.
+
+See <Link href="/docs/output-formats">Output Formats</Link> for the envelope and event shapes.
 
 ## Per-workspace daemon
 
-The CLI auto-starts a daemon only when needed. Stateless tools (`build`, `test`, `list`, discovery) run in-process. Stateful tools route through the daemon:
+Some XcodeBuildMCP tools need to keep state between commands (for example log capture, video recording, LLDB debugging, and background Swift Package runs). To do that, XcodeBuildMCP uses a background process.
 
-- Log capture
-- Video recording
-- LLDB debugging
-- Background Swift Package processes
+XcodeBuildMCP auto-starts a small scoped background process (a daemon) the first time one of those tools runs. That daemon survives between CLI invocations, so follow-up commands can continue the same stateful session.
 
-Daemon behavior:
+Lifecycle and scope:
 
-- **Workspace identity**: derived from the location of `.xcodebuildmcp/config.yaml`, or falls back to the current directory.
-- **Socket**: each daemon runs on a Unix socket at `~/.xcodebuildmcp/daemons/<workspace-key>/daemon.sock`.
-- **Auto-start**: on first stateful tool invocation; no manual setup.
-- **Auto-shutdown**: after 10 minutes idle, only when no active stateful sessions.
+- **Auto-start**: starts on the first stateful tool call. No manual setup required.
+- **Auto-shutdown**: stops after 10 minutes of idle time.
+- **Workspace scoping**: each daemon is scoped per workspace. If `.xcodebuildmcp/config.yaml` exists, XcodeBuildMCP uses that file's project location to identify the workspace. If not, it uses your current directory.
 
 ### Daemon commands
 
@@ -144,7 +150,13 @@ xcodebuildmcp daemon stop
 xcodebuildmcp daemon restart
 xcodebuildmcp daemon list
 xcodebuildmcp daemon list --json
+xcodebuildmcp daemon logs
 ```
+
+Reference details:
+
+- **Socket path**: `~/.xcodebuildmcp/daemons/<workspace-key>/daemon.sock`
+- **Workspace identity key**: `<workspace-key>` is derived from the workspace root path.
 
 ### Troubleshooting the daemon
 
@@ -166,7 +178,7 @@ chmod -R 700 ~/.xcodebuildmcp/daemons
 |---|-----|---------------------------|
 | Invocation | Direct terminal | MCP client over stdio |
 | Session state | Stateless direct + daemon for stateful tools | In-process |
-| Use case | Scripts, CI, manual | AI-assisted development |
+| Use case | Scripts, CI, manual checks, agents composing tool calls via shell | MCP clients and agents |
 | Configuration | Same `config.yaml` | Same `config.yaml` |
 
 Both share the same tool implementations.

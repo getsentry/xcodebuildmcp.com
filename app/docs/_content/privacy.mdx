@@ -12,7 +12,7 @@ XcodeBuildMCP uses [Sentry](https://sentry.io) for internal error monitoring. Th
 ## What's sent
 
 - **Internal XcodeBuildMCP failures only**: for example, daemon or MCP runtime faults, unexpected exceptions in server code.
-- **Internal operational logs** only when explicitly marked for Sentry (`{ sentry: true }` in server code). Standard console logs are not auto-forwarded.
+- **Internal operational logs** only when the server explicitly tags an event for Sentry. Standard console logs are not auto-forwarded.
 - **Redacted event payloads**: user home paths become `/Users/<redacted>/...`, request/user context is scrubbed before send.
 
 ## What's never sent

@@ -43,7 +43,7 @@ When `xcode-ide` is enabled and `mcpbridge` is available, XcodeBuildMCP exposes 
 
 These two tools are stable and always present when the workflow is enabled. The actual tool catalog they proxy depends on your Xcode version, expect the set to grow as Xcode ships new IDE-facing tools.
 
-The CLI continues to use dynamic `xcode_tools_*` proxy naming.
+In CLI mode, proxied Xcode tools are exposed under dynamic `xcode_tools_*` names instead of the two gateway tools above.
 
 ## Trust prompts
 

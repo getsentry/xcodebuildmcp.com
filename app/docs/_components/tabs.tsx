@@ -28,7 +28,7 @@ export function Tabs({ tabs, initial = 0 }: TabsProps) {
           </button>
         ))}
       </div>
-      <div>{tabs[i]?.content}</div>
+      <div className="tabs-content">{tabs[i]?.content}</div>
     </>
   )
 }

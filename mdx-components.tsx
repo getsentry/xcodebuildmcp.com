@@ -3,6 +3,7 @@ import type { ReactElement } from "react"
 import { Callout } from "@/app/docs/_components/callout"
 import { CodeBlock } from "@/app/docs/_components/code-block"
 import { Tabs } from "@/app/docs/_components/tabs"
+import { MermaidDiagram } from "@/app/docs/_components/mermaid-diagram"
 import { ToolExplorer } from "@/app/docs/_components/tool-explorer"
 import {
   LiveToolCount,
@@ -34,9 +35,15 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       const lang = langMatch ? langMatch[1] : undefined
       const filename = child.props["data-filename"]
       const raw = typeof child.props.children === "string" ? child.props.children : ""
+      const content = raw.replace(/\n$/, "")
+
+      if (lang?.toLowerCase() === "mermaid") {
+        return <MermaidDiagram source={content} />
+      }
+
       return (
-        <CodeBlock lang={lang} filename={filename} plain={raw.replace(/\n$/, "")}>
-          {raw.replace(/\n$/, "")}
+        <CodeBlock lang={lang} filename={filename} plain={content}>
+          {content}
         </CodeBlock>
       )
     },
