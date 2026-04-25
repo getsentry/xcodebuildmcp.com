@@ -106,7 +106,7 @@ The MCP server speaks [Model Context Protocol](https://modelcontextprotocol.io/)
 Agents shelling out to <code>xcodebuild</code> get brittle, verbose, and inconsistent results. XcodeBuildMCP gives them:
 
 - **Stable tool names and flags**, versioned per release.
-- **Structured outputs** with pre-parsed build diagnostics, durable preflight/footer sections, and JSONL streams on demand.
+- **Structured outputs** with pre-parsed build diagnostics, durable preflight/footer sections, and NDJSON streams on demand.
 - **Session defaults** that eliminate repeated scheme/project/simulator boilerplate across tool calls.
 - **Two optional agent skills** (`xcodebuildmcp init`) that prime Claude Code, Cursor, and Codex with the right conventions.
 - **Per-workspace daemon** for stateful operations (log capture, debugging, video) with automatic start/stop.

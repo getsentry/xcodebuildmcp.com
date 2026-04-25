@@ -1,0 +1,150 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Contributing", "Testing"]}
+  title="Testing"
+  lede="How XcodeBuildMCP tests tools, fixtures, snapshots, and schema contracts."
+/>
+
+Tests should prove behavior without reaching real Apple tools unless the suite is explicitly an integration, smoke, or snapshot suite. Unit tests stay fast by injecting executors and filesystem dependencies at the tool logic boundary.
+
+A few terms used throughout this page: a **handler** is the function inside a tool module that performs one validated action and writes its result onto the call context; a **fixture** is a checked-in expected output stored under `src/snapshot-tests/__fixtures__/`; a **snapshot test** runs a tool and compares its output against the matching fixture, failing if they diverge; a **structured JSON response** is the tool's canonical machine-readable result, validated against a published schema and used by both MCP `structuredContent` and CLI `--output json`. See [Core terms](/docs/architecture#core-terms) for the broader architecture vocabulary.
+
+## Test runner
+
+| Concern | Current setup |
+|---------|---------------|
+| Runner | Vitest 3.x. |
+| Unit config | `vitest.config.ts`. |
+| Snapshot config | `vitest.snapshot.config.ts`. |
+| Smoke config | `vitest.smoke.config.ts`. |
+| Test files | `src/**/*.test.ts`, commonly under `__tests__/`. |
+| Default command | `npm test`, which runs `vitest run`. |
+
+Use focused Vitest runs while developing, then run the relevant full commands before handoff.
+
+```shell
+npm test -- src/mcp/tools/simulator/__tests__/list_sims.test.ts
+npm test -- --reporter=verbose
+```
+
+## The core rule
+
+Use dependency injection for complex tool logic. Use normal Vitest mocks for simple utility modules and in-memory collaborators.
+
+| Case | Use | Why |
+|------|-----|-----|
+| Tool logic that orchestrates `xcodebuild`, `xcrun`, AXe, filesystem writes, or multi-step subprocesses | Inject `CommandExecutor`, `FileSystemExecutor`, or another explicit dependency. | Keeps tests deterministic and prevents real external calls. |
+| Simple utility modules or internal collaborators | `vi.fn`, `vi.mock`, `vi.spyOn`, and normal in-memory test doubles. | Simpler code is better when the dependency is not a complex process boundary. |
+| Handlers | Do not test handlers directly. Test the logic function or executor factory underneath. | Handlers are runtime wrappers around validation, context setup, and rendering. |
+| External systems | Never hit real `xcodebuild`, `xcrun`, AXe, devices, simulators, or uncontrolled filesystem paths in unit tests. | Unit tests must not depend on local machine state. |
+
+## Three dimensions
+
+Every tool test should cover three dimensions.
+
+| Dimension | What to test | Good assertion style |
+|-----------|--------------|----------------------|
+| Input validation | Valid params, invalid params, missing required params, mutually exclusive params, and session-default requirements. | Parse the exported Zod `schema`, or exercise the logic path that produces validation text without reaching external systems. |
+| Command generation | The tool builds the right command and handles path, scheme, platform, and option combinations. | Verify behavior through the response, structured output, or a narrow executor callback when the command itself is the behavior under test. |
+| Output processing | Success payloads, command failures, executor throws, parsing errors, diagnostics, next-step params, and structured output. | Assert rendered text and `ctx.structuredOutput`, not incidental implementation details. |
+
+Do not use command-spying as a substitute for behavior assertions. If a test only proves that an array was assembled but never proves the user-visible result, it is too shallow.
+
+## Mock executors
+
+Use the shared helpers from `src/test-utils/mock-executors.ts`.
+
+| Helper | Use it for |
+|--------|------------|
+| `createMockExecutor(...)` | Return a successful command response, a failed command response, or throw an error. |
+| `createMockFileSystemExecutor(...)` | Override filesystem behavior such as `existsSync`, `readFile`, `writeFile`, `stat`, or `mkdtemp`. |
+| `createNoopExecutor()` | Fail the test if a command path should never be reached. |
+| `createNoopFileSystemExecutor()` | Fail the test if filesystem access should never be reached. |
+| `createCommandMatchingMockExecutor(...)` | Return different responses for tools that run multiple commands. |
+| `createMockInteractiveSpawner(...)` | Test interactive process flows without spawning a real process. |
+
+A small logic-function test should look like this:
+
+```ts
+import { expect, it } from 'vitest';
+import { createMockExecutor } from '../../../../test-utils/mock-executors.ts';
+import { runToolLogic } from '../../../../test-utils/test-helpers.ts';
+import { list_simsLogic } from '../list_sims.ts';
+
+it('renders listed simulators', async () => {
+  const executor = createMockExecutor({ success: true, output: '{"devices":{"iOS 17.0":[]}}' });
+  const { result } = await runToolLogic(() => list_simsLogic({ enabled: true }, executor));
+  expect(result.text()).toContain('List Simulators');
+});
+```
+
+Use `createNoopExecutor()` when the test is about validation or early exits. If it fires, the code reached an external boundary unexpectedly.
+
+## Snapshot tests
+
+Snapshot tests lock the public output contracts. They are slower and more environment-sensitive than unit tests.
+
+| Fixture tree | Validates |
+|--------------|-----------|
+| `src/snapshot-tests/__fixtures__/mcp/` | MCP text returned through `ToolResponse.content`. |
+| `src/snapshot-tests/__fixtures__/cli/` | CLI `--output text` output. |
+| `src/snapshot-tests/__fixtures__/json/` | Structured JSON response used by MCP `structuredContent` and CLI JSON output. |
+
+Run snapshots with full output preserved:
+
+```shell
+npm run test:snapshots 2>&1 | tee /tmp/snapshot-results.txt
+```
+
+Regenerate snapshots only for intentional output changes:
+
+```shell
+npm run test:snapshots:update 2>&1 | tee /tmp/snapshot-update.txt
+```
+
+<Callout variant="warn" title="The fixture is the contract">
+  If a snapshot changes unexpectedly, assume the code is wrong before blaming the fixture. Review every fixture diff before committing it.
+</Callout>
+
+JSON fixtures must also validate against the canonical structured-output schemas:
+
+```shell
+npm run test:schema-fixtures
+```
+
+## Pre-commit flow
+
+Follow the command list in [Contributing](/docs/contributing#pre-commit-checks). Do not invent a shorter local checklist for tool work.
+
+The installed pre-commit hook covers format check, lint, build, and docs check. It does not replace targeted tests, snapshot tests, schema fixture validation, or manual validation for runtime behavior.
+
+## Running the full suite
+
+Use these commands as the baseline for contributor handoff:
+
+```shell
+npm test
+npm run test:snapshots
+npm run test:schema-fixtures
+```
+
+Snapshot tests may need a physical device ID when device fixtures are involved:
+
+```shell
+DEVICE_ID=<YOUR_DEVICE_ID> npm run test:snapshots 2>&1 | tee /tmp/snapshot-results.txt
+```
+
+<Callout variant="info" title="Preserve full logs">
+  For long suites, always tee the full output to a log file under <code>/tmp</code>. Do not pipe directly through <code>tail</code> or <code>grep</code>, because that loses context you may need to debug failures.
+</Callout>
+
+The snapshot suite baseline is about seven minutes. Treat runs longer than about ten minutes as a likely hang.
+
+## Related
+
+- [Architecture](/docs/architecture), how tool logic, fragments, results, and rendering fit together
+- [Contributing](/docs/contributing#pre-commit-checks), setup and required local checks
+- [Tool Authoring](/docs/tool-authoring), adding implementation, manifests, schemas, and fixtures
+- [Output Formats](/docs/output-formats), structured JSON responses and MCP `structuredContent`

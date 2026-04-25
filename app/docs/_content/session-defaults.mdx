@@ -13,27 +13,16 @@ Session defaults are **on by default**.
 
 ## How it works
 
-1. The agent calls `session_set_defaults` once at the start of the session (or you seed them in config).
-2. Every tool call with a matching parameter uses the default if not explicitly passed.
-3. The agent can call `session_show_defaults` to inspect the current values at any time.
-4. The agent can call `session_clear_defaults` when switching contexts.
+1. At the start of a session, the agent stores your defaults (workspace, scheme, simulator, etc.) via `session_set_defaults`, or picks them up from `.xcodebuildmcp/config.yaml`.
+2. Every subsequent tool call uses those stored values when a matching parameter is missing.
+3. Ask your agent to show the current defaults at any time. It reads them via `session_show_defaults`.
+4. When you switch projects or context, ask the agent to clear or replace the defaults. It uses `session_clear_defaults` or another `session_set_defaults` call.
 
 ## Setting defaults
 
 ### From the agent (runtime)
 
-```json
-{
-  "name": "session_set_defaults",
-  "arguments": {
-    "workspacePath": "/repo/MyApp.xcworkspace",
-    "scheme": "MyApp",
-    "simulatorName": "iPhone 17 Pro"
-  }
-}
-```
-
-By default these live in memory only. Pass `persist: true` to write them back to `.xcodebuildmcp/config.yaml`, patch-only, so only the keys in that call are updated.
+Tell your agent which workspace (or project), scheme, and simulator to use; it will store those values via `session_set_defaults`. By default these live in memory only. Ask your agent to persist them and they will be saved to `.xcodebuildmcp/config.yaml`, patch-only, so only the keys you set are updated.
 
 ### From config (startup)
 
@@ -106,31 +95,7 @@ sessionDefaultsProfiles:
 activeSessionDefaultsProfile: ios
 ```
 
-The agent switches profiles with `session_use_defaults_profile`:
-
-```json
-{
-  "name": "session_use_defaults_profile",
-  "arguments": { "profile": "watch", "persist": true }
-}
-```
-
-Pass `global: true` to switch back to the unnamed global profile. Pass `createIfNotExists: true` on `session_set_defaults` to create a new profile in one call.
-
-### Recommended startup flow (monorepo)
-
-Copy/paste for an agent starting a new session:
-
-```json
-{"name":"session_use_defaults_profile","arguments":{"profile":"ios","persist":true}}
-{"name":"session_set_defaults","arguments":{
-  "workspacePath":"/repo/MyApp.xcworkspace",
-  "scheme":"MyApp-iOS",
-  "simulatorName":"iPhone 17 Pro",
-  "persist":true
-}}
-{"name":"session_show_defaults","arguments":{}}
-```
+Tell your agent to switch profiles ("use the watch profile") and it will load that profile via `session_use_defaults_profile`. Ask it to persist the switch if you want the profile selection to survive restarts. To return to the unnamed global profile, ask the agent to switch back to global. To create a new profile on the fly, ask the agent to set defaults under a new profile name.
 
 ## Opting out
 

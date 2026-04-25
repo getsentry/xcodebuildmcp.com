@@ -1,0 +1,320 @@
+import Link from "next/link"
+import { PageHeader } from "../_components/page-header"
+
+<PageHeader
+  breadcrumbs={["Docs", "Reference", "Output Formats"]}
+  title="Output Formats"
+  lede="Choose human-readable output for agents, a structured JSON response for scripts, NDJSON fragments for live pipelines, or raw process output for debugging."
+/>
+
+XcodeBuildMCP exposes the same tool results through the CLI and MCP server. The CLI controls presentation with `--output text|json|jsonl|raw`. MCP clients receive the rendered text block, and tools with structured results also attach `structuredContent`.
+
+## CLI output modes
+
+Every CLI tool accepts `--output`. The default is `text`.
+
+```shell
+xcodebuildmcp simulator list --output json
+xcodebuildmcp simulator build --scheme MyApp --project-path ./MyApp.xcodeproj --output jsonl
+```
+
+| Mode | What you get | Use it when |
+|------|--------------|-------------|
+| `text` | Human-readable CLI output, with live progress for long-running tools. | An agent or person is reading the result. |
+| `json` | One structured JSON response printed to stdout after the tool finishes. | A script, CI job, or custom integration needs stable fields. |
+| `jsonl` | Newline-delimited JSON (NDJSON), one JSON object per line as fragments arrive. | A pipeline needs live progress without parsing terminal text. |
+| `raw` | Raw subprocess transcript on stderr, with final rendered text on stdout. | You are debugging the underlying `xcodebuild`, `xcrun`, or helper process. |
+
+<Callout variant="warn" title="Xcode IDE bridge exception">
+  <code>--output json</code> and <code>--output jsonl</code> are not supported for <code>xcode-ide</code> tools yet. The CLI rejects those combinations before it calls the tool.
+</Callout>
+
+## `--output text`
+
+`text` is the default. It uses the interactive CLI renderer in terminals, so build and test tools can stream progress while the command is running. In non-interactive contexts it still returns readable text.
+
+```shell
+xcodebuildmcp simulator list
+```
+
+```text
+Available iOS Simulators:
+
+• iPhone 17 Pro (Booted)
+  UDID: 11111111-2222-3333-4444-555555555555
+  Runtime: iOS 26.0
+
+Next steps:
+  xcodebuildmcp simulator build --scheme YOUR_SCHEME --simulator-id 11111111-2222-3333-4444-555555555555
+```
+
+Use `text` for normal agent workflows. Agents can read summaries, diagnostics, and next-step commands without needing a JSON parser.
+
+## `--output json`
+
+`json` prints a structured JSON response to stdout after the tool finishes. It does not stream progress. Use it when you need stable fields for scripts or CI.
+
+The response has these fields:
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `schema` | `string` | Schema identifier, for example `xcodebuildmcp.output.build-result`. |
+| `schemaVersion` | `string` | Version of that schema contract. |
+| `didError` | `boolean` | Whether the tool reported a domain error. |
+| `error` | `string \| null` | Human-readable error text when `didError` is true. |
+| `data` | `object \| null` | Tool-specific data. |
+
+```json
+{
+  "schema": "xcodebuildmcp.output.simulator-list",
+  "schemaVersion": "1",
+  "didError": false,
+  "error": null,
+  "data": {
+    "simulators": [
+      {
+        "name": "iPhone 17 Pro",
+        "simulatorId": "A1B2C3D4-E5F6-7890-ABCD-EF0123456789",
+        "state": "Booted",
+        "isAvailable": true,
+        "runtime": "iOS 26.4"
+      },
+      {
+        "name": "iPad Pro 13-inch (M5)",
+        "simulatorId": "0F1E2D3C-4B5A-6978-8190-1122334455AA",
+        "state": "Shutdown",
+        "isAvailable": true,
+        "runtime": "iOS 26.4"
+      }
+    ]
+  }
+}
+```
+
+`data` can be `null` when a tool succeeds but has no structured payload. If a tool does not produce structured output for `--output json`, the CLI emits an error response with `schema: "xcodebuildmcp.output.error"`, `didError: true`, and exits with a non-zero status.
+
+## `--output jsonl`
+
+`jsonl` streams newline-delimited JSON (NDJSON) to stdout, one JSON object per line, written as the tool produces it. Each line has this shape:
+
+```json
+{"event":"build-result.build-stage","operation":"BUILD","stage":"COMPILING","message":"Compiling MyApp"}
+```
+
+The final structured response is not emitted in `jsonl` mode. Your pipeline consumes fragments as the source of truth for live progress.
+
+```jsonl
+{"event":"build-result.invocation","operation":"BUILD","request":{"scheme":"CalculatorApp","workspacePath":"example_projects/iOS_Calculator/CalculatorApp.xcworkspace","configuration":"Debug","platform":"iOS Simulator","simulatorName":"iPhone 17"}}
+{"event":"build-result.build-stage","operation":"BUILD","stage":"RESOLVING_PACKAGES","message":"Resolving packages"}
+{"event":"build-result.build-stage","operation":"BUILD","stage":"COMPILING","message":"Compiling CalculatorApp"}
+{"event":"build-result.build-summary","operation":"BUILD","status":"SUCCEEDED","durationMs":3421}
+```
+
+Use `jsonl` when the user benefits from live progress, but your caller still wants machine-readable records.
+
+## `--output raw`
+
+`raw` is for debugging subprocess behavior. Transcript fragments, such as the command line and raw process output, are written to stderr as the tool produces them. The final non-transcript rendering still goes to stdout.
+
+```shell
+xcodebuildmcp simulator build \
+  --scheme MyApp \
+  --project-path ./MyApp.xcodeproj \
+  --output raw
+```
+
+```text
+$ xcodebuild -project ./MyApp.xcodeproj -scheme MyApp -destination platform=iOS Simulator,name=iPhone 17 Pro build
+CompileSwift normal arm64 /repo/MyApp/ContentView.swift
+Ld /tmp/DerivedData/MyApp.app/MyApp normal arm64
+```
+
+Do not script against `raw`. The transcript is intentionally close to the underlying tools, so it can change when Xcode changes.
+
+## Structured content for MCP clients
+
+MCP mode always returns the normal `content` array. When a tool sets structured output, XcodeBuildMCP also attaches [`structuredContent`](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#structured-content) with the same shape as `--output json`.
+
+```json
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Build and run succeeded for CalculatorApp."
+    }
+  ],
+  "structuredContent": {
+    "schema": "xcodebuildmcp.output.build-run-result",
+    "schemaVersion": "1",
+    "didError": false,
+    "error": null,
+    "data": {
+      "request": {
+        "scheme": "CalculatorApp",
+        "workspacePath": "example_projects/iOS_Calculator/CalculatorApp.xcworkspace",
+        "configuration": "Debug",
+        "platform": "iOS Simulator",
+        "simulatorName": "iPhone 17"
+      },
+      "summary": {
+        "status": "SUCCEEDED",
+        "durationMs": 3421,
+        "target": "simulator"
+      },
+      "artifacts": {
+        "appPath": "~/Library/Developer/XcodeBuildMCP/DerivedData/Build/Products/Debug-iphonesimulator/CalculatorApp.app",
+        "bundleId": "io.sentry.calculatorapp",
+        "processId": 91827,
+        "simulatorId": "A1B2C3D4-E5F6-7890-ABCD-EF0123456789",
+        "buildLogPath": "~/Library/Developer/XcodeBuildMCP/logs/build_run_sim_20260424.log",
+        "runtimeLogPath": "~/Library/Developer/XcodeBuildMCP/logs/io.sentry.calculatorapp_20260424.log"
+      },
+      "diagnostics": {
+        "warnings": [],
+        "errors": []
+      }
+    }
+  }
+}
+```
+
+Tools that declare an [output schema](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#output-schema) also advertise it during MCP registration. Clients can use that schema to validate `structuredContent` or render typed UI.
+
+## Response schema reference
+
+Canonical JSON schemas live in the source repository under [`schemas/structured-output/`](https://github.com/getsentry/XcodeBuildMCP/tree/main/schemas/structured-output). Concrete examples:
+
+- [`xcodebuildmcp.output.simulator-list/1.schema.json`](https://github.com/getsentry/XcodeBuildMCP/blob/main/schemas/structured-output/xcodebuildmcp.output.simulator-list/1.schema.json)
+- [`xcodebuildmcp.output.build-result/1.schema.json`](https://github.com/getsentry/XcodeBuildMCP/blob/main/schemas/structured-output/xcodebuildmcp.output.build-result/1.schema.json)
+
+## Examples
+
+<Tabs tabs={[
+  { label: "list_sims JSON", content: (
+    <CodeBlock lang="json" plain={`{
+  "schema": "xcodebuildmcp.output.simulator-list",
+  "schemaVersion": "1",
+  "didError": false,
+  "error": null,
+  "data": {
+    "simulators": [
+      {
+        "name": "iPhone 17 Pro",
+        "simulatorId": "A1B2C3D4-E5F6-7890-ABCD-EF0123456789",
+        "state": "Booted",
+        "isAvailable": true,
+        "runtime": "iOS 26.4"
+      },
+      {
+        "name": "iPad Pro 13-inch (M5)",
+        "simulatorId": "0F1E2D3C-4B5A-6978-8190-1122334455AA",
+        "state": "Shutdown",
+        "isAvailable": true,
+        "runtime": "iOS 26.4"
+      }
+    ]
+  }
+}`}>
+{`{
+  "schema": "xcodebuildmcp.output.simulator-list",
+  "schemaVersion": "1",
+  "didError": false,
+  "error": null,
+  "data": {
+    "simulators": [
+      {
+        "name": "iPhone 17 Pro",
+        "simulatorId": "A1B2C3D4-E5F6-7890-ABCD-EF0123456789",
+        "state": "Booted",
+        "isAvailable": true,
+        "runtime": "iOS 26.4"
+      },
+      {
+        "name": "iPad Pro 13-inch (M5)",
+        "simulatorId": "0F1E2D3C-4B5A-6978-8190-1122334455AA",
+        "state": "Shutdown",
+        "isAvailable": true,
+        "runtime": "iOS 26.4"
+      }
+    ]
+  }
+}`}
+    </CodeBlock>
+  ) },
+  { label: "build_sim JSON", content: (
+    <CodeBlock lang="json" plain={`{
+  "schema": "xcodebuildmcp.output.build-result",
+  "schemaVersion": "1",
+  "didError": false,
+  "error": null,
+  "data": {
+    "request": {
+      "scheme": "CalculatorApp",
+      "workspacePath": "example_projects/iOS_Calculator/CalculatorApp.xcworkspace",
+      "configuration": "Debug",
+      "platform": "iOS Simulator",
+      "simulatorName": "iPhone 17"
+    },
+    "summary": {
+      "status": "SUCCEEDED",
+      "durationMs": 3421,
+      "target": "simulator"
+    },
+    "artifacts": {
+      "buildLogPath": "~/Library/Developer/XcodeBuildMCP/logs/build_sim_20260424.log"
+    },
+    "diagnostics": {
+      "warnings": [],
+      "errors": []
+    }
+  }
+}`}>
+{`{
+  "schema": "xcodebuildmcp.output.build-result",
+  "schemaVersion": "1",
+  "didError": false,
+  "error": null,
+  "data": {
+    "request": {
+      "scheme": "CalculatorApp",
+      "workspacePath": "example_projects/iOS_Calculator/CalculatorApp.xcworkspace",
+      "configuration": "Debug",
+      "platform": "iOS Simulator",
+      "simulatorName": "iPhone 17"
+    },
+    "summary": {
+      "status": "SUCCEEDED",
+      "durationMs": 3421,
+      "target": "simulator"
+    },
+    "artifacts": {
+      "buildLogPath": "~/Library/Developer/XcodeBuildMCP/logs/build_sim_20260424.log"
+    },
+    "diagnostics": {
+      "warnings": [],
+      "errors": []
+    }
+  }
+}`}
+    </CodeBlock>
+  ) },
+  { label: "build_sim NDJSON", content: (
+    <CodeBlock lang="jsonl" plain={`{"event":"build-result.invocation","operation":"BUILD","request":{"scheme":"CalculatorApp","workspacePath":"example_projects/iOS_Calculator/CalculatorApp.xcworkspace","configuration":"Debug","platform":"iOS Simulator","simulatorName":"iPhone 17"}}
+{"event":"build-result.build-stage","operation":"BUILD","stage":"RESOLVING_PACKAGES","message":"Resolving packages"}
+{"event":"build-result.build-stage","operation":"BUILD","stage":"COMPILING","message":"Compiling CalculatorApp"}
+{"event":"build-result.build-summary","operation":"BUILD","status":"SUCCEEDED","durationMs":3421}`}>
+{`{"event":"build-result.invocation","operation":"BUILD","request":{"scheme":"CalculatorApp","workspacePath":"example_projects/iOS_Calculator/CalculatorApp.xcworkspace","configuration":"Debug","platform":"iOS Simulator","simulatorName":"iPhone 17"}}
+{"event":"build-result.build-stage","operation":"BUILD","stage":"RESOLVING_PACKAGES","message":"Resolving packages"}
+{"event":"build-result.build-stage","operation":"BUILD","stage":"COMPILING","message":"Compiling CalculatorApp"}
+{"event":"build-result.build-summary","operation":"BUILD","status":"SUCCEEDED","durationMs":3421}`}
+    </CodeBlock>
+  ) },
+]} />
+
+## Related
+
+- [CLI](/docs/cli), direct terminal access to tools
+- [MCP Server Mode](/docs/mcp-mode), stdio server behavior
+- [Tools Reference](/docs/tools), generated tool catalog
+- [Rendering & Output](/docs/architecture-rendering-output), contributor-level rendering model
+- [Tool Authoring](/docs/tool-authoring), adding schemas and structured results
