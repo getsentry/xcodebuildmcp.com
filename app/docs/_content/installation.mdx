@@ -22,12 +22,6 @@ brew tap getsentry/xcodebuildmcp
 brew install xcodebuildmcp
 ```
 
-Upgrade later:
-
-```shell
-brew update && brew upgrade xcodebuildmcp
-```
-
 ## Option B: npm / npx
 
 For CLI use, install globally:
@@ -40,6 +34,16 @@ xcodebuildmcp --help
 For MCP-server-only use, no global install needed, just reference `npx` in your MCP client config (covered in [Setup](/docs/setup)).
 
 Pin a specific version by replacing `@latest` with a tag, for example `@2.3.2`.
+
+## Keeping it up to date
+
+Once installed, run the built-in self-update command:
+
+```shell
+xcodebuildmcp upgrade
+```
+
+It checks for a newer version and installs it in place using whichever package manager you installed with. See [CLI → Keeping the CLI up to date](/docs/cli#keeping-the-cli-up-to-date) for available flags.
 
 ## Verify
 

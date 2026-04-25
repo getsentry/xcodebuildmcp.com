@@ -4,6 +4,13 @@
 
 ## Docs site
 
+### Audience and voice
+
+- These docs are for end users of XcodeBuildMCP (developers using the CLI and MCP server in their workflow), not contributors working on XcodeBuildMCP itself.
+- Write about what the command or feature does for the user and when to use it. Skip the "how it works" details: which APIs are called, what the lookup strategy is, internal fallbacks, file layouts, timeout values, protocol specifics, parsing rules.
+- Keep callouts and notes focused on things that affect the user's decisions (when to use a flag, when something will not work for them), not on justifying the implementation.
+- If you find yourself writing a per-channel mechanics table, a "fetched from ... by ..." sentence, or a "we chose X because Y" explanation, cut it.
+
 ### Adding or editing a page
 
 Content lives at `app/docs/_content/<slug>.mdx`. To add a new page, also update:
