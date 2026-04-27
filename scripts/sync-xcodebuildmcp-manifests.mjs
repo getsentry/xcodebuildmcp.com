@@ -63,7 +63,7 @@ async function resolveRef() {
 async function listDir(ref, dir) {
   const url = `${GH_API}/repos/${REPO}/contents/${dir}?ref=${encodeURIComponent(ref)}`
   const items = await fetchJson(url)
-  return items.filter((i) => i.type === "file" && i.name.endsWith(".yaml"))
+  return items.filter((i) => i.type === "file" && (i.name.endsWith(".yaml") || i.name.endsWith(".yml")))
 }
 
 async function fetchManifestsRemote(ref) {
@@ -101,8 +101,8 @@ async function fetchManifestsLocal() {
   const { readdir } = await import("node:fs/promises")
   const wfDir = path.join(LOCAL_REPO, "manifests", "workflows")
   const toolDir = path.join(LOCAL_REPO, "manifests", "tools")
-  const wfFiles = (await readdir(wfDir)).filter((f) => f.endsWith(".yaml"))
-  const toolFiles = (await readdir(toolDir)).filter((f) => f.endsWith(".yaml"))
+  const wfFiles = (await readdir(wfDir)).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"))
+  const toolFiles = (await readdir(toolDir)).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"))
   const workflows = await Promise.all(
     wfFiles.map(async (f) => loadYaml(await readFile(path.join(wfDir, f), "utf8")))
   )
