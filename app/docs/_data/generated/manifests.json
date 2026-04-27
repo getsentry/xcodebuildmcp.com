@@ -1,7 +1,7 @@
 {
   "source": "github:getsentry/XcodeBuildMCP@v2.3.2",
   "ref": "v2.3.2",
-  "syncedAt": "2026-04-19T18:51:34.777Z",
+  "syncedAt": "2026-04-27T09:46:24.933Z",
   "version": "2.3.2",
   "workflows": [
     {
