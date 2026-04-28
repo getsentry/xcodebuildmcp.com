@@ -108,6 +108,47 @@ npm run test:snapshots:update 2>&1 | tee /tmp/snapshot-update.txt
   If a snapshot changes unexpectedly, assume the code is wrong before blaming the fixture. Review every fixture diff before committing it.
 </Callout>
 
+### Adding a test case
+
+Edit the suite file in `src/snapshot-tests/suites/` that matches the tool category, for example `device-suite.ts`. Add an `it(...)` block inside the relevant `describe(...)` group:
+
+```ts
+it('success', async () => {
+  const { text, isError } = await harness.invoke('device', 'list', {});
+  expect(isError).toBe(false);
+  expectFixture(text, 'list--success');
+});
+```
+
+The second argument to `expectFixture` is the scenario name. It maps to fixture files under `src/snapshot-tests/__fixtures__/`:
+
+| Runtime | Path pattern |
+|---------|--------------|
+| `mcp` | `mcp/{workflow}/{scenario}.txt` |
+| `cli` | `cli/{workflow}/{scenario}.txt` |
+| `json` | `json/{workflow}/{scenario}.json` |
+
+Generate the initial fixture by running the suite with `UPDATE_SNAPSHOTS=1` (see below).
+
+### Targeting one test
+
+Pass the test file path and use `-t` to filter by test name:
+
+```shell
+npx vitest run --config vitest.snapshot.config.ts src/snapshot-tests/__tests__/device.snapshot.test.ts
+npx vitest run --config vitest.snapshot.config.ts src/snapshot-tests/__tests__/device.snapshot.test.ts -t "list"
+```
+
+### Updating a targeted test
+
+Combine `UPDATE_SNAPSHOTS=1` with a file filter and `-t` to regenerate only the matched fixtures:
+
+```shell
+UPDATE_SNAPSHOTS=1 npx vitest run --config vitest.snapshot.config.ts src/snapshot-tests/__tests__/device.snapshot.test.ts -t "list success"
+```
+
+This writes only the fixture files for the matched tests. All other fixtures are left untouched.
+
 JSON fixtures must also validate against the canonical structured-output schemas:
 
 ```shell
