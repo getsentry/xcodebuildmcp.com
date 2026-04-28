@@ -180,6 +180,48 @@ MCP mode always returns the normal `content` array. When a tool sets structured 
 
 Tools that declare an [output schema](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#output-schema) also advertise it during MCP registration. Clients can use that schema to validate `structuredContent` or render typed UI.
 
+## Per-test results
+
+Test tools (`test_sim`, `test_device`, `test_macos`, `swift_package_test`) include a `testCases` array on the structured `test-result` response. Each entry has `suite` (optional), `test`, `status` (`passed`, `failed`, or `skipped`), and `durationMs` (optional).
+
+The array is always present in JSON output and MCP `structuredContent` when the run produced any per-case results. The `showTestTiming` config option (or `XCODEBUILDMCP_SHOW_TEST_TIMING=1`) is purely a text-rendering toggle: with it on, `--output text` and MCP `content[]` text include a `Test Results:` block before the summary; with it off, the structured data is still there for programmatic consumers.
+
+```json
+{
+  "schema": "xcodebuildmcp.output.test-result",
+  "schemaVersion": "1",
+  "didError": false,
+  "error": null,
+  "data": {
+    "summary": {
+      "status": "FAILED",
+      "durationMs": 22100,
+      "counts": { "passed": 21, "failed": 2, "skipped": 0 },
+      "target": "simulator"
+    },
+    "testCases": [
+      { "suite": "CalculatorAppTests", "test": "testAddition", "status": "passed", "durationMs": 1 },
+      { "suite": "CalculatorAppTests", "test": "testCalculatorServiceFailure", "status": "failed", "durationMs": 4 },
+      { "suite": "IntentionalFailureTests", "test": "test", "status": "failed", "durationMs": 3 }
+    ],
+    "diagnostics": {
+      "warnings": [],
+      "errors": [],
+      "testFailures": [
+        {
+          "suite": "CalculatorAppTests",
+          "test": "testCalculatorServiceFailure",
+          "message": "XCTAssertEqual failed: (\"0\") is not equal to (\"999\")",
+          "location": "CalculatorAppTests/CalculatorAppTests.swift:52"
+        }
+      ]
+    }
+  }
+}
+```
+
+Parameterized Swift Testing groups currently surface as a single aggregate entry because `xcodebuild` does not emit per-case names or durations for them. Counts in `summary.counts` may exceed the `testCases` array length when parameterization is in use.
+
 ## Response schema reference
 
 Canonical JSON schemas live in the source repository under [`schemas/structured-output/`](https://github.com/getsentry/XcodeBuildMCP/tree/main/schemas/structured-output). Concrete examples:
