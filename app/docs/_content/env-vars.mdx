@@ -27,6 +27,7 @@ Set env vars in the `env` field of your MCP client config (for example `mcp_conf
 | `disableXcodeAutoSync` | `XCODEBUILDMCP_DISABLE_XCODE_AUTO_SYNC` |
 | `incrementalBuildsEnabled` | `INCREMENTAL_BUILDS_ENABLED` |
 | `debug` | `XCODEBUILDMCP_DEBUG` |
+| `showTestTiming` | `XCODEBUILDMCP_SHOW_TEST_TIMING` |
 | `sentryDisabled` | `XCODEBUILDMCP_SENTRY_DISABLED` |
 | `debuggerBackend` | `XCODEBUILDMCP_DEBUGGER_BACKEND` |
 | `dapRequestTimeoutMs` | `XCODEBUILDMCP_DAP_REQUEST_TIMEOUT_MS` |
@@ -58,6 +59,32 @@ Set env vars in the `env` field of your MCP client config (for example `mcp_conf
 | `derivedDataPath` | `XCODEBUILDMCP_DERIVED_DATA_PATH` |
 | `preferXcodebuild` | `XCODEBUILDMCP_PREFER_XCODEBUILD` |
 | `bundleId` | `XCODEBUILDMCP_BUNDLE_ID` |
+
+## Working directory override
+
+`XCODEBUILDMCP_CWD` overrides the directory XcodeBuildMCP uses to discover `.xcodebuildmcp/config.yaml` and resolve relative paths. Set this when the host that launches XcodeBuildMCP can configure environment variables but not the spawn directory (the most common case is **MCP Inspector**).
+
+| Variable | Behavior |
+|----------|----------|
+| `XCODEBUILDMCP_CWD` | Absolute path; supports a leading `~/`. Falls back to the original cwd with a warning if the directory cannot be entered. |
+
+Example: launch XcodeBuildMCP from anywhere and have it read `~/Projects/MyApp/.xcodebuildmcp/config.yaml`:
+
+```json
+{
+  "mcpServers": {
+    "XcodeBuildMCP": {
+      "command": "npx",
+      "args": ["-y", "xcodebuildmcp@latest", "mcp"],
+      "env": {
+        "XCODEBUILDMCP_CWD": "~/Projects/MyApp"
+      }
+    }
+  }
+}
+```
+
+If you have not set `XCODEBUILDMCP_CWD`, the working directory is whatever the host process spawned XcodeBuildMCP in.
 
 ## Example
 
