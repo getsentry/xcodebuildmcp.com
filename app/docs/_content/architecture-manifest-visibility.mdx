@@ -29,7 +29,7 @@ Keeping that metadata in YAML prevents each runtime from inventing its own catal
 | Directory | Defines | Used by |
 |-----------|---------|---------|
 | `manifests/tools/` | Tool ID, implementation module, MCP and CLI names, description, annotations, availability, predicates, routing, next steps, output schema metadata. | MCP registration, CLI command generation, daemon catalog, generated docs, schema checks. |
-| `manifests/workflows/` | Workflow ID and tool membership. | Workflow selection, sidebar grouping in generated references, MCP catalog trimming. |
+| `manifests/workflows/` | Workflow ID, tool membership, and `targetPlatforms` setup guidance. | Workflow selection, sidebar grouping in generated references, MCP catalog trimming, setup wizard recommendations. |
 | `manifests/resources/` | MCP resource metadata and module handler. | MCP resource registration. |
 
 Tool modules are imported only after the manifest has been loaded and filtered. A tool module must export named `schema` and `handler` values. Resource modules have their own contract and require a handler, so avoid treating the tool-module contract as universal.
@@ -82,6 +82,21 @@ Do not add a third manifest availability mode for daemon behavior. The daemon is
 Workflow selection is the coarse catalog control. It keeps MCP sessions small and lets users enable only the capability groups they need. Predicate filtering is finer grained. It can hide tools that require debug mode, experimental workflow discovery, or a runtime environment that is not currently active.
 
 That order matters for contributors. Put durable product grouping in workflow manifests. Put conditional exposure in predicates. Put public runtime support in the `availability` object.
+
+## Workflow `targetPlatforms` is setup guidance, not exposure
+
+Workflow manifests carry a `targetPlatforms` field listing the Apple platforms (`iOS`, `macOS`, `tvOS`, `watchOS`, `visionOS`) the workflow is recommended for. The setup wizard reads this to ask the user which platforms they target and to highlight matching workflows. The conservative default selection stays narrow: `simulator` for any simulator platform, `macos` when macOS is selected. Everything else is recommended-but-opt-in, and the user can still pick any workflow regardless of platform.
+
+A few things `targetPlatforms` is deliberately not:
+
+- Not an exposure check. It does not replace predicates, the `availability` object, or per-tool capability checks at runtime.
+- Not unsupported when empty. `targetPlatforms: []` means the workflow is not specific to a target platform (typical for `session-management`, `workflow-discovery`, or `doctor`); it is still exposed normally.
+- Not authoritative for individual tools. It describes the workflow as a unit; tool-level platform support stays in the implementation and predicates.
+
+When authoring a new workflow:
+
+- Set `targetPlatforms` to every platform the workflow is genuinely useful on. `swift-package` covers all five Apple platforms; `macos` is `macOS` only; `ui-automation` is `iOS` only today.
+- Leave `targetPlatforms: []` for workflows that are not user-selected by platform (session management, workflow discovery, doctor).
 
 ## Authoring implications
 

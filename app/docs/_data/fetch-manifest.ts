@@ -2,9 +2,11 @@ import "server-only"
 import { load as loadYaml } from "js-yaml"
 import {
   BUNDLED_MANIFEST,
+  WORKFLOW_TARGET_PLATFORMS,
   type ManifestSnapshot,
   type ToolEntry,
   type WorkflowEntry,
+  type WorkflowTargetPlatform,
 } from "./manifests"
 
 const REPO = "getsentry/XcodeBuildMCP"
@@ -94,6 +96,14 @@ function normalizeTools(raw: Array<Record<string, unknown>>): ToolEntry[] {
     .sort((a, b) => a.mcpName.localeCompare(b.mcpName))
 }
 
+function normalizeTargetPlatforms(value: unknown): WorkflowTargetPlatform[] {
+  if (!Array.isArray(value)) return []
+  return value.filter(
+    (p): p is WorkflowTargetPlatform =>
+      typeof p === "string" && (WORKFLOW_TARGET_PLATFORMS as readonly string[]).includes(p)
+  )
+}
+
 function normalizeWorkflows(raw: Array<Record<string, unknown>>): WorkflowEntry[] {
   return raw
     .map((w) => {
@@ -104,6 +114,7 @@ function normalizeWorkflows(raw: Array<Record<string, unknown>>): WorkflowEntry[
         title: (w.title as string | undefined) ?? String(w.id ?? ""),
         description: (w.description as string | undefined) ?? "",
         defaultEnabled: Boolean(selection.mcp?.defaultEnabled),
+        targetPlatforms: normalizeTargetPlatforms(w.targetPlatforms),
         tools: Array.isArray(w.tools) ? (w.tools as string[]) : [],
       }
     })
