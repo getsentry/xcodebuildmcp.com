@@ -37,7 +37,6 @@ stateDiagram-v2
     Collecting --> Collecting: attach(image)
     Collecting --> StructuredReady: setStructuredOutput(output)
     StructuredReady --> StructuredReady: setNextSteps(steps, runtime)
-    Collecting --> ErrorTracked: error fragment emitted
     StructuredReady --> ErrorTracked: structured result didError=true
 
     ErrorTracked --> Finalizing: finalize()
@@ -60,7 +59,7 @@ stateDiagram-v2
     RuntimeBoundary --> [*]
 ```
 
-The render session is the collection point for the tool invocation. It receives fragments as work happens, stores attachments, stores the final structured output, stores next steps, tracks error state, and finalizes the transcript for the selected render strategy.
+The render session is the collection point for the tool invocation. It receives fragments as work happens, stores attachments, stores the final structured output, stores next steps, derives error state from the structured result, and finalizes the transcript for the selected render strategy.
 
 ## Render strategy vs CLI output mode
 

@@ -60,9 +60,31 @@ The response has these fields:
 |-------|------|---------|
 | `schema` | `string` | Schema identifier, for example `xcodebuildmcp.output.build-result`. |
 | `schemaVersion` | `string` | Version of that schema contract. |
-| `didError` | `boolean` | Whether the tool reported a domain error. |
+| `didError` | `boolean` | Whether the final result is an error. |
 | `error` | `string \| null` | Human-readable error text when `didError` is true. |
-| `data` | `object \| null` | Tool-specific data. |
+| `data` | `object \| null` | Schema-specific payload. Domain schemas use tool-specific data; `xcodebuildmcp.output.error` uses generic error metadata. |
+
+Structured output is a tagged union. Consumers should branch on `schema`, then parse `data` according to that schema:
+
+```typescript
+type XcodeBuildMCPOutput =
+  | {
+      schema: "xcodebuildmcp.output.simulator-list"
+      schemaVersion: "1"
+      didError: boolean
+      error: string | null
+      data: { simulators: Simulator[] }
+    }
+  | {
+      schema: "xcodebuildmcp.output.error"
+      schemaVersion: "1"
+      didError: true
+      error: string
+      data: { category: "runtime" | "validation" | "schema"; code: string }
+    }
+```
+
+For example, `list_sims` normally returns `xcodebuildmcp.output.simulator-list`, but a validation or runtime failure before simulator listing begins returns `xcodebuildmcp.output.error`. Do not assume a tool always returns only its domain schema; always check `schema` first.
 
 ```json
 {
@@ -91,7 +113,22 @@ The response has these fields:
 }
 ```
 
-`data` can be `null` when a tool succeeds but has no structured payload. If a tool does not produce structured output for `--output json`, the CLI emits an error response with `schema: "xcodebuildmcp.output.error"`, `didError: true`, and exits with a non-zero status.
+`data` can be `null` when a tool succeeds but has no structured payload. If a tool produces no structured output, or if a pre-domain failure occurs (validation, schema, or runtime error before the tool executes), the response uses the generic error branch and the CLI exits with a non-zero status:
+
+```json
+{
+  "schema": "xcodebuildmcp.output.error",
+  "schemaVersion": "1",
+  "didError": true,
+  "error": "Parameter validation failed: Invalid parameters...",
+  "data": {
+    "category": "validation",
+    "code": "PARAMETER_VALIDATION_FAILED"
+  }
+}
+```
+
+Domain failures still use their domain schema. For example, an attempted build that fails returns `xcodebuildmcp.output.build-result` with `didError: true` and build diagnostics in `data`.
 
 ## `--output jsonl`
 
@@ -133,7 +170,7 @@ Do not script against `raw`. The transcript is intentionally close to the underl
 
 ## Structured content for MCP clients
 
-MCP mode always returns the normal `content` array. When a tool sets structured output, XcodeBuildMCP also attaches [`structuredContent`](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#structured-content) with the same shape as `--output json`.
+MCP mode always returns the normal `content` array. When a tool sets structured output, XcodeBuildMCP also attaches [`structuredContent`](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#structured-content) with the same shape as `--output json`. Pre-domain failures — validation errors, schema mismatches, or runtime errors before the tool executes — also produce `structuredContent` using `schema: "xcodebuildmcp.output.error"`.
 
 ```json
 {
@@ -178,7 +215,7 @@ MCP mode always returns the normal `content` array. When a tool sets structured 
 }
 ```
 
-Tools that declare an [output schema](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#output-schema) also advertise it during MCP registration. Clients can use that schema to validate `structuredContent` or render typed UI.
+Tools that declare an [output schema](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#output-schema) also advertise it during MCP registration. For tools with structured output, the advertised schema is a union of the tool's domain envelope and the generic `xcodebuildmcp.output.error` envelope. Clients can use that schema to validate `structuredContent` or render typed UI, but should still branch on the returned `schema` value at runtime.
 
 ## Response schema reference
 

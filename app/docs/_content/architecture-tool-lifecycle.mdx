@@ -60,8 +60,6 @@ interface ToolHandlerContext {
 | `nextSteps` | Provide explicit dynamic follow-ups when templates cannot express the result. |
 | `structuredOutput` | Set the final canonical result, schema ID, and schema version. |
 
-The omitted progress flags are internal boundary controls. They exist in source today, but the public docs intentionally do not teach tool authors to branch on them.
-
 ## Fragments versus structured output
 
 A handler produces two different things, and they serve different readers. Fragments are live progress and transcript material — log lines, build output, attachments — that callers and pipelines consume while the work is running. Structured output is the one final canonical result the handler sets at the end of the call. Fragments are never the final result; the structured output is what powers CLI `--output json`, MCP `structuredContent`, schema validation, fixtures, and stable integrations.
