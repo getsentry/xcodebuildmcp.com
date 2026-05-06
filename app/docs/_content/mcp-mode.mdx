@@ -118,4 +118,20 @@ Enable `xcode-ide` to expose Xcode 26+'s `xcrun mcpbridge` tools through XcodeBu
 
 Every tool declares read-only, destructive, and open-world hints so MCP clients that respect annotations can skip unnecessary confirmation prompts for lower-risk calls and keep prompts for risky ones.
 
+## Idle shutdown
+
+MCP server mode does not shut down for idleness by default. To opt in, set `XCODEBUILDMCP_MCP_IDLE_TIMEOUT_MS` to a positive number of milliseconds in your MCP client env config.
+
+```json
+{
+  "env": {
+    "XCODEBUILDMCP_MCP_IDLE_TIMEOUT_MS": "600000"
+  }
+}
+```
+
+When enabled, the server exits through the normal graceful shutdown path only after the idle timeout has elapsed, no MCP request is in flight, and no registered runtime operation is active. Use `0` or omit the variable to keep idle shutdown disabled.
+
+See [Environment Variables](/docs/env-vars#mcp-idle-shutdown) for the full reference.
+
 See [MCP Protocol Support](/docs/mcp-protocol-support) for the full list of MCP features XcodeBuildMCP implements.
