@@ -32,6 +32,7 @@ Set env vars in the `env` field of your MCP client config (for example `mcp_conf
 | `dapRequestTimeoutMs` | `XCODEBUILDMCP_DAP_REQUEST_TIMEOUT_MS` |
 | `dapLogEvents` | `XCODEBUILDMCP_DAP_LOG_EVENTS` |
 | `launchJsonWaitMs` | `XBMCP_LAUNCH_JSON_WAIT_MS` |
+| MCP idle timeout | `XCODEBUILDMCP_MCP_IDLE_TIMEOUT_MS` |
 | `uiDebuggerGuardMode` | `XCODEBUILDMCP_UI_DEBUGGER_GUARD_MODE` |
 | `axePath` | `XCODEBUILDMCP_AXE_PATH` |
 | `iosTemplatePath` | `XCODEBUILDMCP_IOS_TEMPLATE_PATH` |
@@ -58,6 +59,12 @@ Set env vars in the `env` field of your MCP client config (for example `mcp_conf
 | `derivedDataPath` | `XCODEBUILDMCP_DERIVED_DATA_PATH` |
 | `preferXcodebuild` | `XCODEBUILDMCP_PREFER_XCODEBUILD` |
 | `bundleId` | `XCODEBUILDMCP_BUNDLE_ID` |
+
+## MCP idle shutdown
+
+`XCODEBUILDMCP_MCP_IDLE_TIMEOUT_MS` is disabled by default (`0`). Set it to a positive number of milliseconds when you want an unused MCP server process to shut down gracefully after that idle period.
+
+The server only exits when the timeout has elapsed, no MCP request is in flight, and no registered runtime operation is active.
 
 ## Example
 
