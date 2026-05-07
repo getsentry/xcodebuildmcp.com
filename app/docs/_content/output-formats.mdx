@@ -50,6 +50,16 @@ Next steps:
 
 Use `text` for normal agent workflows. Agents can read summaries, diagnostics, and next-step commands without needing a JSON parser.
 
+CLI text renders file artifacts as labeled rows under `Files:` by default:
+
+```text
+Files:
+   ├ App Path: ~/Library/Developer/XcodeBuildMCP/.../MyApp.app
+   └ Build Logs: ~/Library/Developer/XcodeBuildMCP/.../build.log
+```
+
+Use `--file-path-render-style tree` for the compact grouped tree used by MCP text responses, or set `filePathRenderStyle: "tree"` / `XCODEBUILDMCP_FILE_PATH_RENDER_STYLE=tree`. This setting only affects human-readable text; `--output json` and `--output jsonl` keep the same structured fields.
+
 ## `--output json`
 
 `json` prints a structured JSON response to stdout after the tool finishes. It does not stream progress. Use it when you need stable fields for scripts or CI.
