@@ -132,6 +132,10 @@ MCP server mode does not shut down for idleness by default. To opt in, set `XCOD
 
 When enabled, the server exits through the normal graceful shutdown path only after the idle timeout has elapsed, no MCP request is in flight, and no registered runtime operation is active. Use `0` or omit the variable to keep idle shutdown disabled.
 
+<Callout variant="warn" title="Client reconnect behavior varies">
+  Idle shutdown closes the MCP stdio connection from the server side. Claude Code and Codex CLI are expected to respawn MCP servers after disconnects, but other MCP clients may not handle this gracefully. Keep this disabled unless your client can recover from the server exiting, and choose a timeout long enough for normal pauses between agent requests.
+</Callout>
+
 See [Environment Variables](/docs/env-vars#mcp-idle-shutdown) for the full reference.
 
 See [MCP Protocol Support](/docs/mcp-protocol-support) for the full list of MCP features XcodeBuildMCP implements.
