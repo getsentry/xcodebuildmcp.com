@@ -49,7 +49,12 @@ xcodebuildmcp simulator build --json '{"scheme":"MyApp","projectPath":"./MyApp.x
 
 # Output format
 xcodebuildmcp simulator list --output json
+
+# File artifact layout in text/raw output
+xcodebuildmcp simulator build --file-path-render-style tree
 ```
+
+`--file-path-render-style list|tree` overrides the text rendering style for file artifacts on one invocation. The default CLI text style is `list`; MCP text defaults to `tree`. JSON and JSONL output are unaffected.
 
 ## Session defaults auto-fill
 

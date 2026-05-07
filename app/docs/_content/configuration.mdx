@@ -81,6 +81,9 @@ sessionDefaults:
 # Build settings
 incrementalBuildsEnabled: false
 
+# Text output
+filePathRenderStyle: "list" # "list" or "tree"
+
 # Debugging and telemetry
 debug: false
 sentryDisabled: false
@@ -113,6 +116,7 @@ macosTemplateVersion: "v1.2.3"
 | `sessionDefaultsProfiles` | object | `{}` |
 | `activeSessionDefaultsProfile` | string | `global` |
 | `incrementalBuildsEnabled` | boolean | `false` |
+| `filePathRenderStyle` | `"list" \| "tree"` | CLI text: `"list"`, MCP text: `"tree"` |
 | `debug` | boolean | `false` |
 | `sentryDisabled` | boolean | `false` |
 | `debuggerBackend` | string | `"dap"` |
