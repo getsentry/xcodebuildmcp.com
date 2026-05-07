@@ -51,7 +51,7 @@ The envelope wraps every tool's structured payload in the same shape, so consume
 }
 ```
 
-The envelope fields are documented in [Output Formats](/docs/output-formats). Canonical JSON schemas live in [`schemas/structured-output/`](https://github.com/getsentry/XcodeBuildMCP/tree/main/schemas/structured-output). Tools advertise their output schema in `tools/list`.
+The envelope fields are documented in [Output Formats](/docs/output-formats). Canonical JSON schemas live in [`schemas/structured-output/`](https://github.com/getsentry/XcodeBuildMCP/tree/main/schemas/structured-output). Tools advertise their output schema in `tools/list` as an object-shaped union of the domain schema OR `xcodebuildmcp.output.error`, so clients can always branch on `schema` to determine whether a structured result is a normal domain payload or a generic error.
 
 The one exception is the [Xcode IDE bridge](/docs/xcode-ide): bridge tools forward calls to Xcode's own MCP service, so their output shape comes from Xcode and does not use the XcodeBuildMCP envelope.
 
