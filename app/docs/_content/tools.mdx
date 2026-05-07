@@ -16,6 +16,8 @@ import { ToolExplorer } from "../_components/tool-explorer"
 
 The one-shot tool your agent will reach for most. Builds the scheme, installs the resulting `.app` on a booted simulator, and launches it, with logs captured to a file.
 
+`launchArgs` is also supported on the other build-and-run tools (`build_run_device` and `build_run_macos`) and launch-only tools (`launch_app_sim`, `launch_app_device`, `launch_mac_app`) with the same contract: launch args go only to runtime launch steps, while `extraArgs` stays build/build-settings only.
+
 <div className="params">
   <div className="param">
     <div>
@@ -41,7 +43,7 @@ The one-shot tool your agent will reach for most. Builds the scheme, installs th
       <div className="param-type">string</div>
     </div>
     <div className="param-desc">
-      Absolute or relative path to <code>.xcworkspace</code>. Takes precedence over <code>projectPath</code> if both are set.
+      Absolute or relative path to <code>.xcworkspace</code>. Mutually exclusive with <code>projectPath</code>. Optional when set in session defaults.
     </div>
   </div>
   <div className="param">
@@ -69,6 +71,24 @@ The one-shot tool your agent will reach for most. Builds the scheme, installs th
     </div>
     <div className="param-desc">
       Build configuration. <span className="default">Default: <code>Debug</code></span>
+    </div>
+  </div>
+  <div className="param">
+    <div>
+      <div className="param-name">extraArgs</div>
+      <div className="param-type">string[]</div>
+    </div>
+    <div className="param-desc">
+      Additional <code>xcodebuild</code> and build-settings arguments. Use this for build-system flags, not app launch arguments.
+    </div>
+  </div>
+  <div className="param">
+    <div>
+      <div className="param-name">launchArgs</div>
+      <div className="param-type">string[]</div>
+    </div>
+    <div className="param-desc">
+      Arguments passed to the launched app process. Use this for runtime flags that appear in <code>ProcessInfo.processInfo.arguments</code>.
     </div>
   </div>
 </div>
