@@ -93,6 +93,48 @@ xcodebuildmcp simulator build-and-run \
   --project-path ./MyApp.xcodeproj
 ```
 
+Pass launch arguments with `launchArgs` on build-and-run tools (`simulator build-and-run`, `device build-and-run`, `macos build-and-run`) and launch-only tools (`simulator launch-app`, `device launch`, `macos launch`). Keep `extraArgs` for `xcodebuild` flags and build settings overrides; those values are not passed to the app process.
+
+```shell
+xcodebuildmcp simulator build-and-run --json '{
+  "scheme": "MyApp",
+  "projectPath": "./MyApp.xcodeproj",
+  "simulatorName": "iPhone 17 Pro",
+  "launchArgs": ["--mock-weather-api"]
+}'
+```
+
+### Build and run on a physical device with runtime args
+
+```shell
+xcodebuildmcp device build-and-run --json '{
+  "scheme": "MyApp",
+  "projectPath": "./MyApp.xcodeproj",
+  "deviceId": "<DEVICE_UDID>",
+  "launchArgs": ["--uitesting"]
+}'
+```
+
+### Build and run on macOS with runtime args
+
+```shell
+xcodebuildmcp macos build-and-run --json '{
+  "scheme": "MyApp",
+  "projectPath": "./MyApp.xcodeproj",
+  "launchArgs": ["--uitesting"]
+}'
+```
+
+### Launch an installed simulator app with runtime args
+
+```shell
+xcodebuildmcp simulator launch-app --json '{
+  "simulatorId": "<SIMULATOR_UDID>",
+  "bundleId": "com.example.MyApp",
+  "launchArgs": ["--uitesting"]
+}'
+```
+
 ### Run XCTests with pre-resolved test cases and live progress
 
 ```shell
