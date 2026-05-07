@@ -25,10 +25,6 @@ xcodebuildmcp simulator build --scheme MyApp --project-path ./MyApp.xcodeproj --
 | `jsonl` | Newline-delimited JSON (NDJSON), one JSON object per line as fragments arrive. | A pipeline needs live progress without parsing terminal text. |
 | `raw` | Raw subprocess transcript on stderr, with final rendered text on stdout. | You are debugging the underlying `xcodebuild`, `xcrun`, or helper process. |
 
-<Callout variant="warn" title="Xcode IDE bridge exception">
-  <code>--output json</code> and <code>--output jsonl</code> are not supported for <code>xcode-ide</code> tools yet. The CLI rejects those combinations before it calls the tool.
-</Callout>
-
 ## `--output text`
 
 `text` is the default. It uses the interactive CLI renderer in terminals, so build and test tools can stream progress while the command is running. In non-interactive contexts it still returns readable text.
