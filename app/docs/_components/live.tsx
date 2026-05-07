@@ -34,11 +34,14 @@ export function LiveWorkflowToolCount({ workflow }: { workflow: string }) {
 
 export function LiveWorkflowsTable() {
   const manifest = useManifest()
+  const hasTargetPlatformData = manifest.workflows.some((w) => w.targetPlatforms.length > 0)
+
   return (
     <table className="docs-table">
       <thead>
         <tr>
           <th>Workflow</th>
+          {hasTargetPlatformData ? <th>Recommended for</th> : null}
           <th style={{ textAlign: "right" }}>Tools</th>
           <th>Description</th>
         </tr>
@@ -54,6 +57,21 @@ export function LiveWorkflowsTable() {
                 </span>
               ) : null}
             </td>
+            {hasTargetPlatformData ? (
+              <td>
+                {w.targetPlatforms.length > 0 ? (
+                  <span style={{ display: "inline-flex", flexWrap: "wrap", gap: 4 }}>
+                    {w.targetPlatforms.map((platform) => (
+                      <span key={platform} className="tc-badge">
+                        {platform}
+                      </span>
+                    ))}
+                  </span>
+                ) : (
+                  <span style={{ opacity: 0.6 }}>not platform-specific</span>
+                )}
+              </td>
+            ) : null}
             <td style={{ textAlign: "right" }}>{w.tools.length}</td>
             <td>{w.description}</td>
           </tr>

@@ -130,6 +130,13 @@ function normalizeTools(raw) {
     .sort((a, b) => a.mcpName.localeCompare(b.mcpName))
 }
 
+const WORKFLOW_TARGET_PLATFORMS = new Set(["iOS", "macOS", "tvOS", "watchOS", "visionOS"])
+
+function normalizeTargetPlatforms(value) {
+  if (!Array.isArray(value)) return []
+  return value.filter((p) => typeof p === "string" && WORKFLOW_TARGET_PLATFORMS.has(p))
+}
+
 function normalizeWorkflows(raw) {
   return raw
     .map((w) => ({
@@ -137,6 +144,7 @@ function normalizeWorkflows(raw) {
       title: w.title ?? w.id,
       description: w.description ?? "",
       defaultEnabled: Boolean(w.selection?.mcp?.defaultEnabled),
+      targetPlatforms: normalizeTargetPlatforms(w.targetPlatforms),
       tools: Array.isArray(w.tools) ? w.tools : [],
     }))
     .sort((a, b) => a.id.localeCompare(b.id))

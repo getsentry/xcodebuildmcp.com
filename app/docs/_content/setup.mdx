@@ -31,12 +31,22 @@ xcodebuildmcp setup
 
 The wizard walks you through:
 
+- **Target platforms**: which Apple platforms you build for (macOS, iOS, tvOS, watchOS, visionOS). Selecting at least one platform shapes the rest of the wizard, including which workflows are recommended and whether you need to pick a simulator.
 - **Workflows**: which tool groups to enable (simulator, device, macOS, debugging, UI automation, etc.)
 - **Project defaults**: your workspace or project path, scheme, configuration
 - **Simulator defaults**: preferred simulator by name or UDID
 - **Debug options**: whether to enable debug logging and the doctor tool
 
 Non-interactive mode is available for CI and scripts (`xcodebuildmcp setup --help`).
+
+### Recommended vs default workflows
+
+The wizard splits workflows into two groups based on your target platforms:
+
+- **Recommended**: workflows whose `targetPlatforms` overlap your selection. The wizard pre-selects only the conservative defaults: `simulator` for any simulator platform (iOS, tvOS, watchOS, visionOS) and `macos` when macOS is selected. Other recommended workflows (for example `device`, `debugging`, `ui-automation`, `swift-package`) are listed alongside but left unchecked, so you opt in to what you need.
+- **Additional**: every other workflow. These are still selectable, just not flagged as a fit for your platforms.
+
+Target platforms are guidance for setup only. They do not gate tool exposure at runtime: any workflow you enable still advertises its tools through MCP regardless of platform metadata. Predicates and the `availability` field handle runtime gating, see [Workflows](/docs/workflows) and [MCP Server Mode → Workflow selection](/docs/mcp-mode#workflow-selection) for the full picture.
 
 <Callout variant="info" title="No MCP client context? No problem.">
   If your client doesn't read `.xcodebuildmcp/config.yaml` from the workspace (some don't), you can export an env-based config block with `xcodebuildmcp setup --format mcp-json` and paste it into your MCP client config.
