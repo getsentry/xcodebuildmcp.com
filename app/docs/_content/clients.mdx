@@ -116,17 +116,17 @@ Project-scoped (recommended): create `.cursor/mcp.json` in your workspace root:
 }
 ```
 
-For global Cursor config at `~/.cursor/mcp.json`, use this variant so startup runs from the active workspace:
+For global Cursor config at `~/.cursor/mcp.json`, set `XCODEBUILDMCP_CWD` so startup runs from the active workspace:
 
 ```json
 {
   "mcpServers": {
     "XcodeBuildMCP": {
-      "command": "/bin/zsh",
-      "args": [
-        "-lc",
-        "cd \"${workspaceFolder}\" && exec npx -y xcodebuildmcp@latest mcp"
-      ]
+      "command": "npx",
+      "args": ["-y", "xcodebuildmcp@latest", "mcp"],
+      "env": {
+        "XCODEBUILDMCP_CWD": "${workspaceFolder}"
+      }
     }
   }
 }
