@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.xcode-bridge-tool-list/2.schema.json",
+  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.xcode-bridge-tool-list/3.schema.json",
   "type": "object",
   "additionalProperties": false,
   "allOf": [
@@ -27,7 +27,7 @@
       "const": "xcodebuildmcp.output.xcode-bridge-tool-list"
     },
     "schemaVersion": {
-      "const": "2"
+      "const": "3"
     },
     "didError": {
       "type": "boolean"
@@ -53,6 +53,9 @@
       "required": [
         "toolCount"
       ]
+    },
+    "nextSteps": {
+      "$ref": "https://xcodebuildmcp.com/schemas/structured-output/_defs/common.schema.json#/$defs/nextSteps"
     }
   },
   "required": [

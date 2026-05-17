@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.xcode-bridge-tool-list/2.schema.json",
+  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.session-profile/2.schema.json",
   "type": "object",
   "additionalProperties": false,
   "allOf": [
@@ -8,23 +8,9 @@
       "$ref": "https://xcodebuildmcp.com/schemas/structured-output/_defs/common.schema.json#/$defs/errorConsistency"
     }
   ],
-  "$defs": {
-    "artifacts": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "rawResponseJsonPath": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "rawResponseJsonPath"
-      ]
-    }
-  },
   "properties": {
     "schema": {
-      "const": "xcodebuildmcp.output.xcode-bridge-tool-list"
+      "const": "xcodebuildmcp.output.session-profile"
     },
     "schemaVersion": {
       "const": "2"
@@ -42,17 +28,23 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "toolCount": {
-          "type": "integer",
-          "minimum": 0
+        "previousProfile": {
+          "type": "string"
         },
-        "artifacts": {
-          "$ref": "#/$defs/artifacts"
+        "currentProfile": {
+          "type": "string"
+        },
+        "persisted": {
+          "type": "boolean"
         }
       },
       "required": [
-        "toolCount"
+        "previousProfile",
+        "currentProfile"
       ]
+    },
+    "nextSteps": {
+      "$ref": "https://xcodebuildmcp.com/schemas/structured-output/_defs/common.schema.json#/$defs/nextSteps"
     }
   },
   "required": [

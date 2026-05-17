@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.xcode-bridge-sync/1.schema.json",
+  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.xcode-bridge-sync/2.schema.json",
   "type": "object",
   "additionalProperties": false,
   "allOf": [
@@ -13,7 +13,7 @@
       "const": "xcodebuildmcp.output.xcode-bridge-sync"
     },
     "schemaVersion": {
-      "const": "1"
+      "const": "2"
     },
     "didError": {
       "type": "boolean"
@@ -64,6 +64,9 @@
         "sync",
         "status"
       ]
+    },
+    "nextSteps": {
+      "$ref": "https://xcodebuildmcp.com/schemas/structured-output/_defs/common.schema.json#/$defs/nextSteps"
     }
   },
   "required": [

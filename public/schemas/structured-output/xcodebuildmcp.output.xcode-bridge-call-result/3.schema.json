@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.xcode-bridge-tool-list/2.schema.json",
+  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.xcode-bridge-call-result/3.schema.json",
   "type": "object",
   "additionalProperties": false,
   "allOf": [
@@ -9,6 +9,18 @@
     }
   ],
   "$defs": {
+    "relayedContentItem": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
     "artifacts": {
       "type": "object",
       "additionalProperties": false,
@@ -24,10 +36,10 @@
   },
   "properties": {
     "schema": {
-      "const": "xcodebuildmcp.output.xcode-bridge-tool-list"
+      "const": "xcodebuildmcp.output.xcode-bridge-call-result"
     },
     "schemaVersion": {
-      "const": "2"
+      "const": "3"
     },
     "didError": {
       "type": "boolean"
@@ -42,17 +54,30 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "toolCount": {
-          "type": "integer",
-          "minimum": 0
+        "remoteTool": {
+          "type": "string"
+        },
+        "succeeded": {
+          "type": "boolean"
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relayedContentItem"
+          }
         },
         "artifacts": {
           "$ref": "#/$defs/artifacts"
         }
       },
       "required": [
-        "toolCount"
+        "remoteTool",
+        "succeeded",
+        "content"
       ]
+    },
+    "nextSteps": {
+      "$ref": "https://xcodebuildmcp.com/schemas/structured-output/_defs/common.schema.json#/$defs/nextSteps"
     }
   },
   "required": [
