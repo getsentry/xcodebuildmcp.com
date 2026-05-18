@@ -29,6 +29,7 @@ export type DocSlug =
   | "architecture-manifest-visibility"
   | "architecture-tool-lifecycle"
   | "architecture-rendering-output"
+  | "architecture-ui-automation"
   | "architecture-daemon"
   | "architecture-debugging"
   | "tool-authoring"
@@ -83,6 +84,7 @@ export const PAGES_ORDER: DocSlug[] = [
   "architecture-manifest-visibility",
   "architecture-tool-lifecycle",
   "architecture-rendering-output",
+  "architecture-ui-automation",
   "architecture-daemon",
   "architecture-debugging",
   "tool-authoring",
@@ -265,6 +267,13 @@ export const PAGE_META: Record<DocSlug, DocRoute> = {
     group: "Contributing",
     description: "How render sessions turn fragments and structured results into MCP and CLI output.",
   },
+  "architecture-ui-automation": {
+    slug: "architecture-ui-automation",
+    title: "UI Automation",
+    group: "Contributing",
+    description:
+      "How runtime snapshots, UI action tools, post-action captures, and next-step guidance work end to end.",
+  },
   "architecture-daemon": {
     slug: "architecture-daemon",
     title: "Daemon Lifecycle",
@@ -354,6 +363,7 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
           "architecture-manifest-visibility",
           "architecture-tool-lifecycle",
           "architecture-rendering-output",
+          "architecture-ui-automation",
           "architecture-daemon",
           "architecture-debugging",
         ],

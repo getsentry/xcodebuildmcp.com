@@ -28,6 +28,7 @@ import ArchitectureStartupConfigPage from "./architecture-startup-config.mdx"
 import ArchitectureManifestVisibilityPage from "./architecture-manifest-visibility.mdx"
 import ArchitectureToolLifecyclePage from "./architecture-tool-lifecycle.mdx"
 import ArchitectureRenderingOutputPage from "./architecture-rendering-output.mdx"
+import ArchitectureUiAutomationPage from "./architecture-ui-automation.mdx"
 import ArchitectureDaemonPage from "./architecture-daemon.mdx"
 import ArchitectureDebuggingPage from "./architecture-debugging.mdx"
 import ToolAuthoringPage from "./tool-authoring.mdx"
@@ -63,6 +64,7 @@ export const PAGE_COMPONENTS: Record<DocSlug, ComponentType> = {
   "architecture-manifest-visibility": ArchitectureManifestVisibilityPage,
   "architecture-tool-lifecycle": ArchitectureToolLifecyclePage,
   "architecture-rendering-output": ArchitectureRenderingOutputPage,
+  "architecture-ui-automation": ArchitectureUiAutomationPage,
   "architecture-daemon": ArchitectureDaemonPage,
   "architecture-debugging": ArchitectureDebuggingPage,
   "tool-authoring": ToolAuthoringPage,

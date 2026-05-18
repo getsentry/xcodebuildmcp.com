@@ -88,9 +88,10 @@ Snapshot tests lock the public output contracts. They are slower and more enviro
 
 | Fixture tree | Validates |
 |--------------|-----------|
-| `src/snapshot-tests/__fixtures__/mcp/` | MCP text returned through `ToolResponse.content`. |
-| `src/snapshot-tests/__fixtures__/cli/` | CLI `--output text` output. |
-| `src/snapshot-tests/__fixtures__/json/` | Structured JSON response used by MCP `structuredContent` and CLI JSON output. |
+| `src/snapshot-tests/__fixtures__/mcp/text/` | MCP text returned through `ToolResponse.content`. |
+| `src/snapshot-tests/__fixtures__/mcp/json/` | MCP `structuredContent`. |
+| `src/snapshot-tests/__fixtures__/cli/text/` | CLI `--output text` output. |
+| `src/snapshot-tests/__fixtures__/cli/json/` | CLI `--output json` response. |
 
 Run snapshots with full output preserved:
 

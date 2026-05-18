@@ -335,7 +335,7 @@ Use this pipeline only when the tool wraps `xcodebuild`. For any other long-runn
   { label: "Output schema", content: (
     <>
       <p>Keep <code>ctx.structuredOutput.schema</code>, <code>ctx.structuredOutput.schemaVersion</code>, manifest <code>outputSchema</code>, canonical schema files, and JSON fixtures aligned.</p>
-      <p>Compatible optional additions can stay on the same version. Breaking changes need a new versioned file such as <code>2.schema.json</code>.</p>
+      <p>Published schemas are immutable. Add a new versioned file such as <code>2.schema.json</code> for any emitted JSON shape change, including optional fields.</p>
     </>
   ) },
 ]} />
@@ -344,8 +344,7 @@ Use this pipeline only when the tool wraps `xcodebuild`. For any other long-runn
 |--------|--------------------|
 | Metadata only | Run docs checks and update fixture text if descriptions or names are visible. |
 | Input schema | Update Zod schema, parameter tests, docs checks, and any snapshots affected by validation text. |
-| Compatible output addition | Update the existing schema, implementation, JSON fixtures, and schema fixture tests. |
-| Breaking output change | Add `schemas/structured-output/<schema>/2.schema.json`, emit `schemaVersion: '2'`, update manifest `outputSchema.version`, and update fixtures. |
+| Output shape change | Add `schemas/structured-output/<schema>/2.schema.json`, emit `schemaVersion: '2'`, update manifest `outputSchema.version`, and update fixtures. |
 | Runtime behavior | Update logic tests, MCP text fixtures, CLI text fixtures, JSON fixtures, and changelog if user-facing. |
 
 <Callout variant="info" title="Schema versions are contract versions">

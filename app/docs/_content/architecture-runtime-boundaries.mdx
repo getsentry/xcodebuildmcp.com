@@ -63,7 +63,7 @@ sequenceDiagram
     Post->>Session: setNextSteps(steps, "mcp")
     Registry->>Session: finalize()
     Session-->>Registry: rendered text transcript
-    Registry->>Envelope: toStructuredEnvelope(result, schema, version)
+    Registry->>Envelope: toStructuredEnvelope(result, schema, version, nextSteps)
     Registry-->>Server: ToolResponse content + structuredContent
     Server-->>Client: MCP tool result
 ```
@@ -116,7 +116,7 @@ sequenceDiagram
     end
 
     alt --output json
-        Commands-->>User: final structured JSON envelope
+        Commands-->>User: final structured JSON envelope + nextSteps hint lines when present
     else --output jsonl
         Commands-->>User: NDJSON fragments only
     else --output text or raw
