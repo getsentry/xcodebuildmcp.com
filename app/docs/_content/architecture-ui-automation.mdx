@@ -213,6 +213,7 @@ Business rules:
 
 - Existing `scroll-view`, `list`, and `cell` roles can expose `swipeWithin` directly.
 - Large container-like elements can become inferred scroll targets when descendants overflow their frame.
+- Top-level application or window roots can expose viewport scrolling only when semantic descendants overflow vertically and no better descendant scroll target exists.
 - Application or window roots can get a special swipe frame when a sheet grabber descendant indicates a sheet-style gesture region.
 - Generic fallback scroll targets are pruned when a better identified swipe target exists.
 
