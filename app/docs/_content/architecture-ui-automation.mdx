@@ -99,6 +99,8 @@ Action execution validates that:
 - the element is visible enough for the action,
 - the action point or swipe path is non-degenerate.
 
+For `swipe`, the optional `distance` parameter is a normalized fraction greater than 0 and up to 1 of the safe target stroke. For example, `0.5` uses half of the computed safe stroke and `0.8` uses a longer stroke. XcodeBuildMCP computes the final endpoints and does not forward this public value as AXe `--delta`.
+
 If validation fails, the tool returns a structured recovery error instead of guessing another element.
 
 Source files:
@@ -214,7 +216,7 @@ Business rules:
 - Existing `scroll-view`, `list`, and `cell` roles can expose `swipeWithin` directly.
 - Large container-like elements can become inferred scroll targets when descendants overflow their frame.
 - Top-level application or window roots can expose viewport scrolling only when semantic descendants overflow vertically and no better descendant scroll target exists.
-- Application or window roots can get a special swipe frame when a sheet grabber descendant indicates a sheet-style gesture region.
+- Application or window roots can get a special swipe frame when a sheet grabber descendant indicates a sheet-style gesture region, but real descendant scroll containers remain preferred for guidance.
 - Generic fallback scroll targets are pruned when a better identified swipe target exists.
 
 ## Next-step domain logic
@@ -255,17 +257,15 @@ Business rules:
 
 ### Scroll next steps
 
-Scroll next steps currently choose the first scrollable element left after foreground filtering.
+Scroll next steps rank the scrollable elements left after foreground filtering.
 
 Business rules:
 
 - The selected ref must advertise `swipeWithin`.
 - Scroll guidance should prefer foreground candidates when foreground filtering is confident.
+- Prefer real `list` and `scroll-view` descendants over semantic inferred containers.
+- Use application or window root scrolling last, as a fallback when no better descendant target is available.
 - Screenshot fallback should not appear when a scroll action is available.
-
-Known limitation:
-
-- Competing scroll views inside the filtered region are not yet ranked by specificity, identifier quality, visible area, or relationship to foreground content. This can make an anonymous ancestor scroll win over a more obvious sheet scroll.
 
 ## Error and recovery behavior
 
