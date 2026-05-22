@@ -155,6 +155,12 @@ For example, `list_sims` normally returns `xcodebuildmcp.output.simulator-list`,
 
 Domain failures still use their domain schema. For example, an attempted build that fails returns `xcodebuildmcp.output.build-result` with `didError: true` and build diagnostics in `data`.
 
+For UI automation runtime snapshots, JSON output is compact by default. Compact output keeps the same envelope but projects the runtime snapshot into concise `data.capture.targets`, `data.capture.scroll`, and `data.capture.text` rows. Add `--verbose` when you need the full public runtime snapshot in `data.capture.elements` and `data.capture.actions`. Verbose output still does not expose raw AX nodes.
+
+```shell
+xcodebuildmcp ui-automation snapshot-ui --simulator-id <UDID> --output json --verbose
+```
+
 With `--output json --style minimal`, request/frontmatter fields such as `data.request` are omitted while the envelope, domain data, and available next steps remain:
 
 ```shell

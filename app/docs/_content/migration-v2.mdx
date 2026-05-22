@@ -138,7 +138,8 @@ npm install -g xcodebuildmcp@latest
 xcodebuildmcp tools
 xcodebuildmcp simulator build-and-run --scheme MyApp --project-path ./MyApp.xcodeproj
 xcodebuildmcp simulator screenshot
-xcodebuildmcp ui-automation tap --label "Submit"
+xcodebuildmcp ui-automation snapshot-ui --simulator-id <UDID>
+xcodebuildmcp ui-automation tap --simulator-id <UDID> --element-ref e12
 ```
 
 See [CLI](/docs/cli) for the full guide.

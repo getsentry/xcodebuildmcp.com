@@ -42,7 +42,7 @@ It reports on:
 
 ## UI automation is unavailable
 
-UI automation (`tap`, `swipe`, `type`, `snapshot_ui`) and simulator video capture rely on a bundled helper binary. If the doctor reports it as missing:
+UI automation (`tap`, `swipe`, `type_text`, `snapshot_ui`) and simulator video capture rely on the bundled AXe helper. In the CLI these tools use kebab-case names such as `type-text` and `snapshot-ui`. If the doctor reports the helper as missing:
 
 - Confirm `bundled/` artifacts exist in your install. If not, reinstall XcodeBuildMCP.
 - If you need to point at a custom binary, set `axePath` in `.xcodebuildmcp/config.yaml` (or the `XCODEBUILDMCP_AXE_PATH` env var). See [Environment Variables](/docs/env-vars).

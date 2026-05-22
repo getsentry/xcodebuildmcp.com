@@ -14,9 +14,9 @@ This page documents the end-to-end flow, the domain model, and the business rule
 
 - **AXe**: The bundled accessibility helper that returns raw accessibility hierarchy and performs low-level UI actions.
 - **raw accessibility hierarchy**: The JSON tree returned by AXe. It can include nested children, frames, labels, values, identifiers, roles, state, and custom actions.
-- **runtime snapshot**: XcodeBuildMCP's compact, public, model-facing UI state. It contains refs, roles, frames, actions, text, screen hash, and sequence.
-- **element ref**: A short per-snapshot identifier such as `e18`. It is only valid for the snapshot sequence that produced it.
-- **runtime snapshot store**: The in-memory per-simulator record that maps refs back to private metadata and raw nodes for action execution.
+- **runtime snapshot**: XcodeBuildMCP's normalized, public, model-facing UI state. It contains refs, roles, frames, actions, text, screen hash, and sequence. Normal output renders a compact projection; CLI JSON `--verbose` can expose the full public `elements` and `actions` arrays.
+- **element ref**: A short per-snapshot identifier such as `e18`. It is only valid for the runtime process and snapshot sequence that produced it.
+- **runtime snapshot store**: The in-memory per-simulator record that maps refs back to private metadata and raw nodes for action execution within the current runtime process.
 - **action result**: The structured result from `tap`, `swipe`, `type_text`, `batch`, and related tools. It includes the action outcome and, when available, a post-action runtime snapshot.
 - **next step**: A suggested follow-up command rendered for agents and humans. It is guidance, not the canonical UI state.
 
@@ -32,8 +32,9 @@ flowchart TD
     AXe --> RawHierarchy[Raw accessibility hierarchy]
     RawHierarchy --> SnapshotBuilder[Runtime snapshot builder]
     SnapshotBuilder --> SnapshotStore[Runtime snapshot store]
-    SnapshotBuilder --> PublicSnapshot[Compact runtime snapshot]
-    PublicSnapshot --> StructuredOutput[Structured output envelope]
+    SnapshotBuilder --> PublicSnapshot[Runtime snapshot payload]
+    PublicSnapshot --> Projection[Compact or verbose projection]
+    Projection --> StructuredOutput[Structured output envelope]
     SnapshotStore --> ActionResolver[Action ref resolver]
     PublicSnapshot --> NextSteps[Next-step guidance]
     NextSteps --> StructuredOutput
@@ -64,9 +65,9 @@ Source files:
 - `src/mcp/tools/ui-automation/shared/runtime-snapshot.ts`
 - `src/mcp/tools/ui-automation/shared/snapshot-ui-state.ts`
 
-### 2. Render compact output
+### 2. Render public output
 
-The public snapshot is compacted before it reaches agents. Instead of returning full raw nodes, output groups elements into lists such as:
+By default, runtime snapshots are compacted before they reach agents. Instead of returning every public element, normal output groups the most useful elements into lists such as:
 
 ```text
 targets: e102|tap|button|Close||xmark
@@ -84,7 +85,9 @@ Business rules:
 
 - Keep the structured output envelope stable.
 - Compact large UI data inside `data.capture`, not by bypassing the envelope.
-- Do not include raw nodes in public output.
+- Treat compact output as a projection only; the stored runtime snapshot still contains all refs from the capture.
+- CLI JSON `--verbose` may expose the full public runtime snapshot under `data.capture.elements` and `data.capture.actions`.
+- Do not include raw AX nodes in public output, even in verbose mode.
 - Keep refs short because agents use them in follow-up calls.
 
 ### 3. Resolve actions from refs
@@ -114,12 +117,13 @@ Source files:
 
 ### 4. Capture after actions
 
-Most UI actions attempt a post-action capture. This gives the agent a fresh screen hash, fresh refs, and fresh next steps without requiring an immediate extra `snapshot_ui` call.
+Successful mutating UI action tools attempt a post-action capture. This gives the agent a fresh screen hash, fresh refs, and fresh next steps without requiring an immediate extra `snapshot_ui` call.
 
 Business rules:
 
-- Post-action capture is an optimization, not a license to reuse stale refs.
+- Post-action capture is normal success-path behavior, not a license to reuse stale refs.
 - Fresh refs replace old refs after UI changes.
+- Do not preserve cached snapshots as a success-path optimization for mutating UI actions.
 - If post-action capture fails, the action result should still report the action outcome and a structured recovery path where possible.
 - Agents should refresh or wait after navigation, search results, sheet transitions, and layout changes before relying on new refs.
 
@@ -292,6 +296,7 @@ Contributor rules:
 - Keep `schema`, `schemaVersion`, `didError`, and `error` intact.
 - Compact UI data inside `data.capture` rather than changing the envelope shape.
 - Update schemas and fixtures when public structured output intentionally changes.
+- CLI JSON `--verbose` for UI action results uses the schema version that includes full runtime snapshot captures.
 - Do not update snapshot fixtures to hide regressions.
 
 ## Testing strategy
