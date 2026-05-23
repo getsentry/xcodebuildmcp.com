@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.ui-action-result/2.schema.json",
+  "$id": "https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.ui-action-result/3.schema.json",
   "type": "object",
   "additionalProperties": false,
   "allOf": [
@@ -69,6 +69,48 @@
         }
       },
       "required": ["ref", "frame", "actions"]
+    },
+    "runtimeActionHint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "action": { "$ref": "#/$defs/runtimeActionName" },
+        "elementRef": { "type": "string", "pattern": "^e[1-9][0-9]*$" },
+        "label": { "type": "string" }
+      },
+      "required": ["action", "elementRef"]
+    },
+    "runtimeSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "runtime-snapshot" },
+        "protocol": { "const": "rs/1" },
+        "simulatorId": { "type": "string" },
+        "screenHash": { "type": "string", "minLength": 1 },
+        "seq": { "type": "integer", "minimum": 0 },
+        "capturedAtMs": { "type": "integer", "minimum": 0 },
+        "expiresAtMs": { "type": "integer", "minimum": 0 },
+        "elements": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/runtimeElement" }
+        },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/runtimeActionHint" }
+        }
+      },
+      "required": [
+        "type",
+        "protocol",
+        "simulatorId",
+        "screenHash",
+        "seq",
+        "capturedAtMs",
+        "expiresAtMs",
+        "elements",
+        "actions"
+      ]
     },
     "compactRuntimeSnapshot": {
       "type": "object",
@@ -148,7 +190,7 @@
   },
   "properties": {
     "schema": { "const": "xcodebuildmcp.output.ui-action-result" },
-    "schemaVersion": { "const": "2" },
+    "schemaVersion": { "const": "3" },
     "didError": { "type": "boolean" },
     "error": { "type": ["string", "null"] },
     "data": {
@@ -361,7 +403,12 @@
         "diagnostics": {
           "$ref": "https://xcodebuildmcp.com/schemas/structured-output/_defs/common.schema.json#/$defs/basicDiagnostics"
         },
-        "capture": { "$ref": "#/$defs/compactRuntimeSnapshot" },
+        "capture": {
+          "oneOf": [
+            { "$ref": "#/$defs/runtimeSnapshot" },
+            { "$ref": "#/$defs/compactRuntimeSnapshot" }
+          ]
+        },
         "uiError": { "$ref": "#/$defs/recoverableUiError" }
       },
       "required": ["summary", "action", "artifacts"]
