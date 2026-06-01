@@ -76,9 +76,21 @@ Previously published schema files must continue to be hosted. Do not remove old 
 
 ### Additive changes
 
-Additive optional fields can be compatible, but use caution. If a new field is truly optional and old clients can safely ignore it, it may remain within the same schema version. If there is any doubt about compatibility or meaning, bump the schema version.
+Published schemas use `additionalProperties: false`, so adding a new emitted property is a schema contract change even when the property is optional. Do not add new root envelope fields, nested `data` fields, enum values, or other emitted JSON shape changes to an existing published schema version.
 
-Bias toward a new version when the contract meaning changes.
+For example, adding top-level `nextSteps` requires a new schema version:
+
+```text
+schemas/structured-output/xcodebuildmcp.output.build-result/2.schema.json
+```
+
+Then runtime payloads that include `nextSteps` must emit:
+
+```json
+"schemaVersion": "2"
+```
+
+Old schema files remain available and continue to validate the old payload shape. New runtime payloads must point at the new schema version that validates their exact shape.
 
 ## Directory layout
 

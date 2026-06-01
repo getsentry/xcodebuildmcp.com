@@ -39,21 +39,24 @@ XcodeBuildMCP tools return MCP [`structuredContent`](https://modelcontextprotoco
 
 Every tool call also returns human-readable text content, which is what your agent reads in its conversation ("Build succeeded", a list of simulators, an error message). Structured content is sent alongside that text as a parallel JSON object, so the agent or any automation can consume the result programmatically without parsing prose. Text is for the agent's narrative; structured content is for branching, chaining, and automation.
 
-The envelope wraps every tool's structured payload in the same shape, so consumers can branch on `didError` and read `data` against the named `schema`:
+The envelope wraps every tool's structured payload in the same shape, so consumers can branch on `didError`, read `data` against the named `schema`, and consume optional `nextSteps` hint lines for follow-up automation:
 
 ```json
 {
   "schema": "xcodebuildmcp.output.simulator-list",
-  "schemaVersion": "1",
+  "schemaVersion": "2",
   "didError": false,
   "error": null,
-  "data": {}
+  "data": {},
+  "nextSteps": [
+    "Build an app for this simulator: build_sim({ simulatorId: \"A1B2C3D4-E5F6-7890-ABCD-EF0123456789\" })"
+  ]
 }
 ```
 
-The envelope fields are documented in [Output Formats](/docs/output-formats). Canonical JSON schemas live in [`schemas/structured-output/`](https://github.com/getsentry/XcodeBuildMCP/tree/main/schemas/structured-output). Tools advertise their output schema in `tools/list` as an object-shaped union of the domain schema OR `xcodebuildmcp.output.error`, so clients can always branch on `schema` to determine whether a structured result is a normal domain payload or a generic error.
+`nextSteps` is omitted when no final follow-up actions were resolved. The envelope fields are documented in [Output Formats](/docs/output-formats). Canonical JSON schemas live in [`schemas/structured-output/`](https://github.com/getsentry/XcodeBuildMCP/tree/main/schemas/structured-output). Tools advertise their output schema in `tools/list` as an object-shaped union of the domain schema OR `xcodebuildmcp.output.error`, so clients can always branch on `schema` to determine whether a structured result is a normal domain payload or a generic error.
 
-The one exception is the [Xcode IDE bridge](/docs/xcode-ide): bridge tools forward calls to Xcode's own MCP service, so their output shape comes from Xcode and does not use the XcodeBuildMCP envelope.
+The [Xcode IDE bridge](/docs/xcode-ide) still uses the XcodeBuildMCP envelope for bridge tool results, but proxied remote-tool payloads inside `data` come from Xcode's own MCP service.
 
 ## Resources
 

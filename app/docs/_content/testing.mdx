@@ -88,9 +88,10 @@ Snapshot tests lock the public output contracts. They are slower and more enviro
 
 | Fixture tree | Validates |
 |--------------|-----------|
-| `src/snapshot-tests/__fixtures__/mcp/` | MCP text returned through `ToolResponse.content`. |
-| `src/snapshot-tests/__fixtures__/cli/` | CLI `--output text` output. |
-| `src/snapshot-tests/__fixtures__/json/` | Structured JSON response used by MCP `structuredContent` and CLI JSON output. |
+| `src/snapshot-tests/__fixtures__/mcp/text/` | MCP text returned through `ToolResponse.content`. |
+| `src/snapshot-tests/__fixtures__/mcp/json/` | MCP `structuredContent`. |
+| `src/snapshot-tests/__fixtures__/cli/text/` | CLI `--output text` output. |
+| `src/snapshot-tests/__fixtures__/cli/json/` | CLI `--output json` response. |
 
 Run snapshots with full output preserved:
 
@@ -155,11 +156,49 @@ JSON fixtures must also validate against the canonical structured-output schemas
 npm run test:schema-fixtures
 ```
 
+## Claude UI benchmarks
+
+The Claude UI benchmark harness is an external validation loop for UI automation changes. It runs Claude Code against the local development MCP server, feeds a prompt from disk, preserves the transcript, parses it with `/Volumes/Developer/parse_claude_conversation.py`, and compares tool calls, wall-clock time, failures, and sequence drift against suite baselines.
+
+Use it when changing UI automation behavior, next-step guidance, runtime snapshots, or structured output that affects agent workflows.
+
+Run one suite:
+
+```shell
+npm run bench:claude-ui -- --suite weather
+```
+
+Run every configured suite:
+
+```shell
+npm run bench:claude-ui -- --all
+```
+
+Emit machine-readable output:
+
+```shell
+npm run bench:claude-ui -- --suite weather --json
+```
+
+Re-render an existing result without launching Claude again:
+
+```shell
+npm run bench:claude-ui -- --from-result out.nosync/claude-benchmarks/weather/<timestamp>/result.json
+```
+
+Benchmark suites live in the main repository under `benchmarks/claude-ui/`. Add a new suite by creating a prompt Markdown file and a matching YAML file with baseline metrics and allowed variance. Tool-call variance defaults to zero; wall-clock variance defaults to 30 seconds. Exact sequence drift is warning-only unless the suite opts into strict sequence comparison.
+
+Artifacts are intentionally written under `out.nosync/claude-benchmarks/` so raw Claude transcripts, parsed conversations, screenshots, and audit JSON stay out of git.
+
+<Callout variant="warn" title="External validation only">
+  These benchmarks require Claude Code, simulator state, and a local development MCP server. Do not add them to the normal unit, snapshot, or CI test suite.
+</Callout>
+
 ## Pre-commit flow
 
 Follow the command list in [Contributing](/docs/contributing#pre-commit-checks). Do not invent a shorter local checklist for tool work.
 
-The installed pre-commit hook covers format check, lint, build, and docs check. It does not replace targeted tests, snapshot tests, schema fixture validation, or manual validation for runtime behavior.
+The installed pre-commit hook covers format check, lint, build, and docs check. It does not replace targeted tests, snapshot tests, schema fixture validation, Claude UI benchmarks, or manual validation for runtime behavior.
 
 ## Running the full suite
 

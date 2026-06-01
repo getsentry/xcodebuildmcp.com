@@ -89,7 +89,7 @@ CLI output modes decide what the shell receives after or during invocation.
 | Mode | Relationship to rendering |
 |------|---------------------------|
 | `text` | Uses the CLI text render path for readable progress and final text. |
-| `json` | Waits for final structured output and prints one final structured envelope. |
+| `json` | Waits for final structured output and prints one final structured envelope, including optional next-step hint lines. |
 | `jsonl` | Writes one NDJSON event per emitted fragment. It does not print the final structured envelope. |
 | `raw` | Uses the raw render path for subprocess-oriented debugging. |
 
@@ -97,7 +97,7 @@ For the public shapes, examples, and scripting guidance, see [Output Formats](/d
 
 ## MCP structured content
 
-MCP mode always returns normal text content. When a tool produced structured output, the MCP response also includes `structuredContent` in the same envelope shape used by CLI `--output json`.
+MCP mode always returns normal text content. When a tool produced structured output, the MCP response also includes `structuredContent` in the same envelope shape used by CLI `--output json`, including optional next-step hint lines.
 
 That means contributors should treat `ctx.structuredOutput` as the stable contract. Rendered text can change to improve readability. Structured output changes require schema, fixture, and generated-doc alignment.
 
@@ -107,8 +107,8 @@ Next steps are resolved after the handler completes and before final rendering. 
 
 - MCP text gets MCP-appropriate follow-up text.
 - CLI text gets command-shaped follow-ups.
-- Structured envelopes carry the final result, not a separate rendered transcript.
-- JSONL carries live fragments, not the final response.
+- Structured envelopes carry the final result plus rendered next-step hint lines, not a separate rendered transcript.
+- JSONL carries live fragments, not the final response or final next-step hint lines.
 
 See [Tool Lifecycle](/docs/architecture-tool-lifecycle#next-step-resolution) for where next-step data comes from.
 
