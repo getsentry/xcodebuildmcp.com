@@ -148,11 +148,16 @@ command = "npx"
 args = ["-y", "xcodebuildmcp@latest", "mcp"]
 ```
 
-If you hit `timed out awaiting tools/call after 60s`, bump the timeout:
+If you hit `timed out awaiting tools/call after 60s`, `timed out awaiting tools/call after 120s`, or similar, set the timeout in the same server block:
 
 ```toml
+[mcp_servers.XcodeBuildMCP]
+command = "npx"
+args = ["-y", "xcodebuildmcp@latest", "mcp"]
 tool_timeout_sec = 600
 ```
+
+Codex ignores a top-level `tool_timeout_sec` for MCP tool calls.
 
 ## Claude Desktop
 

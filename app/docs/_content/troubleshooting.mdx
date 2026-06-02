@@ -50,12 +50,17 @@ UI automation (`tap`, `swipe`, `type_text`, `snapshot_ui`) and simulator video c
 
 ## Tool timeouts
 
-Some MCP clients have short tool timeouts. If you see `timed out awaiting tools/call after 60s` or similar:
+Some MCP clients have short tool timeouts. If you see `timed out awaiting tools/call after 60s`, `timed out awaiting tools/call after 120s`, or similar in Codex, set the timeout inside the XcodeBuildMCP server block:
 
 ```toml
 # ~/.codex/config.toml
+[mcp_servers.XcodeBuildMCP]
+command = "npx"
+args = ["-y", "xcodebuildmcp@latest", "mcp"]
 tool_timeout_sec = 600
 ```
+
+A top-level `tool_timeout_sec = 600` is ignored by Codex for MCP tool calls.
 
 Claude Code and Cursor don't surface tool timeouts directly, but you can extend the daemon startup timeout with:
 
