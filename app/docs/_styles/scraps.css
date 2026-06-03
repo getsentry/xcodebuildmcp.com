@@ -1237,6 +1237,27 @@ html[data-docs-theme='dark'] .docs-root .tool-card .tc-badge.beta {
   color: #ff93ce;
 }
 
+/* -------- Schema cards -------- */
+.docs-root a.tool-card,
+.docs-root a.tool-card:hover {
+  text-decoration: none;
+}
+.docs-root .tool-card.schema-card {
+  grid-template-columns: 1fr auto;
+}
+.docs-root .tool-card.schema-card > div {
+  min-width: 0;
+}
+.docs-root .tool-card.schema-card .tc-name {
+  overflow-wrap: anywhere;
+}
+.docs-root .tool-card.schema-card .tc-sub {
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-muted);
+}
+
 /* -------- Params list -------- */
 .docs-root .params {
   margin: 0 0 20px;
@@ -1605,6 +1626,27 @@ html[data-docs-theme='dark'] .docs-root .tool-card .tc-badge.beta {
   border-radius: 6px;
   color: var(--fg-primary);
   outline: none;
+}
+.docs-root .tools-controls .schema-version {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.docs-root .tools-controls .schema-version span {
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+.docs-root .tools-controls select {
+  height: 32px;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  color: var(--fg-primary);
+  outline: none;
+  cursor: pointer;
 }
 .docs-root .tools-controls .seg {
   flex-wrap: wrap;

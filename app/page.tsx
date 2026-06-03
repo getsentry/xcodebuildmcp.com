@@ -119,6 +119,12 @@ export default function XcodeBuildMCPLanding() {
                 </a>
               ))}
               <Link
+                href="/why-xcodebuildmcp"
+                className="text-sm text-sentry-text-secondary hover:text-white transition-colors"
+              >
+                Why XcodeBuildMCP?
+              </Link>
+              <Link
                 href="/docs"
                 className="text-sm text-sentry-text-secondary hover:text-white transition-colors"
               >
@@ -162,6 +168,13 @@ export default function XcodeBuildMCPLanding() {
                     {item}
                   </a>
                 ))}
+                <Link
+                  href="/why-xcodebuildmcp"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-sentry-text-secondary hover:text-white transition-colors"
+                >
+                  Why XcodeBuildMCP?
+                </Link>
                 <Link
                   href="/docs"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -209,6 +222,13 @@ export default function XcodeBuildMCPLanding() {
               <Download className="w-4 h-4" />
               Get Started
             </a>
+            <Link
+              href="/why-xcodebuildmcp"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-sentry-dark-600 hover:border-sentry-dark-700 text-sentry-text-primary hover:bg-sentry-dark-400/50 transition-colors"
+            >
+              <Zap className="w-4 h-4" />
+              Why XcodeBuildMCP?
+            </Link>
             <Link
               href="https://github.com/getsentry/XcodeBuildMCP"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-sentry-dark-600 hover:border-sentry-dark-700 text-sentry-text-primary hover:bg-sentry-dark-400/50 transition-colors"

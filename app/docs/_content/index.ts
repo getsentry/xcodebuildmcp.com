@@ -10,6 +10,7 @@ import WorkflowsPage from "./workflows.mdx"
 import ToolsPage from "./tools.mdx"
 import MCPProtocolSupportPage from "./mcp-protocol-support.mdx"
 import OutputFormatsPage from "./output-formats.mdx"
+import SchemasPage from "./schemas.mdx"
 import ConfigurationPage from "./configuration.mdx"
 import SessionDefaultsPage from "./session-defaults.mdx"
 import EnvVarsPage from "./env-vars.mdx"
@@ -46,6 +47,7 @@ export const PAGE_COMPONENTS: Record<DocSlug, ComponentType> = {
   tools: ToolsPage,
   "mcp-protocol-support": MCPProtocolSupportPage,
   "output-formats": OutputFormatsPage,
+  schemas: SchemasPage,
   configuration: ConfigurationPage,
   "session-defaults": SessionDefaultsPage,
   "env-vars": EnvVarsPage,

@@ -1,0 +1,32 @@
+import { PageHeader } from "../_components/page-header"
+import { SchemaExplorer } from "../_components/schema-explorer"
+
+<PageHeader
+  breadcrumbs={["Docs", "Reference", "Schemas"]}
+  title="Published Schemas"
+  lede="Browse the structured-output JSON Schemas published with the website. Each schema family keeps old versions available at stable URLs."
+/>
+
+XcodeBuildMCP tool results include a `schema` identifier and a `schemaVersion` string. Use those fields together to choose the published schema that validates the `data` payload returned by CLI JSON output or MCP `structuredContent`.
+
+Each link below points at the raw JSON Schema served from `/schemas/structured-output/...`.
+
+<SchemaExplorer />
+
+## URL format
+
+```text
+https://xcodebuildmcp.com/schemas/structured-output/<schema>/<version>.schema.json
+```
+
+For example:
+
+```text
+https://xcodebuildmcp.com/schemas/structured-output/xcodebuildmcp.output.build-result/2.schema.json
+```
+
+## Related
+
+- [Output Formats](/docs/output-formats), where structured output appears in CLI and MCP responses
+- [Schema Versioning](/docs/schema-versioning), how schema changes are versioned and published
+- [Tool Authoring](/docs/tool-authoring), how schemas fit into tool changes
