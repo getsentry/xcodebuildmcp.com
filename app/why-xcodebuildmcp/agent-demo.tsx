@@ -198,6 +198,7 @@ export function AgentDemo() {
               currentTimeMs={currentTimeMs}
               prompt={agentDemoPrompt}
               submitMs={agentDemoPromptSubmitMs}
+              isReducedMotion={isReducedMotion}
             />
           </div>
           <div className="border-t border-sentry-purple/15 px-5 py-2.5">
@@ -332,7 +333,6 @@ function PhoneFrame({
             aria-label={agentDemoVideo.title}
             className="relative z-10 h-full w-full object-cover"
             muted
-            loop
             playsInline
             preload="metadata"
             autoPlay={autoPlay}

@@ -42,12 +42,14 @@ export function PromptBox({
   currentTimeMs,
   prompt,
   submitMs,
+  isReducedMotion = false,
 }: {
   currentTimeMs: number;
   prompt: string;
   submitMs: number;
+  isReducedMotion?: boolean;
 }) {
-  const isSubmitted = currentTimeMs >= submitMs;
+  const isSubmitted = isReducedMotion || currentTimeMs >= submitMs;
   const typedPrompt = isSubmitted
     ? ""
     : prompt.slice(0, Math.floor((currentTimeMs / submitMs) * prompt.length));
