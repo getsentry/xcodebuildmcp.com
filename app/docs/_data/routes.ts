@@ -11,6 +11,7 @@ export type DocSlug =
   | "tools"
   | "mcp-protocol-support"
   | "output-formats"
+  | "schemas"
   | "configuration"
   | "session-defaults"
   | "env-vars"
@@ -66,6 +67,7 @@ export const PAGES_ORDER: DocSlug[] = [
   "workflows",
   "mcp-protocol-support",
   "output-formats",
+  "schemas",
   "configuration",
   "session-defaults",
   "env-vars",
@@ -155,6 +157,12 @@ export const PAGE_META: Record<DocSlug, DocRoute> = {
     title: "Output Formats",
     group: "Reference",
     description: "Machine-readable CLI output and MCP structuredContent envelopes.",
+  },
+  schemas: {
+    slug: "schemas",
+    title: "Published Schemas",
+    group: "Reference",
+    description: "Browse versioned structured-output JSON Schemas published at stable website URLs.",
   },
   configuration: {
     slug: "configuration",
@@ -330,6 +338,7 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
       { slug: "workflows" },
       { slug: "mcp-protocol-support" },
       { slug: "output-formats" },
+      { slug: "schemas" },
       {
         slug: "configuration",
         children: ["session-defaults", "env-vars"],
