@@ -69,7 +69,9 @@ export function SchemaExplorer() {
         {filteredSchemas.map((schema) => {
           const resolvedVersion =
             selectedVersion === latestVersionOption ? schema.latest : selectedVersion
-          const href = `/schemas/structured-output/${schema.name}/${resolvedVersion}.schema.json`
+          const href = `/schemas/structured-output/${encodeURIComponent(
+            schema.name,
+          )}/${encodeURIComponent(resolvedVersion)}.schema.json`
           const versionLabel =
             selectedVersion === latestVersionOption
               ? `latest · v${schema.latest}`
