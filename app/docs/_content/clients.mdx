@@ -57,6 +57,13 @@ import { PageHeader } from "../_components/page-header"
       <div className="ch-sub">Codeium</div>
     </div>
   </a>
+  <a className="client-card" href="#opencode">
+    <div className="logo" style={{ background: "#000", color: "#fff" }}>OC</div>
+    <div>
+      <div className="ch-name">OpenCode</div>
+      <div className="ch-sub">opencode.ai</div>
+    </div>
+  </a>
   <a className="client-card" href="#trae">
     <div className="logo" style={{ background: "#000", color: "#fff" }}>Tr</div>
     <div>
@@ -220,6 +227,24 @@ Add to `~/.codeium/windsurf/mcp_config.json`:
   }
 }
 ```
+
+## OpenCode
+
+Add to your `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "XcodeBuildMCP": {
+      "type": "local",
+      "command": ["npx", "-y", "xcodebuildmcp@latest", "mcp"]
+    }
+  }
+}
+```
+
+OpenCode loads config from multiple locations with a clear precedence order. A project-level `opencode.json` in your repo overrides the global one at `~/.config/opencode/opencode.json`, which in turn overrides remote organizational defaults. Settings from all layers are merged, not replaced. See [openCode docs → Config Precedence](https://opencode.ai/docs/config/#precedence-order) for the full order.
 
 ## Trae
 
