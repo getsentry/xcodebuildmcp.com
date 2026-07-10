@@ -6,6 +6,7 @@ export type DocSlug =
   | "setup"
   | "clients"
   | "cli"
+  | "storage-management"
   | "mcp-mode"
   | "workflows"
   | "tools"
@@ -78,6 +79,7 @@ export const PAGES_ORDER: DocSlug[] = [
   "migration-v2",
   "privacy",
   "troubleshooting",
+  "storage-management",
   "changelog",
   "contributing",
   "architecture",
@@ -127,6 +129,12 @@ export const PAGE_META: Record<DocSlug, DocRoute> = {
     title: "CLI",
     group: "Usage",
     description: "Direct terminal access to every XcodeBuildMCP tool.",
+  },
+  "storage-management": {
+    slug: "storage-management",
+    title: "Storage Management",
+    group: "Guides",
+    description: "Review and clean XcodeBuildMCP-managed workspace storage.",
   },
   "mcp-mode": {
     slug: "mcp-mode",
@@ -356,6 +364,7 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
       { slug: "migration-v2" },
       { slug: "privacy" },
       { slug: "troubleshooting" },
+      { slug: "storage-management" },
       { slug: "changelog" },
     ],
   },
