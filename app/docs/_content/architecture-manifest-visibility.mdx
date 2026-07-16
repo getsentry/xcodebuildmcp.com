@@ -83,6 +83,12 @@ Workflow selection is the coarse catalog control. It keeps MCP sessions small an
 
 That order matters for contributors. Put durable product grouping in workflow manifests. Put conditional exposure in predicates. Put public runtime support in the `availability` object.
 
+## Next-step conditions are not visibility predicates
+
+Visibility predicates run before a call and decide whether a tool is exposed. A next-step `condition` runs after a handler completes and decides whether a stable follow-up template is included in that call's result.
+
+Declare the follow-up template and its condition key in the tool manifest, then activate the key through `ctx.nextStepConditionKeys` when the result supports it. Use visibility predicates only for catalog exposure. Use next-step conditions only for post-execution follow-up selection.
+
 ## Workflow `targetPlatforms` is setup guidance, not exposure
 
 Workflow manifests carry a `targetPlatforms` field listing the Apple platforms (`iOS`, `macOS`, `tvOS`, `watchOS`, `visionOS`) the workflow is recommended for. The setup wizard reads this to ask the user which platforms they target and to highlight matching workflows. The conservative default selection stays narrow: `simulator` for any simulator platform, `macos` when macOS is selected. Everything else is recommended-but-opt-in, and the user can still pick any workflow regardless of platform.
@@ -105,6 +111,7 @@ When adding or changing a tool, update the manifest first enough to make the int
 - Add the tool manifest once, even if multiple workflows reference it.
 - Use workflow membership for discoverability and catalog size.
 - Use predicates for conditional visibility.
+- Use next-step conditions for finite post-execution follow-up branches.
 - Use `availability` only for MCP and CLI exposure.
 - Use routing metadata for stateful CLI transport.
 - Keep manifest output schema metadata aligned with `ctx.structuredOutput`.
