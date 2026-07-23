@@ -16,7 +16,7 @@ If you are new to the architecture, this page leans on a few terms that are defi
 | Layer | Location | What must stay true |
 |-------|----------|---------------------|
 | Implementation | `src/mcp/tools/<workflow>/<tool>.ts` | Exports `schema` and `handler`, validates input with Zod, executes the work, and sets `ctx.structuredOutput`. |
-| Tool manifest | `manifests/tools/<tool>.yaml` | Defines tool ID, module path, MCP and CLI names, description, annotations, availability, predicates, routing, and output schema metadata. |
+| Tool manifest | `manifests/tools/<tool>.yaml` | Defines tool ID, module path, MCP and CLI names, description, annotations, availability, predicates, routing, next-step templates, and output schema metadata. |
 | Workflow manifest | `manifests/workflows/<workflow>.yaml` | References the tool ID so the tool appears in one or more workflows. |
 | Output schema | `schemas/structured-output/<schema>/<version>.schema.json` | Validates the structured JSON response returned through MCP `structuredContent` and CLI JSON output. |
 | Fixtures | `src/snapshot-tests/__fixtures__/{mcp,cli,json}/...` | Lock the MCP text, CLI text, and JSON response contracts. |
@@ -144,6 +144,34 @@ outputSchema:
 | `availability` | No | Controls MCP and CLI exposure. Defaults to available. |
 | `predicates` | No | Visibility gates such as `debugEnabled` or `hideWhenXcodeAgentMode`. |
 | `routing.stateful` | No | Set to `true` for CLI tools that must route through the daemon. |
+| `nextSteps` | No | Stable follow-up templates. Use `when` for lifecycle status, optional `condition` for a handler-activated branch, and `ctx.nextStepParams` for runtime values. |
+
+#### Conditional next steps
+
+Keep finite, stable follow-up branches in the manifest. A template can require both a lifecycle status and a condition key:
+
+```yaml
+nextSteps:
+  - label: Inspect a listed widget
+    toolId: inspect_widget
+    when: success
+    condition: widgets_available
+```
+
+Activate the condition only when the handler's result supports that follow-up. Supply any values discovered at runtime separately:
+
+```ts
+if (result.widgets.length > 0) {
+  ctx.nextStepConditionKeys = ['widgets_available'];
+  ctx.nextStepParams = {
+    inspect_widget: { name: result.widgets[0].name },
+  };
+}
+```
+
+The runtime includes the template only when `when` matches the call status and `condition` appears in `ctx.nextStepConditionKeys`. Condition keys must use lowercase `snake_case`, are internal to next-step selection, and are not returned to the caller. A template with no `condition` only uses its `when` rule.
+
+Use this pattern when the set of possible follow-ups is known while authoring the tool. Use `ctx.nextSteps` only when live result data determines the number, target tool, label, ordering, or parameter structure of the suggestions. For example, follow-ups derived from a live UI hierarchy remain dynamic because they may contain different actions and ephemeral element references on every call.
 
 ### 5. Register the tool in a workflow
 
@@ -374,6 +402,8 @@ Do not delete a shared schema just because one tool stopped using it. Schemas ar
 - Using `createStreamingExecutionContext(...)` in a non-streaming tool.
 - Relying on streamed fragments for final JSON data.
 - Changing JSON payload shape without updating schemas and JSON fixtures.
+- Creating handler-owned next steps for a finite branch that a manifest `condition` can represent.
+- Declaring a conditional template without activating the exact same key in the handler.
 - Updating snapshots before understanding why they changed.
 - Preserving legacy fallback behavior instead of making the requested path canonical.
 

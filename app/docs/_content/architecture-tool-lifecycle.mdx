@@ -46,6 +46,7 @@ Document the context as the author-facing contract, not as every internal flag c
 interface ToolHandlerContext {
   emit: (fragment: AnyFragment) => void
   attach: (image: ImageAttachment) => void
+  nextStepConditionKeys?: string[]
   nextStepParams?: NextStepParamsMap
   nextSteps?: NextStep[]
   structuredOutput?: StructuredToolOutput
@@ -56,8 +57,9 @@ interface ToolHandlerContext {
 |-------|-----|
 | `emit` | Send live domain fragments for streaming tools. |
 | `attach` | Add image attachments that the runtime can return. |
+| `nextStepConditionKeys` | Activate stable manifest next-step branches based on the result. |
 | `nextStepParams` | Provide runtime values for manifest next-step templates. |
-| `nextSteps` | Provide explicit dynamic follow-ups when templates cannot express the result. |
+| `nextSteps` | Provide explicit follow-ups when live result data determines their shape. |
 | `structuredOutput` | Set the final canonical result, schema ID, and schema version. |
 
 ## Fragments versus structured output
@@ -82,15 +84,18 @@ Choose the simpler non-streaming shape unless the user benefits from live progre
 
 ## Next-step resolution
 
-Follow-up instructions normally come from manifest templates. That keeps common suggestions consistent across MCP text, CLI text, and generated references.
+Follow-up instructions normally come from manifest templates. That keeps common suggestions consistent across MCP text, CLI text, and generated references. A template can use `when` to select a lifecycle status (`always`, `success`, or `failure`) and an optional `condition` to select a result-specific branch. When both are present, both must match.
 
-Handlers should prefer `ctx.nextStepParams` when the follow-up is template-shaped but needs runtime values. Use explicit `ctx.nextSteps` only for dynamic cases that cannot be represented by a manifest template.
+The handler activates result-specific branches through `ctx.nextStepConditionKeys` and provides discovered values through `ctx.nextStepParams`. The runtime evaluates templates after the handler completes, merges parameters into the selected templates, then normalizes and renders the result. Condition keys are selection metadata only and are never included in the returned next steps.
 
 | Source | Use it when | Example |
 |--------|-------------|---------|
 | Manifest next-step template | The suggestion is stable for the tool. | After listing simulators, suggest a build command using the selected simulator. |
+| `ctx.nextStepConditionKeys` | One of a finite set of stable templates depends on the result. | Suggest running tests only when the build produced prepared test artifacts. |
 | `ctx.nextStepParams` | The template needs values discovered at runtime. | Fill simulator ID, app path, bundle ID, or log path. |
-| `ctx.nextSteps` | The suggestion depends on a dynamic branch the manifest cannot model. | Suggest a different recovery command for a specific failure mode. |
+| `ctx.nextSteps` | Live result data determines the count, target tools, labels, ordering, or parameter structure. | Suggest actions generated from the current UI hierarchy and its ephemeral element references. |
+
+Missing or inactive condition keys do not select a conditional template. This fail-closed behavior prevents a follow-up from appearing unless the handler explicitly confirms that it is valid.
 
 ## Rendering handoff
 
