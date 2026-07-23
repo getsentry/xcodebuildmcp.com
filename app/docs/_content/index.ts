@@ -5,6 +5,7 @@ import InstallationPage from "./installation.mdx"
 import SetupPage from "./setup.mdx"
 import ClientsPage from "./clients.mdx"
 import CLIPage from "./cli.mdx"
+import StorageManagementPage from "./storage-management.mdx"
 import MCPModePage from "./mcp-mode.mdx"
 import WorkflowsPage from "./workflows.mdx"
 import ToolsPage from "./tools.mdx"
@@ -42,6 +43,7 @@ export const PAGE_COMPONENTS: Record<DocSlug, ComponentType> = {
   setup: SetupPage,
   clients: ClientsPage,
   cli: CLIPage,
+  "storage-management": StorageManagementPage,
   "mcp-mode": MCPModePage,
   workflows: WorkflowsPage,
   tools: ToolsPage,
